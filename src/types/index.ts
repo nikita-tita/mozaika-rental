@@ -1,46 +1,263 @@
-import { User, Property, Booking, Contract, Review, PropertyImage, Payment } from '@prisma/client'
+// ===== ОСНОВНЫЕ ТИПЫ =====
 
-// Расширенные типы для API ответов
-export type PropertyWithImages = Property & {
+export interface User {
+  id: string
+  email: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  role: 'REALTOR' | 'ADMIN'
+  avatar?: string
+  verified: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface PropertyImage {
+  id: string
+  url: string
+  alt?: string
+  isMain: boolean
+}
+
+export interface Property {
+  id: string
+  title: string
+  description?: string
+  type: 'APARTMENT' | 'HOUSE' | 'STUDIO' | 'COMMERCIAL' | 'ROOM'
+  status: 'AVAILABLE' | 'RENTED' | 'MAINTENANCE' | 'DRAFT'
+  address: string
+  city: string
+  district?: string
+  latitude?: number
+  longitude?: number
+  area: number
+  rooms?: number
+  bedrooms?: number
+  bathrooms?: number
+  floor?: number
+  totalFloors?: number
+  pricePerMonth: number
+  deposit?: number
+  utilities: boolean
+  amenities: string[]
   images: PropertyImage[]
-  owner: Pick<User, 'id' | 'firstName' | 'lastName' | 'email' | 'phone'>
-  _count?: {
-    reviews: number
+  ownerId: string
+  owner?: User
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ===== МОДУЛИ МОЗАЙКИ M2 =====
+
+// 📝 Конструктор договора
+export interface ContractTemplate {
+  id: string
+  name: string
+  description?: string
+  content: string
+  variables: Record<string, any>
+  isDefault: boolean
+  isActive: boolean
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 🔍 Скоринг арендатора
+export interface TenantScoring {
+  id: string
+  fullName: string
+  passport: string
+  birthDate: Date
+  score: number // 0-1000
+  riskLevel: 'low' | 'medium' | 'high'
+  factors: Record<string, any>
+  recommendations?: string
+  nbkiData?: Record<string, any>
+  okbData?: Record<string, any>
+  fsspData?: Record<string, any>
+  realtorId: string
+  contractId?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 📋 Опись имущества
+export interface PropertyInventory {
+  id: string
+  items: InventoryItem[]
+  totalValue: number
+  aiAnalysis?: Record<string, any>
+  photos: string[]
+  propertyId: string
+  contractId?: string
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface InventoryItem {
+  name: string
+  description: string
+  condition: 'excellent' | 'good' | 'fair' | 'poor'
+  estimatedValue: number
+  category: string
+  brand?: string
+  model?: string
+}
+
+// ✍️ Электронная подпись
+export interface DigitalSignature {
+  id: string
+  documentType: string
+  documentId: string
+  documentUrl: string
+  status: 'pending' | 'signed' | 'expired'
+  signedAt?: Date
+  signatureData?: Record<string, any>
+  signers: Signer[]
+  signatures?: Record<string, any>
+  contractId?: string
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Signer {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  role: 'landlord' | 'tenant' | 'realtor'
+  signedAt?: Date
+}
+
+// 📤 Мультилистинг
+export interface Multilisting {
+  id: string
+  propertyId: string
+  platforms: Platform[]
+  listings: Listing[]
+  aiDescription?: string
+  aiTags: string[]
+  optimization?: Record<string, any>
+  views: number
+  contacts: number
+  realtorId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface Platform {
+  name: string
+  status: 'pending' | 'active' | 'rejected' | 'completed'
+  url?: string
+  externalId?: string
+}
+
+export interface Listing {
+  platform: string
+  url: string
+  externalId?: string
+  status: 'active' | 'inactive' | 'deleted'
+}
+
+// 🛡️ Страховка аренды
+export interface RentalInsurance {
+  id: string
+  coverage: number
+  premium: number
+  period: number
+  recommended: boolean
+  reason?: string
+  status: 'pending' | 'active' | 'expired' | 'cancelled'
+  contractId: string
+  scoringId?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 🏦 Безопасный залог (Эскроу)
+export interface EscrowAccount {
+  id: string
+  amount: number
+  currency: string
+  commission: number
+  status: 'pending' | 'active' | 'released' | 'refunded'
+  depositedAt?: Date
+  releasedAt?: Date
+  contractId: string
+  scoringId?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 💰 Оклад риелтора (пассивный доход)
+export interface RealtorSalary {
+  id: string
+  monthlyAmount: number
+  commission: number
+  startDate: Date
+  endDate?: Date
+  status: 'active' | 'paused' | 'terminated'
+  realtorId: string
+  propertyId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 🤝 М2 × Яндекс Аренда
+export interface YandexRentSubmission {
+  id: string
+  commission: number
+  status: 'submitted' | 'approved' | 'rejected' | 'completed'
+  objectData: Record<string, any>
+  enhancedFeatures: Record<string, any>
+  yandexId?: string
+  views: number
+  contacts: number
+  propertyId: string
+  realtorId: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ===== API ТИПЫ =====
+
+export interface ApiResponse<T = any> {
+  success: boolean
+  data?: T
+  error?: string
+  message?: string
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
   }
-  averageRating?: number
 }
 
-export type PropertyWithOwner = Property & {
-  owner: Pick<User, 'id' | 'firstName' | 'lastName' | 'email' | 'phone' | 'avatar'>
-  images: PropertyImage[]
+// ===== ФОРМЫ =====
+
+export interface LoginForm {
+  email: string
+  password: string
 }
 
-export type BookingWithDetails = Booking & {
-  property: PropertyWithImages
-  tenant: Pick<User, 'id' | 'firstName' | 'lastName' | 'email' | 'phone'>
+export interface RegisterForm {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  phone?: string
 }
 
-export type ContractWithDetails = Contract & {
-  property: PropertyWithImages
-  tenant: Pick<User, 'id' | 'firstName' | 'lastName' | 'email' | 'phone'>
-  booking: Booking
-}
-
-export type ReviewWithAuthor = Review & {
-  author: Pick<User, 'id' | 'firstName' | 'lastName' | 'avatar'>
-}
-
-export type UserProfile = Pick<User, 'id' | 'email' | 'firstName' | 'lastName' | 'phone' | 'role' | 'avatar' | 'verified' | 'createdAt'>
-
-export type PaymentWithDetails = Payment & {
-  user: Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>
-  property?: Pick<Property, 'id' | 'title' | 'address' | 'city'>
-  booking?: Pick<Booking, 'id' | 'startDate' | 'endDate'>
-  contract?: Pick<Contract, 'id' | 'status'>
-}
-
-// Типы для форм
-export interface PropertyFormData {
+export interface PropertyForm {
   title: string
   description?: string
   type: Property['type']
@@ -59,53 +276,43 @@ export interface PropertyFormData {
   amenities: string[]
 }
 
-export interface UserRegistrationData {
-  email: string
-  password: string
-  firstName: string
-  lastName: string
-  phone?: string
-  role: User['role']
+// ===== ДАШБОРД ТИПЫ =====
+
+export interface DashboardStats {
+  totalProperties: number
+  activeListings: number
+  monthlyRevenue: number
+  totalDeals: number
+  averageCommission: number
+  passiveIncome: number
 }
 
-export interface BookingFormData {
+export interface RealtorProfile {
+  user: User
+  stats: DashboardStats
+  recentDeals: any[]
+  upcomingTasks: any[]
+}
+
+// ===== БРОНИРОВАНИЯ =====
+
+export interface Booking {
+  id: string
   propertyId: string
+  tenantId: string
+  realtorId: string
   startDate: Date
   endDate: Date
-  message?: string
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+  totalAmount: number
+  deposit: number
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
 }
 
-// API ответы
-export interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  error?: string
-  message?: string
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  meta: {
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-  }
-}
-
-// Фильтры поиска
-export interface PropertySearchFilters {
-  type?: Property['type']
-  city?: string
-  district?: string
-  minPrice?: number
-  maxPrice?: number
-  minArea?: number
-  maxArea?: number
-  rooms?: number
-  amenities?: string[]
-  page?: number
-  limit?: number
-  sortBy?: 'price' | 'area' | 'createdAt'
-  sortOrder?: 'asc' | 'desc'
+export interface BookingWithDetails extends Booking {
+  property: Property
+  tenant: User
+  realtor: User
 }

@@ -286,10 +286,10 @@ function BookingCard({
                   {userRole === 'tenant' ? 'Арендодатель' : 'Арендатор'}
                 </p>
                 <p className="font-medium">
-                  {otherUser.firstName} {otherUser.lastName}
+                  {otherUser?.firstName} {otherUser?.lastName}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {otherUser.email}
+                  {otherUser?.email}
                 </p>
               </div>
 
@@ -299,7 +299,7 @@ function BookingCard({
                   {formatDate(new Date(booking.startDate))} — {formatDate(new Date(booking.endDate))}
                 </p>
                 <p className="text-lg font-bold text-primary-600">
-                  {formatPrice(Number(booking.totalPrice))}
+                  {formatPrice(Number(booking.totalAmount))}
                 </p>
               </div>
             </div>

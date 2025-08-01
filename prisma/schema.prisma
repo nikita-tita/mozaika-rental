@@ -11,8 +11,7 @@ datasource db {
 }
 
 enum UserRole {
-  TENANT      // Арендатор
-  LANDLORD    // Арендодатель
+  REALTOR     // Риелтор
   ADMIN       // Администратор
 }
 
@@ -68,7 +67,7 @@ model User {
   firstName   String?
   lastName    String?
   phone       String?
-  role        UserRole @default(TENANT)
+  role        UserRole @default(REALTOR)
   avatar      String?
   verified    Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -83,6 +82,12 @@ model User {
   payments    Payment[]  @relation("UserPayments")
   notifications Notification[] @relation("UserNotifications")
   notificationSettings NotificationSettings?
+  
+  // Модули мозайки M2
+  tenantScorings TenantScoring[] @relation("RealtorScorings")
+  multilistings Multilisting[] @relation("RealtorMultilistings")
+  salaries RealtorSalary[] @relation("RealtorSalaries")
+  yandexSubmissions YandexRentSubmission[] @relation("RealtorYandexSubmissions")
 
   @@map("users")
 }
@@ -129,6 +134,12 @@ model Property {
   contracts       Contract[]
   reviews         Review[]
   payments        Payment[]      @relation("PropertyPayments")
+  
+  // Модули мозайки M2
+  inventories     PropertyInventory[]
+  multilistings   Multilisting[]
+  salaries        RealtorSalary[]
+  yandexSubmissions YandexRentSubmission[]
   
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -204,6 +215,15 @@ model Contract {
   
   // Связи
   payments      Payment[]
+  
+  // Модули мозайки M2
+  template      ContractTemplate? @relation(fields: [templateId], references: [id])
+  templateId    String?
+  scorings      TenantScoring[]
+  inventory     PropertyInventory?
+  signatures    DigitalSignature[]
+  insurance     RentalInsurance?
+  escrow        EscrowAccount?
   
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -339,4 +359,262 @@ model NotificationSettings {
   updatedAt         DateTime @updatedAt
 
   @@map("notification_settings")
+}
+
+// ===== МОДУЛИ МОЗАЙКИ M2 =====
+
+// 📝 Конструктор договора
+model ContractTemplate {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  content       String   // HTML/JSON шаблон
+  variables     Json     // Переменные для автозаполнения
+  isDefault     Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Связи
+  contracts     Contract[]
+
+  @@map("contract_templates")
+}
+
+// 🔍 Скоринг арендатора
+model TenantScoring {
+  id            String   @id @default(cuid())
+  
+  // Данные арендатора
+  fullName      String
+  passport      String
+  birthDate     DateTime
+  
+  // Результаты скоринга
+  score         Int      // 0-1000
+  riskLevel     String   // low, medium, high
+  factors       Json     // Факторы влияния
+  recommendations String? // Рекомендации
+  
+  // Источники данных
+  nbkiData      Json?    // Данные НБКИ
+  okbData       Json?    // Данные ОКБ
+  fsspData      Json?    // Данные ФССП
+  
+  // Связи
+  realtorId     String
+  realtor       User     @relation("RealtorScorings", fields: [realtorId], references: [id])
+  
+  contractId    String? @unique
+  contract      Contract? @relation(fields: [contractId], references: [id])
+  
+  // Обратные связи
+  insurances    RentalInsurance[]
+  escrows       EscrowAccount[] @relation("ScoringEscrows")
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("tenant_scorings")
+}
+
+// 📋 Опись имущества
+model PropertyInventory {
+  id            String   @id @default(cuid())
+  
+  // Автоматически сгенерированная опись
+  items         Json     // Список предметов с описаниями
+  totalValue    Decimal  // Общая стоимость
+  aiAnalysis    Json?    // Результаты ИИ-анализа
+  
+  // Фотографии для анализа
+  photos        String[] // URLs фотографий
+  
+  // Связи
+  propertyId    String
+  property      Property @relation(fields: [propertyId], references: [id])
+  
+  contractId    String? @unique
+  contract      Contract? @relation(fields: [contractId], references: [id])
+  
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("property_inventories")
+}
+
+// ✍️ Электронная подпись
+model DigitalSignature {
+  id            String   @id @default(cuid())
+  
+  // Документ для подписания
+  documentType  String   // contract, inventory, etc.
+  documentId    String   // ID связанного документа
+  documentUrl   String   // URL документа
+  
+  // Процесс подписания
+  status        String   // pending, signed, expired
+  signedAt      DateTime?
+  signatureData Json?    // Данные подписи
+  
+  // Участники
+  signers       Json     // Список подписантов
+  signatures    Json?    // Подписи участников
+  
+  // Связи
+  contractId    String? @unique
+  contract      Contract? @relation(fields: [contractId], references: [id])
+  
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("digital_signatures")
+}
+
+// 📤 Мультилистинг
+model Multilisting {
+  id            String   @id @default(cuid())
+  
+  // Объект для размещения
+  propertyId    String
+  property      Property @relation(fields: [propertyId], references: [id])
+  
+  // Площадки размещения
+  platforms     Json     // Список площадок и их статусов
+  listings      Json     // URLs объявлений
+  
+  // ИИ-оптимизация
+  aiDescription String?  // Сгенерированное описание
+  aiTags        String[] // Сгенерированные теги
+  optimization  Json?    // Результаты оптимизации
+  
+  // Статистика
+  views         Int      @default(0)
+  contacts      Int      @default(0)
+  
+  // Связи
+  realtorId     String
+  realtor       User     @relation("RealtorMultilistings", fields: [realtorId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("multilistings")
+}
+
+// 🛡️ Страховка аренды
+model RentalInsurance {
+  id            String   @id @default(cuid())
+  
+  // Параметры страхования
+  coverage      Decimal  // Сумма покрытия
+  premium       Decimal  // Стоимость страховки
+  period        Int      // Период страхования (месяцы)
+  
+  // Рекомендации
+  recommended   Boolean  @default(false)
+  reason        String?  // Причина рекомендации
+  
+  // Статус
+  status        String   // pending, active, expired, cancelled
+  
+  // Связи
+  contractId    String @unique
+  contract      Contract @relation(fields: [contractId], references: [id])
+  
+  scoringId     String?
+  scoring       TenantScoring? @relation(fields: [scoringId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("rental_insurances")
+}
+
+// 🏦 Безопасный залог (Эскроу)
+model EscrowAccount {
+  id            String   @id @default(cuid())
+  
+  // Параметры эскроу
+  amount        Decimal  // Сумма депозита
+  currency      String   @default("RUB")
+  commission    Decimal  // Комиссия платформы
+  
+  // Статус
+  status        String   // pending, active, released, refunded
+  
+  // Даты
+  depositedAt   DateTime?
+  releasedAt    DateTime?
+  
+  // Связи
+  contractId    String @unique
+  contract      Contract @relation(fields: [contractId], references: [id])
+  
+  scoringId     String?
+  scoring       TenantScoring? @relation("ScoringEscrows", fields: [scoringId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("escrow_accounts")
+}
+
+// 💰 Оклад риелтора (пассивный доход)
+model RealtorSalary {
+  id            String   @id @default(cuid())
+  
+  // Параметры оклада
+  monthlyAmount Decimal  // Ежемесячная сумма
+  commission    Decimal  // Процент от аренды
+  startDate     DateTime
+  endDate       DateTime?
+  
+  // Статус
+  status        String   // active, paused, terminated
+  
+  // Связи
+  realtorId     String
+  realtor       User     @relation("RealtorSalaries", fields: [realtorId], references: [id])
+  
+  propertyId    String
+  property      Property @relation(fields: [propertyId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("realtor_salaries")
+}
+
+// 🤝 М2 × Яндекс Аренда
+model YandexRentSubmission {
+  id            String   @id @default(cuid())
+  
+  // Параметры заявки
+  commission    Decimal  // Комиссия (60% vs стандартных 50%)
+  status        String   // submitted, approved, rejected, completed
+  
+  // Данные объекта
+  objectData    Json     // Данные для Яндекса
+  enhancedFeatures Json  // Дополнительные возможности
+  
+  // Результаты
+  yandexId      String?  // ID в системе Яндекса
+  views         Int      @default(0)
+  contacts      Int      @default(0)
+  
+  // Связи
+  propertyId    String
+  property      Property @relation(fields: [propertyId], references: [id])
+  
+  realtorId     String
+  realtor       User     @relation("RealtorYandexSubmissions", fields: [realtorId], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("yandex_rent_submissions")
 }
