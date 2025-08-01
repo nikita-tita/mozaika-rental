@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
-import { ArrowLeft, Upload } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { ArrowLeft } from 'lucide-react'
 
 const propertyTypeOptions = [
   { value: 'APARTMENT', label: 'Квартира' },
@@ -55,6 +56,7 @@ export default function NewPropertyPage() {
     utilities: false,
     amenities: [] as string[]
   })
+  const [images, setImages] = useState<string[]>([])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,6 +64,7 @@ export default function NewPropertyPage() {
     setErrors({})
 
     try {
+      // Создаем недвижимость
       const response = await fetch('/api/properties', {
         method: 'POST',
         headers: {
@@ -73,7 +76,20 @@ export default function NewPropertyPage() {
       const data = await response.json()
 
       if (data.success) {
-        router.push(`/properties/${data.data.id}?created=true`)
+        const propertyId = data.data.id
+
+        // Если есть изображения, сохраняем их в базе данных
+        if (images.length > 0) {
+          await fetch(`/api/properties/${propertyId}/images`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ images })
+          })
+        }
+
+        router.push(`/properties/${propertyId}?created=true`)
       } else {
         setErrors({ general: data.error })
       }
@@ -364,20 +380,12 @@ export default function NewPropertyPage() {
                 Фотографии
               </h3>
               
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="mt-2">
-                  <p className="text-sm text-gray-600">
-                    Перетащите фотографии сюда или
-                  </p>
-                  <Button type="button" variant="outline" className="mt-2">
-                    Выберите файлы
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  PNG, JPG до 10MB
-                </p>
-              </div>
+              <ImageUpload
+                images={images}
+                onImagesChange={setImages}
+                maxImages={10}
+                maxSize={10}
+              />
             </div>
 
             {/* Кнопки */}
