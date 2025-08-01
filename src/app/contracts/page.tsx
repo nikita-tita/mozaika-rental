@@ -126,7 +126,7 @@ export default function ContractsPage() {
   }
 
   const canTerminate = (contract: ContractWithDetails, userRole: string) => {
-    return contract.status === 'ACTIVE'
+    return contract.status === 'SIGNED'
   }
 
   return (
@@ -307,10 +307,10 @@ function ContractCard({
                   {userRole === 'tenant' ? 'Арендодатель' : 'Арендатор'}
                 </p>
                 <p className="font-medium">
-                  {otherUser.firstName} {otherUser.lastName}
+                  {otherUser?.firstName} {otherUser?.lastName}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {otherUser.email}
+                  {otherUser?.email}
                 </p>
               </div>
 
@@ -355,7 +355,7 @@ function ContractCard({
               {canSign && (
                 <Button
                   size="sm"
-                  onClick={() => onStatusChange(contract.id, 'ACTIVE')}
+                  onClick={() => onStatusChange(contract.id, 'SIGNED')}
                 >
                   Подписать
                 </Button>
@@ -365,7 +365,7 @@ function ContractCard({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onStatusChange(contract.id, 'TERMINATED')}
+                  onClick={() => onStatusChange(contract.id, 'CANCELLED')}
                 >
                   Расторгнуть
                 </Button>

@@ -48,6 +48,25 @@ export interface Property {
   updatedAt: Date
 }
 
+export interface PropertyWithImages extends Property {
+  images: PropertyImage[]
+  reviews?: ReviewWithAuthor[]
+}
+
+export interface Review {
+  id: string
+  propertyId: string
+  authorId: string
+  rating: number
+  comment: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ReviewWithAuthor extends Review {
+  author: User
+}
+
 // ===== МОДУЛИ МОЗАЙКИ M2 =====
 
 // 📝 Конструктор договора
@@ -62,6 +81,32 @@ export interface ContractTemplate {
   createdBy: string
   createdAt: Date
   updatedAt: Date
+}
+
+export interface Contract {
+  id: string
+  title: string
+  content: string
+  status: 'DRAFT' | 'PENDING' | 'SIGNED' | 'COMPLETED' | 'CANCELLED'
+  landlordId: string
+  tenantId: string
+  propertyId: string
+  realtorId: string
+  startDate: Date
+  endDate: Date
+  monthlyRent: number
+  deposit: number
+  commission: number
+  signedAt?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ContractWithDetails extends Contract {
+  landlord: User
+  tenant: User
+  property: Property
+  realtor: User
 }
 
 // 🔍 Скоринг арендатора
@@ -307,6 +352,7 @@ export interface Booking {
   totalAmount: number
   deposit: number
   notes?: string
+  message?: string
   createdAt: Date
   updatedAt: Date
 }

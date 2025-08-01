@@ -28,7 +28,7 @@ export default function ContractDetailPage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [editData, setEditData] = useState({
-    terms: '',
+    content: '',
     monthlyRent: '',
     deposit: ''
   })
@@ -47,7 +47,7 @@ export default function ContractDetailPage() {
       if (data.success) {
         setContract(data.data)
         setEditData({
-          terms: data.data.terms || '',
+          content: data.data.content || '',
           monthlyRent: data.data.monthlyRent?.toString() || '',
           deposit: data.data.deposit?.toString() || ''
         })
@@ -66,8 +66,8 @@ export default function ContractDetailPage() {
 
   const handleStatusChange = async (newStatus: string) => {
     const confirmMessages = {
-      ACTIVE: 'Вы уверены, что хотите подписать договор? Это действие нельзя отменить.',
-      TERMINATED: 'Вы уверены, что хотите расторгнуть договор?'
+      SIGNED: 'Вы уверены, что хотите подписать договор? Это действие нельзя отменить.',
+      CANCELLED: 'Вы уверены, что хотите расторгнуть договор?'
     }
 
     const message = confirmMessages[newStatus as keyof typeof confirmMessages]
@@ -88,7 +88,7 @@ export default function ContractDetailPage() {
 
       if (data.success) {
         setContract(data.data)
-        if (newStatus === 'ACTIVE') {
+        if (newStatus === 'SIGNED') {
           alert('Договор успешно подписан!')
         }
       } else {
@@ -108,7 +108,7 @@ export default function ContractDetailPage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          terms: editData.terms,
+          content: editData.content,
           monthlyRent: editData.monthlyRent,
           deposit: editData.deposit
         })
@@ -162,7 +162,7 @@ export default function ContractDetailPage() {
   const isLandlord = contract.property.ownerId === contract.tenant.id // Нужно получить текущего пользователя
   const canEdit = contract.status === 'DRAFT' && isLandlord
   const canSign = contract.status === 'DRAFT'
-  const canTerminate = contract.status === 'ACTIVE'
+  const canTerminate = contract.status === 'SIGNED'
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -192,14 +192,14 @@ export default function ContractDetailPage() {
               )}
 
               {canSign && (
-                <Button onClick={() => handleStatusChange('ACTIVE')}>
+                <Button onClick={() => handleStatusChange('SIGNED')}>
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Подписать договор
                 </Button>
               )}
 
               {canTerminate && (
-                <Button variant="outline" onClick={() => handleStatusChange('TERMINATED')}>
+                <Button variant="outline" onClick={() => handleStatusChange('CANCELLED')}>
                   Расторгнуть договор
                 </Button>
               )}
@@ -228,14 +228,15 @@ export default function ContractDetailPage() {
               <div className="text-right">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                   contract.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-800' :
-                  contract.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                  contract.status === 'EXPIRED' ? 'bg-orange-100 text-orange-800' :
-                  'bg-red-100 text-red-800'
+                  contract.status === 'SIGNED' ? 'bg-green-100 text-green-800' :
+                  contract.status === 'COMPLETED' ? 'bg-blue-100 text-blue-800' :
+                  contract.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
                 }`}>
                   {contract.status === 'DRAFT' && 'Черновик'}
-                  {contract.status === 'ACTIVE' && 'Активен'}
-                  {contract.status === 'EXPIRED' && 'Истек'}
-                  {contract.status === 'TERMINATED' && 'Расторгнут'}
+                  {contract.status === 'SIGNED' && 'Подписан'}
+                  {contract.status === 'COMPLETED' && 'Завершен'}
+                  {contract.status === 'CANCELLED' && 'Отменен'}
                 </div>
                 {contract.signedAt && (
                   <p className="text-sm text-gray-600 mt-1">
@@ -268,10 +269,10 @@ export default function ContractDetailPage() {
                   <h3 className="font-medium text-gray-900">Арендодатель</h3>
                 </div>
                 <p className="text-sm font-medium">
-                  {contract.property.owner.firstName} {contract.property.owner.lastName}
+                  {contract.property.owner?.firstName} {contract.property.owner?.lastName}
                 </p>
-                <p className="text-sm text-gray-600">{contract.property.owner.email}</p>
-                {contract.property.owner.phone && (
+                <p className="text-sm text-gray-600">{contract.property.owner?.email}</p>
+                {contract.property.owner?.phone && (
                   <p className="text-sm text-gray-600">{contract.property.owner.phone}</p>
                 )}
               </div>
@@ -365,15 +366,15 @@ export default function ContractDetailPage() {
 
             {editing ? (
               <textarea
-                value={editData.terms}
-                onChange={(e) => setEditData(prev => ({ ...prev, terms: e.target.value }))}
+                value={editData.content}
+                onChange={(e) => setEditData(prev => ({ ...prev, content: e.target.value }))}
                 rows={20}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none font-mono"
               />
             ) : (
               <div className="prose max-w-none">
                 <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                  {contract.terms}
+                  {contract.content}
                 </pre>
               </div>
             )}
@@ -381,7 +382,7 @@ export default function ContractDetailPage() {
         </div>
 
         {/* Signature Section */}
-        {contract.status === 'ACTIVE' && contract.signedAt && (
+        {contract.status === 'SIGNED' && contract.signedAt && (
           <div className="bg-green-50 rounded-lg p-6 mt-6 print:shadow-none">
             <div className="flex items-center">
               <CheckCircle className="h-6 w-6 text-green-500 mr-3" />

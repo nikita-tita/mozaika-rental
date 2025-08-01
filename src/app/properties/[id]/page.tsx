@@ -249,11 +249,11 @@ export default function PropertyDetailsPage() {
               <h3 className="text-lg font-semibold mb-4">Арендодатель</h3>
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
-                  {property.owner.firstName?.charAt(0) || 'U'}{property.owner.lastName?.charAt(0) || 'S'}
+                  {property.owner?.firstName?.charAt(0) || 'U'}{property.owner?.lastName?.charAt(0) || 'S'}
                 </div>
                 <div>
                   <p className="font-medium">
-                    {property.owner.firstName} {property.owner.lastName}
+                    {property.owner?.firstName} {property.owner?.lastName}
                   </p>
                   <p className="text-sm text-gray-600">
                     На платформе с {formatDate(new Date())}
