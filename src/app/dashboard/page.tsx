@@ -205,6 +205,13 @@ export default function DashboardPage() {
                 </Button>
               </Link>
               
+              <Link href="/contracts">
+                <Button className="w-full justify-start" variant="outline">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Договоры аренды
+                </Button>
+              </Link>
+              
               <Link href="/profile">
                 <Button className="w-full justify-start" variant="outline">
                   <Settings className="h-4 w-4 mr-2" />
