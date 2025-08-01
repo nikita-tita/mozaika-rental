@@ -1,0 +1,210 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  TENANT      // Арендатор
+  LANDLORD    // Арендодатель
+  ADMIN       // Администратор
+}
+
+enum PropertyType {
+  APARTMENT   // Квартира
+  HOUSE       // Дом
+  STUDIO      // Студия
+  COMMERCIAL  // Коммерческая недвижимость
+  ROOM        // Комната
+}
+
+enum PropertyStatus {
+  AVAILABLE   // Доступна
+  RENTED      // Арендована
+  MAINTENANCE // На обслуживании
+  DRAFT       // Черновик
+}
+
+enum BookingStatus {
+  PENDING     // Ожидает подтверждения
+  CONFIRMED   // Подтверждено
+  CANCELLED   // Отменено
+  COMPLETED   // Завершено
+}
+
+enum ContractStatus {
+  DRAFT       // Черновик
+  ACTIVE      // Активен
+  EXPIRED     // Истек
+  TERMINATED  // Расторгнут
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  firstName   String?
+  lastName    String?
+  phone       String?
+  role        UserRole @default(TENANT)
+  avatar      String?
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Связи
+  properties  Property[] @relation("PropertyOwner")
+  bookings    Booking[]
+  contracts   Contract[]
+  reviews     Review[]   @relation("ReviewAuthor")
+  receivedReviews Review[] @relation("ReviewTarget")
+
+  @@map("users")
+}
+
+model Property {
+  id              String         @id @default(cuid())
+  title           String
+  description     String?
+  type            PropertyType
+  status          PropertyStatus @default(DRAFT)
+  
+  // Адрес
+  address         String
+  city            String
+  district        String?
+  latitude        Float?
+  longitude       Float?
+  
+  // Характеристики
+  area            Float          // Площадь в м²
+  rooms           Int?           // Количество комнат
+  bedrooms        Int?           // Количество спален
+  bathrooms       Int?           // Количество ванных
+  floor           Int?           // Этаж
+  totalFloors     Int?           // Всего этажей в здании
+  
+  // Цена
+  pricePerMonth   Decimal        // Цена за месяц
+  deposit         Decimal?       // Залог
+  utilities       Boolean        @default(false) // Коммунальные услуги включены
+  
+  // Удобства
+  amenities       String[]       // Список удобств
+  
+  // Медиа
+  images          PropertyImage[]
+  
+  // Владелец
+  ownerId         String
+  owner           User           @relation("PropertyOwner", fields: [ownerId], references: [id])
+  
+  // Связи
+  bookings        Booking[]
+  contracts       Contract[]
+  reviews         Review[]
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("properties")
+}
+
+model PropertyImage {
+  id          String   @id @default(cuid())
+  url         String
+  alt         String?
+  order       Int      @default(0)
+  
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+
+  @@map("property_images")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  status      BookingStatus @default(PENDING)
+  
+  startDate   DateTime
+  endDate     DateTime
+  totalPrice  Decimal
+  message     String?       // Сообщение от арендатора
+  
+  // Участники
+  tenantId    String
+  tenant      User          @relation(fields: [tenantId], references: [id])
+  
+  propertyId  String
+  property    Property      @relation(fields: [propertyId], references: [id])
+  
+  // Связи
+  contract    Contract?
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("bookings")
+}
+
+model Contract {
+  id            String         @id @default(cuid())
+  status        ContractStatus @default(DRAFT)
+  
+  // Даты
+  startDate     DateTime
+  endDate       DateTime
+  signedAt      DateTime?
+  
+  // Финансы
+  monthlyRent   Decimal
+  deposit       Decimal
+  
+  // Условия
+  terms         String?        // Дополнительные условия
+  
+  // Участники
+  tenantId      String
+  tenant        User           @relation(fields: [tenantId], references: [id])
+  
+  propertyId    String
+  property      Property       @relation(fields: [propertyId], references: [id])
+  
+  bookingId     String         @unique
+  booking       Booking        @relation(fields: [bookingId], references: [id])
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("contracts")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      // 1-5 звезд
+  comment     String?
+  
+  // Автор отзыва
+  authorId    String
+  author      User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  
+  // Цель отзыва (может быть пользователь или недвижимость)
+  targetUserId    String?
+  targetUser      User?     @relation("ReviewTarget", fields: [targetUserId], references: [id])
+  
+  propertyId      String?
+  property        Property? @relation(fields: [propertyId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("reviews")
+}
