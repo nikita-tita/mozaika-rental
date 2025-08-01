@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Plus, Home, Calendar, FileText, Settings, LogOut, CreditCard } from 'lucide-react'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 interface User {
   id: string

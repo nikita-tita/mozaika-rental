@@ -81,6 +81,8 @@ model User {
   reviews     Review[]   @relation("ReviewAuthor")
   receivedReviews Review[] @relation("ReviewTarget")
   payments    Payment[]  @relation("UserPayments")
+  notifications Notification[] @relation("UserNotifications")
+  notificationSettings NotificationSettings?
 
   @@map("users")
 }
@@ -272,4 +274,69 @@ model Payment {
   updatedAt     DateTime      @updatedAt
 
   @@map("payments")
+}
+
+model Notification {
+  id            String    @id @default(cuid())
+  
+  // Тип и содержимое
+  type          String    // NotificationType
+  title         String
+  message       String
+  data          Json?     // Дополнительные данные
+  
+  // Получатель
+  userId        String
+  user          User      @relation("UserNotifications", fields: [userId], references: [id])
+  
+  // Статус
+  read          Boolean   @default(false)
+  readAt        DateTime?
+  
+  // Каналы доставки
+  channels      String[]  // ['email', 'push', 'sms']
+  sentChannels  String[]  @default([]) // Успешно отправленные каналы
+  
+  // Приоритет и расписание
+  priority      String    @default("normal") // low, normal, high, urgent
+  scheduledAt   DateTime? // Когда отправить (для отложенных уведомлений)
+  expiresAt     DateTime? // Когда истекает актуальность
+  
+  // Связанные объекты
+  propertyId    String?
+  bookingId     String?
+  contractId    String?
+  paymentId     String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("notifications")
+  @@index([userId, read])
+  @@index([scheduledAt])
+}
+
+model NotificationSettings {
+  id                String  @id @default(cuid())
+  
+  userId            String  @unique
+  user              User    @relation(fields: [userId], references: [id])
+  
+  // Глобальные настройки
+  emailEnabled      Boolean @default(true)
+  pushEnabled       Boolean @default(true)
+  smsEnabled        Boolean @default(false)
+  
+  // Настройки по типам уведомлений
+  settings          Json    @default("{}")
+  
+  // Время тишины (не отправлять уведомления)
+  quietHoursStart   String? // "22:00"
+  quietHoursEnd     String? // "08:00"
+  timezone          String  @default("Europe/Moscow")
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("notification_settings")
 }

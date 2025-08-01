@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
+import { NotificationService } from '@/lib/notifications/service'
+import { NotificationType, NotificationChannel, NotificationPriority } from '@/lib/notifications/types'
 
 // GET /api/bookings - Получить бронирования пользователя
 export async function GET(request: NextRequest) {
@@ -250,6 +252,30 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    // Отправляем уведомление арендодателю о новом бронировании
+    try {
+      await NotificationService.createNotification({
+        type: NotificationType.BOOKING_CREATED,
+        channel: [NotificationChannel.EMAIL, NotificationChannel.IN_APP],
+        priority: NotificationPriority.HIGH,
+        recipientId: property.ownerId,
+        title: 'Новое бронирование',
+        message: `${booking.tenant.firstName} ${booking.tenant.lastName} забронировал вашу недвижимость "${property.title}"`,
+        data: {
+          bookingId: booking.id,
+          propertyId: property.id,
+          tenantName: `${booking.tenant.firstName} ${booking.tenant.lastName}`,
+          propertyTitle: property.title,
+          startDate: booking.startDate,
+          endDate: booking.endDate,
+          totalPrice: booking.totalPrice
+        }
+      })
+    } catch (notificationError) {
+      console.error('Failed to send notification:', notificationError)
+      // Не блокируем создание бронирования из-за ошибки уведомления
+    }
 
     return NextResponse.json({
       success: true,

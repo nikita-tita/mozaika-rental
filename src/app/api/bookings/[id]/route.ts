@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
+import { NotificationService } from '@/lib/notifications/service'
+import { NotificationType, NotificationChannel, NotificationPriority } from '@/lib/notifications/types'
 
 interface RouteContext {
   params: { id: string }
@@ -215,6 +217,49 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
           status: 'DRAFT'
         }
       })
+
+      // Отправляем уведомление арендатору о подтверждении
+      try {
+        await NotificationService.createNotification({
+          type: NotificationType.BOOKING_CONFIRMED,
+          channel: [NotificationChannel.EMAIL, NotificationChannel.IN_APP],
+          priority: NotificationPriority.HIGH,
+          recipientId: booking.tenantId,
+          title: 'Бронирование подтверждено',
+          message: `Ваше бронирование недвижимости "${booking.property.title}" подтверждено. Скоро будет создан договор аренды.`,
+          data: {
+            bookingId: booking.id,
+            propertyId: booking.propertyId,
+            propertyTitle: booking.property.title
+          }
+        })
+      } catch (notificationError) {
+        console.error('Failed to send confirmation notification:', notificationError)
+      }
+    }
+
+    // Отправляем уведомление при отмене
+    if (status === 'CANCELLED') {
+      const recipientId = isLandlord ? booking.tenantId : booking.property.ownerId
+      const recipientType = isLandlord ? 'арендатор' : 'арендодатель'
+      
+      try {
+        await NotificationService.createNotification({
+          type: NotificationType.BOOKING_CANCELLED,
+          channel: [NotificationChannel.EMAIL, NotificationChannel.IN_APP],
+          priority: NotificationPriority.NORMAL,
+          recipientId,
+          title: 'Бронирование отменено',
+          message: `${recipientType === 'арендатор' ? 'Арендодатель отменил' : 'Арендатор отменил'} бронирование недвижимости "${booking.property.title}"`,
+          data: {
+            bookingId: booking.id,
+            propertyId: booking.propertyId,
+            propertyTitle: booking.property.title
+          }
+        })
+      } catch (notificationError) {
+        console.error('Failed to send cancellation notification:', notificationError)
+      }
     }
 
     return NextResponse.json({
