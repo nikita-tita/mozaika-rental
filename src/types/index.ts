@@ -1,4 +1,4 @@
-import { User, Property, Booking, Contract, Review, PropertyImage } from '@prisma/client'
+import { User, Property, Booking, Contract, Review, PropertyImage, Payment } from '@prisma/client'
 
 // Расширенные типы для API ответов
 export type PropertyWithImages = Property & {
@@ -31,6 +31,13 @@ export type ReviewWithAuthor = Review & {
 }
 
 export type UserProfile = Pick<User, 'id' | 'email' | 'firstName' | 'lastName' | 'phone' | 'role' | 'avatar' | 'verified' | 'createdAt'>
+
+export type PaymentWithDetails = Payment & {
+  user: Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>
+  property?: Pick<Property, 'id' | 'title' | 'address' | 'city'>
+  booking?: Pick<Booking, 'id' | 'startDate' | 'endDate'>
+  contract?: Pick<Contract, 'id' | 'status'>
+}
 
 // Типы для форм
 export interface PropertyFormData {

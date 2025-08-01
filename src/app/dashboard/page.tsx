@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
-import { Plus, Home, Calendar, FileText, Settings, LogOut } from 'lucide-react'
+import { Plus, Home, Calendar, FileText, Settings, LogOut, CreditCard } from 'lucide-react'
 
 interface User {
   id: string
@@ -209,6 +209,13 @@ export default function DashboardPage() {
                 <Button className="w-full justify-start" variant="outline">
                   <FileText className="h-4 w-4 mr-2" />
                   Договоры аренды
+                </Button>
+              </Link>
+              
+              <Link href="/payments">
+                <Button className="w-full justify-start" variant="outline">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Платежи
                 </Button>
               </Link>
               

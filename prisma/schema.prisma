@@ -45,6 +45,22 @@ enum ContractStatus {
   TERMINATED  // Расторгнут
 }
 
+enum PaymentStatus {
+  PENDING     // Ожидает оплаты
+  PROCESSING  // Обрабатывается
+  COMPLETED   // Завершен
+  FAILED      // Ошибка
+  CANCELLED   // Отменен
+  REFUNDED    // Возврат
+}
+
+enum PaymentType {
+  RENT        // Арендная плата
+  DEPOSIT     // Залог
+  COMMISSION  // Комиссия платформы
+  REFUND      // Возврат средств
+}
+
 model User {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -64,6 +80,7 @@ model User {
   contracts   Contract[]
   reviews     Review[]   @relation("ReviewAuthor")
   receivedReviews Review[] @relation("ReviewTarget")
+  payments    Payment[]  @relation("UserPayments")
 
   @@map("users")
 }
@@ -109,6 +126,7 @@ model Property {
   bookings        Booking[]
   contracts       Contract[]
   reviews         Review[]
+  payments        Payment[]      @relation("PropertyPayments")
   
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -148,6 +166,7 @@ model Booking {
   
   // Связи
   contract    Contract?
+  payments    Payment[]
   
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -181,6 +200,9 @@ model Contract {
   bookingId     String         @unique
   booking       Booking        @relation(fields: [bookingId], references: [id])
   
+  // Связи
+  payments      Payment[]
+  
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -207,4 +229,47 @@ model Review {
   updatedAt   DateTime @updatedAt
 
   @@map("reviews")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  
+  // Тип и статус платежа
+  type          PaymentType
+  status        PaymentStatus @default(PENDING)
+  
+  // Финансовая информация
+  amount        Decimal       // Сумма платежа
+  currency      String        @default("RUB")
+  
+  // Описание и метаданные
+  description   String?
+  metadata      Json?         // Дополнительные данные (детали платежа, комиссии и т.д.)
+  
+  // Информация о платежном провайдере
+  provider      String?       // stripe, paypal, yoomoney и т.д.
+  providerId    String?       // ID транзакции у провайдера
+  providerData  Json?         // Данные от провайдера
+  
+  // Связи
+  userId        String
+  user          User          @relation("UserPayments", fields: [userId], references: [id])
+  
+  propertyId    String?
+  property      Property?     @relation("PropertyPayments", fields: [propertyId], references: [id])
+  
+  bookingId     String?
+  booking       Booking?      @relation(fields: [bookingId], references: [id])
+  
+  contractId    String?
+  contract      Contract?     @relation(fields: [contractId], references: [id])
+  
+  // Даты
+  dueDate       DateTime?     // Дата, до которой нужно оплатить
+  paidAt        DateTime?     // Дата фактической оплаты
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
 }
