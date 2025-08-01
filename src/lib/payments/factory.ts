@@ -5,8 +5,8 @@ import { MockPaymentProvider } from './providers/mock'
  * Фабрика для создания платежных провайдеров
  */
 export class PaymentProviderFactory {
-  private static providers: Map<SupportedProvider, typeof PaymentProvider> = new Map([
-    ['mock', MockPaymentProvider as any],
+  private static providers: Map<SupportedProvider, any> = new Map([
+    ['mock', MockPaymentProvider],
     // Здесь можно добавить другие провайдеры:
     // ['stripe', StripePaymentProvider],
     // ['yoomoney', YooMoneyPaymentProvider],

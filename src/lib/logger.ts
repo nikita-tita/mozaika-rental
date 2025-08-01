@@ -19,7 +19,16 @@ class Logger {
   private isDevelopment: boolean
 
   constructor() {
-    this.level = (process.env.LOG_LEVEL as LogLevel) || LogLevel.INFO
+    const envLevel = process.env.LOG_LEVEL
+    const levelMap: Record<string, LogLevel> = {
+      DEBUG: LogLevel.DEBUG,
+      INFO: LogLevel.INFO,
+      WARN: LogLevel.WARN,
+      ERROR: LogLevel.ERROR,
+    }
+    this.level = envLevel && levelMap[envLevel.toUpperCase()] !== undefined
+      ? levelMap[envLevel.toUpperCase()]
+      : LogLevel.INFO
     this.isDevelopment = process.env.NODE_ENV === 'development'
   }
 

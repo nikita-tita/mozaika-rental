@@ -133,7 +133,8 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       },
       include: {
         property: true,
-        tenant: true
+        tenant: true,
+        contract: true
       }
     })
 
