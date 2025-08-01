@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { TenantScoring } from '@/types'
+import type { TenantScoring } from '@/types'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 

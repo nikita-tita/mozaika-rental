@@ -29,6 +29,38 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
   const [completedModules, setCompletedModules] = useState<string[]>([]);
   const [workflowData, setWorkflowData] = useState<any>({});
 
+  // Моковые данные для демонстрации
+  const mockProperty = {
+    id: '1',
+    title: 'Двухкомнатная квартира в центре',
+    description: 'Современная квартира с ремонтом',
+    type: 'APARTMENT' as const,
+    status: 'AVAILABLE' as const,
+    address: 'ул. Ленина, 1',
+    city: 'Москва',
+    area: 65,
+    rooms: 2,
+    pricePerMonth: 45000,
+    deposit: 45000,
+    utilities: true,
+    amenities: ['Wi-Fi', 'Мебель', 'Бытовая техника'],
+    images: [],
+    ownerId: '1',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  const mockRealtor = {
+    id: '1',
+    email: 'realtor@example.com',
+    firstName: 'Анна',
+    lastName: 'Петрова',
+    role: 'REALTOR' as const,
+    verified: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
   // Все доступные модули мозайки
   const mosaicModules: MosaicModule[] = [
     {
@@ -139,7 +171,7 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
   // Завершение модуля
   const completeModule = (moduleId: string, data: any) => {
     setCompletedModules(prev => [...prev, moduleId]);
-    setWorkflowData(prev => ({ ...prev, [moduleId]: data }));
+    setWorkflowData((prev: any) => ({ ...prev, [moduleId]: data }));
     setCurrentModule(null);
   };
 
@@ -177,15 +209,16 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
       case 'contract':
         return (
           <ContractBuilder
-            onComplete={(data) => completeModule('contract', data)}
-            onBack={backToMosaic}
+            property={mockProperty}
+            realtor={mockRealtor}
+            onContractGenerated={(data) => completeModule('contract', data)}
           />
         );
       case 'scoring':
         return (
           <TenantScoring
-            onComplete={(data) => completeModule('scoring', data)}
-            onBack={backToMosaic}
+            onScoringComplete={(data) => completeModule('scoring', data)}
+            onClose={backToMosaic}
           />
         );
       case 'inventory':

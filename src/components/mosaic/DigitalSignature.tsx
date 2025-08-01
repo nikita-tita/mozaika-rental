@@ -110,14 +110,14 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
     // Обновляем статус подписи
     const updatedDocument = {
       ...selectedDocument,
-      signers: selectedDocument.signers.map(signer => 
-        signer.id === 'current-user' 
-          ? { ...signer, status: 'signed', signedAt: new Date(), signatureMethod }
+            signers: selectedDocument.signers.map(signer =>
+        signer.id === 'current-user'
+          ? { ...signer, status: 'signed' as const, signedAt: new Date(), signatureMethod }
           : signer
       ),
       status: selectedDocument.signers.every(s => s.id === 'current-user' || s.status === 'signed') 
-        ? 'signed' 
-        : 'pending'
+        ? 'signed' as const
+        : 'pending' as const
     };
     
     setSelectedDocument(updatedDocument);
@@ -143,10 +143,10 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
     
     const updatedDocument = {
       ...document,
-      status: 'pending',
+      status: 'pending' as const,
       signers: document.signers.map(signer => ({
         ...signer,
-        status: 'pending'
+        status: 'pending' as const
       }))
     };
     

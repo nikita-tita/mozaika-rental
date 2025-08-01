@@ -215,13 +215,14 @@ export default function ContractBuilder({
             value={contractData.propertyType}
             onChange={(e) => updateContractData('propertyType', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
-          >
-            <option value="APARTMENT">Квартира</option>
-            <option value="HOUSE">Дом</option>
-            <option value="STUDIO">Студия</option>
-            <option value="COMMERCIAL">Коммерческая</option>
-            <option value="ROOM">Комната</option>
-          </Select>
+            options={[
+              { value: 'APARTMENT', label: 'Квартира' },
+              { value: 'HOUSE', label: 'Дом' },
+              { value: 'STUDIO', label: 'Студия' },
+              { value: 'COMMERCIAL', label: 'Коммерческая' },
+              { value: 'ROOM', label: 'Комната' }
+            ]}
+          />
         </div>
 
         <div>

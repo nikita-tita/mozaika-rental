@@ -51,6 +51,7 @@ export interface Property {
 export interface PropertyWithImages extends Property {
   images: PropertyImage[]
   reviews?: ReviewWithAuthor[]
+  averageRating?: number
 }
 
 export interface Review {
