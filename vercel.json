@@ -1,15 +1,11 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": ".next",
   "env": {
     "DATABASE_URL": "@database_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "JWT_SECRET": "@jwt_secret"
+    "JWT_SECRET": "@jwt_secret",
+    "LOG_LEVEL": "INFO"
   },
   "functions": {
     "src/app/api/**/*.ts": {
@@ -30,7 +26,7 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
+          "value": "Content-Type, Authorization, x-request-id"
         }
       ]
     }
