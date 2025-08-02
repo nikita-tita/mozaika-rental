@@ -1,7 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Puzzle, ArrowRight, CheckCircle, Clock, Star, TrendingUp, Users, Shield } from 'lucide-react';
+import { 
+  Puzzle, 
+  ArrowRight, 
+  CheckCircle, 
+  Clock, 
+  Star, 
+  TrendingUp, 
+  Users, 
+  Shield,
+  FileText,
+  Search,
+  ClipboardList,
+  FileSignature,
+  Globe,
+  Shield as ShieldIcon,
+  CreditCard,
+  Zap
+} from 'lucide-react';
 import ContractBuilder from './ContractBuilder';
 import TenantScoring from './TenantScoring';
 import PropertyInventory from './PropertyInventory';
@@ -12,7 +29,7 @@ interface MosaicModule {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon: React.ComponentType<any>;
   color: string;
   price: number;
   status: 'available' | 'completed' | 'locked';
@@ -65,9 +82,9 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
   const mosaicModules: MosaicModule[] = [
     {
       id: 'contract',
-      name: '📝 Конструктор договора',
+      name: 'Конструктор договора',
       description: 'Создание профессионального договора аренды с автоматическим заполнением',
-      icon: '📝',
+      icon: FileText,
       color: 'from-blue-500 to-purple-600',
       price: 0,
       status: 'available',
@@ -75,9 +92,9 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     },
     {
       id: 'scoring',
-      name: '🔍 Скоринг арендатора',
+      name: 'Скоринг арендатора',
       description: 'Банковская проверка арендатора через НБКИ и ФССП',
-      icon: '🔍',
+      icon: Search,
       color: 'from-green-500 to-blue-600',
       price: 0,
       status: 'available',
@@ -85,18 +102,18 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     },
     {
       id: 'inventory',
-      name: '📋 Опись имущества',
+      name: 'Опись имущества',
       description: 'ИИ-анализ фотографий и автоматическая генерация описи',
-      icon: '📋',
+      icon: ClipboardList,
       color: 'from-purple-500 to-pink-600',
       price: 0,
       status: 'available'
     },
     {
       id: 'signature',
-      name: '✍️ Электронная подпись',
+      name: 'Электронная подпись',
       description: 'Безопасное подписание документов через ЭЦП',
-      icon: '✍️',
+      icon: FileSignature,
       color: 'from-green-500 to-blue-600',
       price: 50,
       status: 'available',
@@ -104,9 +121,9 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     },
     {
       id: 'multilisting',
-      name: '📤 Мультилистинг',
+      name: 'Мультилистинг',
       description: 'ИИ-оптимизация и размещение на множественных площадках',
-      icon: '📤',
+      icon: Globe,
       color: 'from-purple-500 to-pink-600',
       price: 300,
       status: 'available',
@@ -114,9 +131,9 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     },
     {
       id: 'insurance',
-      name: '🛡️ Страховка аренды',
+      name: 'Страховка аренды',
       description: 'Страхование имущества и ответственности арендатора',
-      icon: '🛡️',
+      icon: ShieldIcon,
       color: 'from-yellow-500 to-orange-600',
       price: 500,
       status: 'locked',
@@ -124,9 +141,9 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     },
     {
       id: 'escrow',
-      name: '🏦 Безопасный залог',
+      name: 'Безопасный залог',
       description: 'Эскроу-счет для безопасного хранения депозита',
-      icon: '🏦',
+      icon: CreditCard,
       color: 'from-red-500 to-pink-600',
       price: 650,
       status: 'locked',
@@ -134,9 +151,9 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     },
     {
       id: 'salary',
-      name: '💰 Оклад риелтора',
+      name: 'Оклад риелтора',
       description: 'Пассивный доход от аренды объекта',
-      icon: '💰',
+      icon: TrendingUp,
       color: 'from-green-500 to-emerald-600',
       price: 4500,
       status: 'locked',
@@ -144,9 +161,9 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     },
     {
       id: 'yandex',
-      name: '🤝 Яндекс Аренда',
+      name: 'Яндекс Аренда',
       description: 'Эксклюзивное партнерство с повышенной комиссией',
-      icon: '🤝',
+      icon: Zap,
       color: 'from-red-500 to-yellow-600',
       price: 18000,
       status: 'locked',
@@ -362,8 +379,8 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
 
                 {/* Иконка и заголовок */}
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={`w-12 h-12 bg-gradient-to-br ${module.color} rounded-xl flex items-center justify-center text-2xl`}>
-                    {module.icon}
+                  <div className={`w-12 h-12 bg-gradient-to-br ${module.color} rounded-xl flex items-center justify-center`}>
+                    <module.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{module.name}</h3>

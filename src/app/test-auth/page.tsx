@@ -1,29 +1,31 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import Breadcrumbs from '@/components/ui/Breadcrumbs'
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
 
 export default function TestAuthPage() {
-  const [testResults, setTestResults] = useState<string[]>([])
+  const [testResults, setTestResults] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const addResult = (message: string) => {
-    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`])
-  }
+    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+  };
 
   const testRegistration = async () => {
     try {
       addResult('Начинаем тест регистрации...')
       
       const testUser = {
+        email: `test${Date.now()}@example.com`,
+        password: 'testpass123',
         firstName: 'Тест',
         lastName: 'Пользователь',
-        email: `test${Date.now()}@example.com`,
         phone: '+7 (999) 123-45-67',
-        password: 'testpass123',
         role: 'REALTOR'
       }
+
+      addResult(`Регистрируем пользователя: ${testUser.email}`)
 
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -33,7 +35,10 @@ export default function TestAuthPage() {
         body: JSON.stringify(testUser)
       })
 
+      addResult(`Статус ответа: ${response.status}`)
+
       const data = await response.json()
+      addResult(`Ответ сервера: ${JSON.stringify(data, null, 2)}`)
 
       if (data.success) {
         addResult(`✅ Регистрация успешна! Email: ${testUser.email}`)
@@ -63,7 +68,10 @@ export default function TestAuthPage() {
         })
       })
 
+      addResult(`Статус ответа входа: ${response.status}`)
+
       const data = await response.json()
+      addResult(`Ответ сервера входа: ${JSON.stringify(data, null, 2)}`)
 
       if (data.success) {
         addResult(`✅ Вход успешен! Токен получен: ${data.token ? 'Да' : 'Нет'}`)
@@ -80,9 +88,28 @@ export default function TestAuthPage() {
     }
   }
 
+  const testDatabaseConnection = async () => {
+    try {
+      addResult('Проверяем подключение к базе данных...')
+      
+      const response = await fetch('/api/test-db', {
+        method: 'GET'
+      })
+
+      const data = await response.json()
+      addResult(`Статус БД: ${JSON.stringify(data, null, 2)}`)
+    } catch (error) {
+      addResult(`❌ Ошибка подключения к БД: ${error}`)
+    }
+  }
+
   const runFullTest = async () => {
+    setIsLoading(true)
     setTestResults([])
     addResult('=== НАЧАЛО ТЕСТИРОВАНИЯ ===')
+    
+    // Тест подключения к БД
+    await testDatabaseConnection()
     
     // Тест регистрации
     const email = await testRegistration()
@@ -93,6 +120,7 @@ export default function TestAuthPage() {
     }
     
     addResult('=== ТЕСТИРОВАНИЕ ЗАВЕРШЕНО ===')
+    setIsLoading(false)
   }
 
   return (
@@ -111,7 +139,7 @@ export default function TestAuthPage() {
           </h1>
           
           <div className="mb-6">
-            <Button onClick={runFullTest} className="mb-4">
+            <Button onClick={runFullTest} className="mb-4" loading={isLoading}>
               Запустить полный тест
             </Button>
           </div>
