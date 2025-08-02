@@ -200,41 +200,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass-effect border-b border-primary-100">
-        <div className="container-custom">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
-                <span className="text-xl font-bold text-white">M²</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-primary-900">M²</h1>
-                <p className="text-xs text-primary-600">Технологии для риелторов</p>
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link href="#problems" className="btn-ghost">Проблемы</Link>
-              <Link href="#demo" className="btn-ghost">Демо</Link>
-              <Link href="#stories" className="btn-ghost">Истории</Link>
-            </nav>
-            
-            <div className="flex items-center space-x-4">
-              <Link href="/login" className="btn-ghost">
-                Войти
-              </Link>
-              <Link href="/register" className="btn-primary">
-                Попробовать бесплатно
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
-      <main>
-        <section className="section-padding">
+      <section className="section-padding">
           <div className="container-custom">
             <div className="text-center max-w-5xl mx-auto mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm font-medium mb-8">
@@ -588,63 +555,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-primary-900 text-white">
-        <div className="container-custom py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
-                  <span className="text-xl font-bold text-white">M²</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold">M²</h3>
-                  <p className="text-sm text-primary-300">Технологии для риелторов</p>
-                </div>
-              </div>
-              <p className="text-primary-300 leading-relaxed">
-                Профессиональные инструменты для упрощения работы риелторов
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Продукт</h4>
-              <ul className="space-y-3 text-primary-300">
-                <li><Link href="#" className="hover:text-white transition-colors">Скоринг</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Договоры</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Мультилистинг</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Подписи</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Поддержка</h4>
-              <ul className="space-y-3 text-primary-300">
-                <li><Link href="#" className="hover:text-white transition-colors">Помощь</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Документация</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Сообщество</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Контакты</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Компания</h4>
-              <ul className="space-y-3 text-primary-300">
-                <li><Link href="#" className="hover:text-white transition-colors">О нас</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Блог</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Карьера</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Партнеры</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-primary-700 mt-12 pt-8 text-center text-primary-300">
-            <p>© 2024 M². Все права защищены.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
