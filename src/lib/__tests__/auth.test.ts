@@ -43,7 +43,7 @@ describe('Auth Module', () => {
     it('should generate valid JWT token', () => {
       const userId = 'user123'
       const email = 'test@example.com'
-      const role = 'TENANT'
+      const role = 'REALTOR'
       
       const token = generateToken(userId, email, role)
       
@@ -57,7 +57,7 @@ describe('Auth Module', () => {
     it('should verify valid token', () => {
       const userId = 'user123'
       const email = 'test@example.com'
-      const role = 'TENANT'
+      const role = 'REALTOR'
       
       const token = generateToken(userId, email, role)
       const decoded = verifyToken(token)
@@ -91,7 +91,7 @@ describe('Auth Module', () => {
         password: 'hashedPassword',
         firstName: 'John',
         lastName: 'Doe',
-        role: 'TENANT',
+        role: 'REALTOR',
         createdAt: new Date(),
         updatedAt: new Date()
       }

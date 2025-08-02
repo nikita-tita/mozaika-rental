@@ -113,6 +113,18 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
     }
   }
 
+  const downloadReport = (content: string, fileName: string) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
   const renderForm = () => (
     <div className="space-y-6">
       <div className="text-center">
@@ -155,7 +167,13 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
               value={formData.birthDate}
               onChange={(e) => updateFormData('birthDate', e.target.value)}
               className="bg-gray-700 border-gray-600 text-white"
+              min="1900-01-01"
+              max={new Date().toISOString().split('T')[0]}
+              placeholder="дд.мм.гггг"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Или введите вручную в формате дд.мм.гггг
+            </p>
           </div>
         </div>
       </div>
@@ -365,9 +383,60 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
             Проверить другого
           </Button>
           <Button
-            onClick={() => {
-              onScoringComplete(scoringResult)
-              onClose()
+            onClick={async () => {
+              try {
+                // Получаем токен из localStorage
+                const token = localStorage.getItem('token')
+                if (!token) {
+                  // Показываем модальное окно с кнопкой входа
+                  const shouldLogin = confirm('❌ Необходимо войти в систему\n\nХотите перейти на страницу входа?')
+                  if (shouldLogin) {
+                    window.location.href = '/login'
+                  }
+                  return
+                }
+
+                // Отправляем запрос на генерацию отчета
+                const response = await fetch('/api/scoring/generate', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({
+                    scoringData: scoringResult
+                  })
+                })
+
+                if (!response.ok) {
+                  if (response.status === 401) {
+                    // Токен истек или недействителен
+                    localStorage.removeItem('token')
+                    const shouldLogin = confirm('❌ Сессия истекла\n\nХотите войти заново?')
+                    if (shouldLogin) {
+                      window.location.href = '/login'
+                    }
+                    return
+                  }
+                  throw new Error('Ошибка генерации отчета')
+                }
+
+                const result = await response.json()
+                const report = result.data
+
+                // Показываем попап с успехом и кнопкой скачивания
+                const shouldDownload = confirm('✅ Скоринг завершен!\n\nСкоринговый балл: ' + scoringResult.score + '\nУровень риска: ' + getRiskLevelLabel(scoringResult.riskLevel) + '\n\nХотите скачать отчет?')
+                
+                if (shouldDownload) {
+                  downloadReport(report.content, report.fileName)
+                }
+                
+                onScoringComplete(scoringResult)
+                onClose()
+              } catch (error) {
+                console.error('Ошибка генерации отчета:', error)
+                alert('❌ Ошибка при создании отчета. Попробуйте еще раз.')
+              }
             }}
             className="bg-green-500 hover:bg-green-600 text-black"
           >

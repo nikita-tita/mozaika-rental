@@ -37,6 +37,9 @@ export interface Property {
   bathrooms?: number
   floor?: number
   totalFloors?: number
+  furnished?: boolean
+  cadastralNumber?: string
+  ownershipType?: string
   pricePerMonth: number
   deposit?: number
   utilities: boolean

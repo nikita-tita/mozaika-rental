@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password, firstName, lastName, phone, role } = body
 
+    console.log('Registration attempt:', { email, firstName, lastName, role })
+
     // Валидация
     if (!email || !password || !firstName || !lastName) {
       return NextResponse.json(
@@ -46,6 +48,8 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(password)
 
     // Создаем пользователя
+    console.log('Creating user with data:', { email, firstName, lastName, role })
+    
     const user = await prisma.user.create({
       data: {
         email,
@@ -53,9 +57,11 @@ export async function POST(request: NextRequest) {
         firstName,
         lastName,
         phone: phone || null,
-        role: role || 'TENANT'
+        role: role || 'REALTOR'
       }
     })
+
+    console.log('User created successfully:', user.id)
 
     return NextResponse.json({
       success: true,

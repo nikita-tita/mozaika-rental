@@ -107,10 +107,10 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
     // Имитация проверки кода
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Обновляем статус подписи
+    // В демо-версии принимаем любой код
     const updatedDocument = {
       ...selectedDocument,
-            signers: selectedDocument.signers.map(signer =>
+      signers: selectedDocument.signers.map(signer =>
         signer.id === 'current-user'
           ? { ...signer, status: 'signed' as const, signedAt: new Date(), signatureMethod }
           : signer
@@ -124,6 +124,9 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
     setShowVerification(false);
     setVerificationCode('');
     setIsProcessing(false);
+    
+    // Показываем успех
+    alert('✅ Документ успешно подписан!\n\nПодпись имеет юридическую силу.\n\nВ реальной версии здесь будет:\n- Сохранение в архиве\n- Отправка копий сторонам\n- Интеграция с реестром')
     
     // Проверяем, все ли подписали
     const allSigned = updatedDocument.signers.every(s => s.status === 'signed');

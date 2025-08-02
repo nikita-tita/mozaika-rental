@@ -14,28 +14,50 @@ interface ContractBuilderProps {
 }
 
 interface ContractData {
-  // Основные данные
+  // Основные данные объекта
   propertyTitle: string
   propertyAddress: string
   propertyType: string
+  propertyArea: number
+  propertyRooms: number
+  propertyFloor: number
+  propertyTotalFloors: number
+  propertyFurnished: boolean
+  propertyCadastralNumber: string
+  propertyOwnershipType: string
   monthlyRent: number
   deposit: number
   
   // Арендодатель
   landlordName: string
   landlordPassport: string
+  landlordPassportIssuedBy: string
+  landlordPassportIssuedDate: string
+  landlordSnils: string
+  landlordInn: string
   landlordAddress: string
+  landlordRegistrationAddress: string
   
   // Арендатор
   tenantName: string
   tenantPassport: string
+  tenantPassportIssuedBy: string
+  tenantPassportIssuedDate: string
+  tenantBirthDate: string
   tenantPhone: string
   tenantEmail: string
+  tenantRegistrationAddress: string
   
-  // Условия
+  // Условия аренды
   startDate: string
   endDate: string
   utilities: boolean
+  utilitiesIncluded: boolean
+  paymentSchedule: string
+  paymentDay: number
+  latePaymentPenalty: number
+  earlyTerminationConditions: string
+  depositReturnConditions: string
   additionalTerms: string
 }
 
@@ -49,18 +71,40 @@ export default function ContractBuilder({
     propertyTitle: property.title,
     propertyAddress: `${property.address}, ${property.city}`,
     propertyType: property.type,
+    propertyArea: property.area || 0,
+    propertyRooms: property.rooms || 0,
+    propertyFloor: property.floor || 0,
+    propertyTotalFloors: property.totalFloors || 0,
+    propertyFurnished: property.furnished || false,
+    propertyCadastralNumber: property.cadastralNumber || '',
+    propertyOwnershipType: property.ownershipType || 'Собственность',
     monthlyRent: property.pricePerMonth,
     deposit: property.deposit || 0,
     landlordName: '',
     landlordPassport: '',
+    landlordPassportIssuedBy: '',
+    landlordPassportIssuedDate: '',
+    landlordSnils: '',
+    landlordInn: '',
     landlordAddress: '',
+    landlordRegistrationAddress: '',
     tenantName: '',
     tenantPassport: '',
+    tenantPassportIssuedBy: '',
+    tenantPassportIssuedDate: '',
+    tenantBirthDate: '',
     tenantPhone: '',
     tenantEmail: '',
+    tenantRegistrationAddress: '',
     startDate: '',
     endDate: '',
     utilities: property.utilities,
+    utilitiesIncluded: false,
+    paymentSchedule: 'monthly',
+    paymentDay: 1,
+    latePaymentPenalty: 0.1,
+    earlyTerminationConditions: '',
+    depositReturnConditions: '',
     additionalTerms: ''
   })
 
@@ -109,27 +153,69 @@ export default function ContractBuilder({
 
   const generateContract = async () => {
     try {
-      // TODO: Отправить данные на сервер для генерации договора
+      // Получаем токен из localStorage
+      const token = localStorage.getItem('token')
+      if (!token) {
+        // Показываем модальное окно с кнопкой входа
+        const shouldLogin = confirm('❌ Необходимо войти в систему\n\nХотите перейти на страницу входа?')
+        if (shouldLogin) {
+          window.location.href = '/login'
+        }
+        return
+      }
+
+      // Отправляем запрос на генерацию договора
       const response = await fetch('/api/contracts/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          templateId: selectedTemplate,
-          contractData,
-          propertyId: property.id,
-          realtorId: realtor.id
-        }),
+          contractData
+        })
       })
 
-      if (response.ok) {
-        const result = await response.json()
-        onContractGenerated(result.data)
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Токен истек или недействителен
+          localStorage.removeItem('token')
+          const shouldLogin = confirm('❌ Сессия истекла\n\nХотите войти заново?')
+          if (shouldLogin) {
+            window.location.href = '/login'
+          }
+          return
+        }
+        throw new Error('Ошибка генерации договора')
       }
+
+      const result = await response.json()
+      const contract = result.data
+
+      // Показываем попап с успехом и кнопкой скачивания
+      const shouldDownload = confirm('✅ Договор успешно создан!\n\nХотите скачать договор?')
+      
+      if (shouldDownload) {
+        downloadContract(contract.content, contract.fileName)
+      }
+      
+      onContractGenerated(contract)
     } catch (error) {
       console.error('Ошибка генерации договора:', error)
+      alert('❌ Ошибка при создании договора. Попробуйте еще раз.')
     }
+  }
+
+  const downloadContract = (content: string, fileName: string) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
   }
 
   const renderStep1 = () => (
@@ -216,11 +302,11 @@ export default function ContractBuilder({
             onChange={(e) => updateContractData('propertyType', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
             options={[
-              { value: 'APARTMENT', label: 'Квартира' },
-              { value: 'HOUSE', label: 'Дом' },
-              { value: 'STUDIO', label: 'Студия' },
-              { value: 'COMMERCIAL', label: 'Коммерческая' },
-              { value: 'ROOM', label: 'Комната' }
+              { value: 'Квартира', label: 'Квартира' },
+              { value: 'Дом', label: 'Дом' },
+              { value: 'Студия', label: 'Студия' },
+              { value: 'Коммерческая', label: 'Коммерческая' },
+              { value: 'Комната', label: 'Комната' }
             ]}
           />
         </div>
@@ -239,6 +325,82 @@ export default function ContractBuilder({
 
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
+            Площадь (м²)
+          </label>
+          <Input
+            type="number"
+            value={contractData.propertyArea}
+            onChange={(e) => updateContractData('propertyArea', Number(e.target.value))}
+            className="bg-gray-700 border-gray-600 text-white"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Количество комнат
+          </label>
+          <Input
+            type="number"
+            value={contractData.propertyRooms}
+            onChange={(e) => updateContractData('propertyRooms', Number(e.target.value))}
+            className="bg-gray-700 border-gray-600 text-white"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Этаж
+          </label>
+          <Input
+            type="number"
+            value={contractData.propertyFloor}
+            onChange={(e) => updateContractData('propertyFloor', Number(e.target.value))}
+            className="bg-gray-700 border-gray-600 text-white"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Всего этажей
+          </label>
+          <Input
+            type="number"
+            value={contractData.propertyTotalFloors}
+            onChange={(e) => updateContractData('propertyTotalFloors', Number(e.target.value))}
+            className="bg-gray-700 border-gray-600 text-white"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Кадастровый номер
+          </label>
+          <Input
+            value={contractData.propertyCadastralNumber}
+            onChange={(e) => updateContractData('propertyCadastralNumber', e.target.value)}
+            className="bg-gray-700 border-gray-600 text-white"
+            placeholder="77:01:0001001:1234"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Тип собственности
+          </label>
+          <Select
+            value={contractData.propertyOwnershipType}
+            onChange={(e) => updateContractData('propertyOwnershipType', e.target.value)}
+            className="bg-gray-700 border-gray-600 text-white"
+            options={[
+              { value: 'Собственность', label: 'Собственность' },
+              { value: 'Долевая собственность', label: 'Долевая собственность' },
+              { value: 'Совместная собственность', label: 'Совместная собственность' }
+            ]}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Залог (₽)
           </label>
           <Input
@@ -249,15 +411,27 @@ export default function ContractBuilder({
           />
         </div>
 
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="utilities"
-            checked={contractData.utilities}
-            onChange={(e) => updateContractData('utilities', e.target.checked)}
-            className="mr-2"
-          />
-          <label htmlFor="utilities" className="text-sm text-gray-300">
+        <div className="md:col-span-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+            <input
+              type="checkbox"
+              checked={contractData.propertyFurnished}
+              onChange={(e) => updateContractData('propertyFurnished', e.target.checked)}
+              className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500"
+            />
+            Объект с мебелью
+          </label>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+            <input
+              type="checkbox"
+              id="utilities"
+              checked={contractData.utilities}
+              onChange={(e) => updateContractData('utilities', e.target.checked)}
+              className="w-4 h-4 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500"
+            />
             Коммунальные услуги включены
           </label>
         </div>

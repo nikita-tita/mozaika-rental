@@ -24,18 +24,19 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
-    const role = searchParams.get('role') || 'tenant' // 'tenant' или 'landlord'
+    const role = searchParams.get('role') || 'realtor' // 'realtor' или 'admin'
 
     let whereClause: any = {}
 
-    if (role === 'tenant') {
-      // Договоры пользователя как арендатора
-      whereClause.tenantId = user.userId
+    if (role === 'realtor') {
+      // Договоры риелтора
+      whereClause.realtorId = user.userId
+    } else if (role === 'admin') {
+      // Администратор видит все договоры
+      whereClause = {}
     } else {
-      // Договоры недвижимости пользователя как арендодателя
-      whereClause.property = {
-        ownerId: user.userId
-      }
+      // По умолчанию показываем договоры риелтора
+      whereClause.realtorId = user.userId
     }
 
     if (status && status !== 'ALL') {
@@ -110,9 +111,9 @@ export async function POST(request: NextRequest) {
     }
 
     const user = verifyToken(token)
-    if (!user || user.role !== 'LANDLORD') {
+    if (!user || (user.role !== 'REALTOR' && user.role !== 'ADMIN')) {
       return NextResponse.json(
-        { success: false, error: 'Только арендодатели могут создавать договоры' },
+        { success: false, error: 'Только риелторы и администраторы могут создавать договоры' },
         { status: 403 }
       )
     }

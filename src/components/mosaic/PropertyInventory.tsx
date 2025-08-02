@@ -98,6 +98,18 @@ export default function PropertyInventory({ onComplete, onBack }: PropertyInvent
     setUploadedPhotos(prev => [...prev, ...acceptedFiles]);
   }, []);
 
+  const downloadAct = (content: string, fileName: string) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
@@ -253,7 +265,7 @@ export default function PropertyInventory({ onComplete, onBack }: PropertyInvent
                 </button>
                 <button
                   onClick={analyzePhotos}
-                  disabled={uploadedPhotos.length === 0 || isAnalyzing}
+                  disabled={isAnalyzing}
                   className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isAnalyzing ? (
@@ -332,7 +344,66 @@ export default function PropertyInventory({ onComplete, onBack }: PropertyInvent
                   Назад
                 </button>
                 <button
-                  onClick={() => onComplete(inventoryItems)}
+                  onClick={async () => {
+                    try {
+                      // Получаем токен из localStorage
+                      const token = localStorage.getItem('token')
+                      if (!token) {
+                        // Показываем модальное окно с кнопкой входа
+                        const shouldLogin = confirm('❌ Необходимо войти в систему\n\nХотите перейти на страницу входа?')
+                        if (shouldLogin) {
+                          window.location.href = '/login'
+                        }
+                        return
+                      }
+
+                      // Отправляем запрос на генерацию акта
+                      const response = await fetch('/api/inventory/generate', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                          inventoryItems,
+                          propertyData: {
+                            title: 'Объект недвижимости',
+                            address: 'Адрес объекта',
+                            type: 'Тип объекта',
+                            area: 'Площадь'
+                          }
+                        })
+                      })
+
+                      if (!response.ok) {
+                        if (response.status === 401) {
+                          // Токен истек или недействителен
+                          localStorage.removeItem('token')
+                          const shouldLogin = confirm('❌ Сессия истекла\n\nХотите войти заново?')
+                          if (shouldLogin) {
+                            window.location.href = '/login'
+                          }
+                          return
+                        }
+                        throw new Error('Ошибка генерации акта')
+                      }
+
+                      const result = await response.json()
+                      const act = result.data
+
+                      // Показываем попап с успехом и кнопкой скачивания
+                      const shouldDownload = confirm('✅ Опись имущества завершена!\n\nНайдено предметов: ' + inventoryItems.length + '\nОбщая стоимость: ' + totalValue.toLocaleString() + ' ₽\n\nХотите скачать акт приема-передачи?')
+                      
+                      if (shouldDownload) {
+                        downloadAct(act.content, act.fileName)
+                      }
+                      
+                      onComplete(inventoryItems)
+                    } catch (error) {
+                      console.error('Ошибка генерации акта:', error)
+                      alert('❌ Ошибка при создании акта. Попробуйте еще раз.')
+                    }
+                  }}
                   className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg transition-all flex items-center gap-2"
                 >
                   <CheckCircle className="w-4 h-4" />

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Plus, Home, Calendar, FileText, Settings, LogOut, CreditCard } from 'lucide-react'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import Breadcrumbs from '@/components/ui/Breadcrumbs'
 
 interface User {
   id: string
@@ -59,6 +60,13 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumbs */}
+      <div className="bg-white border-b border-gray-200 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumbs />
+        </div>
+      </div>
+
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

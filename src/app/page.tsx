@@ -2,136 +2,230 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Puzzle, ArrowRight, CheckCircle, TrendingUp, Shield, Users, Star, Zap } from 'lucide-react';
+import { 
+  Search, 
+  Building2, 
+  FileText, 
+  Shield, 
+  Users, 
+  TrendingUp, 
+  CheckCircle, 
+  ArrowRight,
+  Star,
+  Zap,
+  BarChart3,
+  Target,
+  Award,
+  Clock,
+  Home,
+  CreditCard,
+  FileCheck,
+  Smartphone,
+  Play,
+  X,
+  ChevronRight,
+  ChevronLeft,
+  DollarSign,
+  Timer,
+  UserCheck,
+  FileSignature,
+  Upload,
+  Eye,
+  ThumbsUp,
+  MessageCircle,
+  Calendar,
+  MapPin,
+  AlertTriangle,
+  Globe
+} from 'lucide-react';
 
 export default function HomePage() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [activeDemo, setActiveDemo] = useState('scoring');
+  const [activeStory, setActiveStory] = useState(0);
 
-  const features = [
+  const problems = [
     {
-      icon: '🧩',
-      title: 'Мозайка модулей',
-      description: 'Собери свой персональный workflow из 9 профессиональных модулей',
-      color: 'from-purple-500 to-pink-600'
+      icon: AlertTriangle,
+      text: 'Клиенты не доверяют договору из интернета',
+      color: 'text-red-500'
     },
     {
-      icon: '🔍',
-      title: 'Банковский скоринг',
-      description: 'Бесплатная проверка арендаторов через НБКИ и ФССП',
-      color: 'from-green-500 to-blue-600'
+      icon: UserCheck,
+      text: 'Проверка арендатора = гадание на кофейной гуще',
+      color: 'text-red-500'
     },
     {
-      icon: '📝',
-      title: 'Конструктор договоров',
-      description: 'Автоматическое создание профессиональных договоров аренды',
-      color: 'from-blue-500 to-purple-600'
+      icon: Clock,
+      text: '3 часа на размещение одного объявления',
+      color: 'text-red-500'
     },
     {
-      icon: '🤖',
-      title: 'ИИ-оптимизация',
-      description: 'Искусственный интеллект улучшает контент и анализирует фото',
-      color: 'from-orange-500 to-red-600'
+      icon: DollarSign,
+      text: 'Доход только от новых сделок',
+      color: 'text-red-500'
+    },
+    {
+      icon: Target,
+      text: 'Конкуренты демпингуют и предлагают то же самое',
+      color: 'text-red-500'
     }
   ];
 
-  const modules = [
+  const solutions = [
     {
-      name: '📝 Конструктор договора',
-      price: 'Бесплатно',
-      description: 'Точка входа в экосистему'
+      icon: Shield,
+      text: 'Банковская проверка арендатора за 30 сек',
+      color: 'text-green-500'
     },
     {
-      name: '🔍 Скоринг арендатора',
-      price: 'Бесплатно',
-      description: 'Банковский уровень проверки'
+      icon: FileText,
+      text: 'Договор генерируется за 2 минуты',
+      color: 'text-green-500'
     },
     {
-      name: '📋 Опись имущества',
-      price: 'Бесплатно',
-      description: 'ИИ-анализ фотографий'
+      icon: Globe,
+      text: 'Размещение на 5 площадках одной кнопкой',
+      color: 'text-green-500'
     },
     {
-      name: '✍️ Электронная подпись',
-      price: '50₽',
-      description: 'Безопасное подписание'
+      icon: BarChart3,
+      text: 'Превратите разовые сделки в пассивный доход',
+      color: 'text-green-500'
     },
     {
-      name: '📤 Мультилистинг',
-      price: '300₽',
-      description: 'Размещение на площадках'
-    },
-    {
-      name: '🛡️ Страховка аренды',
-      price: '500₽',
-      description: 'Защита имущества'
+      icon: Zap,
+      text: 'Технологии которых нет ни у кого',
+      color: 'text-green-500'
     }
   ];
 
-  const personas = [
+  const demoTabs = [
     {
-      name: 'Процессник Анна',
-      description: 'Контроль качества и профессиональный подход',
-      modules: ['Договор', 'ПЭП', 'Скоринг', 'Опись'],
-      revenue: '500₽/мес',
-      ltv: '3.0х'
+      id: 'scoring',
+      title: 'Скоринг за 30 секунд',
+      description: 'Банковская проверка арендатора',
+      time: '30 сек',
+      income: '+15,000₽',
+      icon: UserCheck
     },
     {
-      name: 'Объемник Михаил',
-      description: 'Масштабирование и рост бизнеса',
-      modules: ['Мультилистинг', 'Яндекс Аренда', 'Оклад'],
-      revenue: '12,300₽/мес',
-      ltv: '27.7х'
+      id: 'contract',
+      title: 'Договор за 2 минуты',
+      description: 'ИИ-генерация с юридической проверкой',
+      time: '2 мин',
+      income: '+25,000₽',
+      icon: FileText
     },
     {
-      name: 'Имиджмейкер Елена',
-      description: 'Премиум-сервис и высокие комиссии',
-      modules: ['Скоринг', 'Страховка', 'Эскроу', 'ПЭП'],
-      revenue: '11,200₽/мес',
-      ltv: '16.8х'
+      id: 'listing',
+      title: 'Размещение на 5 площадках',
+      description: 'Автопостинг и синхронизация',
+      time: '5 мин',
+      income: '+20,000₽',
+      icon: Upload
+    },
+    {
+      id: 'signature',
+      title: 'Подписание за 5 минут',
+      description: 'Электронная подпись с SMS',
+      time: '5 мин',
+      income: '+5,000₽',
+      icon: FileSignature
     }
+  ];
+
+  const successStories = [
+    {
+      name: 'Анна',
+      city: 'Москва',
+      avatar: '👩‍💼',
+      before: {
+        time: '8 часов на сделку',
+        problem: 'Клиенты сомневались в договорах',
+        income: '45,000₽/мес'
+      },
+      after: {
+        time: '2.5 часа на сделку',
+        result: 'Банковская проверка впечатляет всех',
+        income: '127,000₽/мес'
+      },
+      quote: 'Клиенты теперь сами просят показать проверку!',
+      video: 'Смотреть отзыв (60 сек)',
+      color: 'from-blue-500 to-cyan-500'
+    },
+    {
+      name: 'Михаил',
+      city: 'Санкт-Петербург',
+      avatar: '👨‍💻',
+      before: {
+        time: '12 часов в день',
+        problem: '15 объектов, постоянный стресс',
+        income: '180,000₽/мес'
+      },
+      after: {
+        time: '6 часов в день',
+        result: '40 объектов, 500к пассивного дохода',
+        income: '680,000₽/мес'
+      },
+      quote: 'Автоматизация освободила время для семьи',
+      video: 'Смотреть кейс (90 сек)',
+      color: 'from-green-500 to-emerald-500'
+    },
+    {
+      name: 'Елена',
+      city: 'Екатеринбург',
+      avatar: '👩‍🎨',
+      before: {
+        time: 'Неделя на сделку',
+        problem: 'Потеря клиентов из-за долгих проверок',
+        income: '85,000₽/мес'
+      },
+      after: {
+        time: '3 дня на сделку',
+        result: 'Закрыла сделку на 5млн₽',
+        income: '320,000₽/мес'
+      },
+      quote: 'Впервые вижу такой профессионализм!',
+      video: 'Скриншот переписки',
+      color: 'from-purple-500 to-pink-500'
+    }
+  ];
+
+  const stats = [
+    { number: '₽127,000,000', label: 'Заработано риелторами за месяц', icon: DollarSign },
+    { number: '8x', label: 'Среднее ускорение сделок', icon: Zap },
+    { number: '2,847', label: 'Активных риелторов', icon: Users },
+    { number: '99.7%', label: 'Точность проверки арендаторов', icon: Shield }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white">
       {/* Header */}
-      <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 glass-effect border-b border-primary-100">
+        <div className="container-custom">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
-                <span className="text-xl font-bold">M²</span>
+              <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                <span className="text-xl font-bold text-white">M²</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold">M² - Аренда</h1>
-                <p className="text-xs text-gray-400">Платформа для риелторов</p>
+                <h1 className="text-xl font-bold text-primary-900">M²</h1>
+                <p className="text-xs text-primary-600">Технологии для риелторов</p>
               </div>
             </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="#features" className="text-gray-300 hover:text-white transition-colors">
-                Возможности
-              </Link>
-              <Link href="#modules" className="text-gray-300 hover:text-white transition-colors">
-                Модули
-              </Link>
-              <Link href="#personas" className="text-gray-300 hover:text-white transition-colors">
-                Персоны
-              </Link>
-              <Link href="#pricing" className="text-gray-300 hover:text-white transition-colors">
-                Тарифы
-              </Link>
+            
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link href="#problems" className="btn-ghost">Проблемы</Link>
+              <Link href="#demo" className="btn-ghost">Демо</Link>
+              <Link href="#stories" className="btn-ghost">Истории</Link>
             </nav>
-            <div className="flex space-x-3">
-              <Link 
-                href="/login" 
-                className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-              >
+            
+            <div className="flex items-center space-x-4">
+              <Link href="/login" className="btn-ghost">
                 Войти
               </Link>
-              <Link 
-                href="/register" 
-                className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg transition-all"
-              >
-                Начать бесплатно
+              <Link href="/register" className="btn-primary">
+                Попробовать бесплатно
               </Link>
             </div>
           </div>
@@ -140,230 +234,414 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <main>
-        <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-full text-sm font-medium mb-6">
-                <Star className="w-4 h-4" />
-                Первая в России операционная система для риелторов
+        <section className="section-padding">
+          <div className="container-custom">
+            <div className="text-center max-w-5xl mx-auto mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-full text-sm font-medium mb-8">
+                <Timer className="w-4 h-4" />
+                Хватит терять 60% времени на бумажки
+              </div>
+
+              {/* Краткое руководство */}
+              <div className="bg-white rounded-2xl p-6 mb-8 border border-primary-200">
+                <h3 className="text-lg font-semibold mb-4 text-center">Как пользоваться сервисом</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-brand-600 font-semibold text-xs">1</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-primary-900">Зарегистрируйтесь</p>
+                      <p className="text-primary-600">Создайте аккаунт риелтора за 2 минуты</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-brand-600 font-semibold text-xs">2</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-primary-900">Выберите модуль</p>
+                      <p className="text-primary-600">Скоринг, договоры, опись или подписи</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-brand-600 font-semibold text-xs">3</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-primary-900">Получите результат</p>
+                      <p className="text-primary-600">Скачайте документы и отправьте клиенту</p>
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-                  Собери свою сделку
-                </span>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 text-balance">
+                <span className="gradient-text">Упростите работу</span><br />
+                <span className="text-gray-900">и увеличьте доход на 40%</span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-gray-400 mb-8 max-w-4xl mx-auto">
-                Единственная платформа, где риелтор конструирует персональный процесс аренды 
-                из профессиональных модулей с ИИ-оптимизацией
+              <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-4xl mx-auto text-balance">
+                2,847 риелторов уже используют М² для автоматизации рутинных задач:<br />
+                банковский скоринг, автодоговоры, цифровые подписи
               </p>
+
+              {/* Video Demo */}
+              <div className="relative max-w-2xl mx-auto mb-12">
+                <div className="bg-gradient-to-br from-brand-600 to-accent-600 rounded-2xl p-1">
+                  <div className="bg-white rounded-xl p-8 text-center">
+                    <div className="w-16 h-16 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Play className="w-8 h-8 text-brand-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Смотрите как Анна закрыла сделку за 3 дня вместо 2 недель</h3>
+                    <p className="text-gray-600 mb-3">30 секунд демонстрации</p>
+                    <p className="text-sm text-gray-500">
+                      Вы увидите: банковскую проверку арендатора, генерацию договора, 
+                      электронную подпись и размещение объявления на 5 площадках
+                    </p>
+                  </div>
+                </div>
+              </div>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link 
                   href="/mosaic" 
-                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-xl text-lg font-semibold transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+                  className="btn-primary text-lg px-8 py-4 flex items-center justify-center gap-2"
                 >
-                  <Puzzle className="w-5 h-5" />
-                  Попробовать мозайку
-                </Link>
-                <button className="px-8 py-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-lg font-semibold transition-all flex items-center justify-center gap-2">
                   <Zap className="w-5 h-5" />
-                  Демо-версия
+                  Попробовать технологии
+                </Link>
+                <button className="btn-secondary text-lg px-8 py-4 flex items-center justify-center gap-2">
+                  <Play className="w-5 h-5" />
+                  Смотреть полное демо
                 </button>
               </div>
             </div>
 
-            {/* Статистика */}
+            {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-              <div className="bg-gray-800 rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-green-400 mb-2">9</div>
-                <div className="text-gray-400">Модулей мозайки</div>
-              </div>
-              <div className="bg-gray-800 rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-blue-400 mb-2">0₽</div>
-                <div className="text-gray-400">Вход в экосистему</div>
-              </div>
-              <div className="bg-gray-800 rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-purple-400 mb-2">18.9х</div>
-                <div className="text-gray-400">LTV/CAC</div>
-              </div>
-              <div className="bg-gray-800 rounded-xl p-6 text-center">
-                <div className="text-3xl font-bold text-yellow-400 mb-2">1.1</div>
-                <div className="text-gray-400">Месяц окупаемости</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features */}
-        <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Уникальные возможности</h2>
-              <p className="text-xl text-gray-400">Технологии банковского уровня для риелторов</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {features.map((feature, index) => (
-                <div key={index} className="bg-gray-800 rounded-xl p-8">
-                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center text-3xl mb-6`}>
-                    {feature.icon}
+              {stats.map((stat, index) => (
+                <div key={index} className="card-hover text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+                      <stat.icon className="w-6 h-6 text-brand-600" />
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-semibold mb-4">{feature.title}</h3>
-                  <p className="text-gray-400 text-lg">{feature.description}</p>
+                  <div className="text-2xl md:text-3xl font-bold text-primary-900 mb-2">{stat.number}</div>
+                  <div className="text-primary-600 text-sm">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Modules */}
-        <section id="modules" className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Мозайка из 9 модулей</h2>
-              <p className="text-xl text-gray-400">Каждый модуль решает конкретную задачу риелтора</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {modules.map((module, index) => (
-                <div key={index} className="bg-gray-800 rounded-xl p-6 hover:bg-gray-700 transition-all">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">{module.name}</h3>
-                    <span className="text-green-400 font-medium">{module.price}</span>
-                  </div>
-                  <p className="text-gray-400 mb-4">{module.description}</p>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Готов к использованию</span>
-                  </div>
+        {/* Problems & Solutions */}
+        <section id="problems" className="section-padding bg-white">
+          <div className="container-custom">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Problems */}
+              <div>
+                <div className="text-center mb-8">
+                  <h2 className="text-4xl font-bold mb-4 text-red-600">ВАС ДОСТАЛО?</h2>
+                  <p className="text-xl text-primary-600">Знакомые проблемы риелторов</p>
                 </div>
-              ))}
+                
+                <div className="space-y-4">
+                  {problems.map((problem, index) => (
+                    <div key={index} className="flex items-start gap-4 p-4 bg-red-50 rounded-xl">
+                      <problem.icon className={`w-6 h-6 mt-1 ${problem.color}`} />
+                      <p className="text-primary-700 font-medium">{problem.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Solutions */}
+              <div>
+                <div className="text-center mb-8">
+                  <h2 className="text-4xl font-bold mb-4 text-green-600">М² РЕШАЕТ ЭТО ЗА СЕКУНДЫ</h2>
+                  <p className="text-xl text-primary-600">Технологии которые работают</p>
+                </div>
+                
+                <div className="space-y-4">
+                  {solutions.map((solution, index) => (
+                    <div key={index} className="flex items-start gap-4 p-4 bg-green-50 rounded-xl">
+                      <solution.icon className={`w-6 h-6 mt-1 ${solution.color}`} />
+                      <p className="text-primary-700 font-medium">{solution.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Personas */}
-        <section id="personas" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
-          <div className="max-w-7xl mx-auto">
+        {/* Interactive Demo */}
+        <section id="demo" className="section-padding">
+          <div className="container-custom">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Три генеральные персоны</h2>
-              <p className="text-xl text-gray-400">Каждый риелтор найдет свой путь в экосистеме</p>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">ПОСМОТРИТЕ КАК ЭТО РАБОТАЕТ</h2>
+              <p className="text-xl text-primary-600 max-w-3xl mx-auto">
+                Интерактивная демонстрация технологий М²
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {personas.map((persona, index) => (
-                <div key={index} className="bg-gray-800 rounded-xl p-8 text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-6">
-                    👤
-                  </div>
-                  <h3 className="text-2xl font-semibold mb-4">{persona.name}</h3>
-                  <p className="text-gray-400 mb-6">{persona.description}</p>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm text-gray-500 mb-2">Модули:</p>
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        {persona.modules.map((module, idx) => (
-                          <span key={idx} className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
-                            {module}
-                          </span>
-                        ))}
+            <div className="max-w-4xl mx-auto">
+              {/* Demo Tabs */}
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                {demoTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveDemo(tab.id)}
+                    className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                      activeDemo === tab.id
+                        ? 'bg-brand-600 text-white shadow-medium'
+                        : 'bg-white text-primary-700 border border-primary-200 hover:bg-primary-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <tab.icon className="w-4 h-4" />
+                      {tab.title}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Demo Content */}
+              <div className="card-hover">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Demo Animation */}
+                  <div className="lg:col-span-2">
+                    <div className="bg-gradient-to-br from-primary-50 to-brand-50 rounded-2xl p-8 h-64 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Play className="w-8 h-8 text-brand-600" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2">
+                          {demoTabs.find(tab => tab.id === activeDemo)?.title}
+                        </h3>
+                        <p className="text-primary-600">
+                          {demoTabs.find(tab => tab.id === activeDemo)?.description}
+                        </p>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Demo Stats */}
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <h4 className="text-lg font-semibold mb-4">Результат</h4>
+                      
+                      <div className="space-y-4">
+                        <div className="bg-white rounded-xl p-4 border border-primary-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-primary-600">Сэкономленное время:</span>
+                            <Timer className="w-4 h-4 text-brand-600" />
+                          </div>
+                          <div className="text-2xl font-bold text-primary-900">
+                            {demoTabs.find(tab => tab.id === activeDemo)?.time}
+                          </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl p-4 border border-primary-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm text-primary-600">Дополнительный доход:</span>
+                            <DollarSign className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div className="text-2xl font-bold text-green-600">
+                            {demoTabs.find(tab => tab.id === activeDemo)?.income}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Success Stories */}
+        <section id="stories" className="section-padding bg-white">
+          <div className="container-custom">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">ИСТОРИИ УСПЕХА</h2>
+              <p className="text-xl text-primary-600 max-w-3xl mx-auto">
+                Реальные риелторы, которые изменили свой бизнес с М²
+              </p>
+            </div>
+            
+            <div className="max-w-6xl mx-auto">
+              {/* Story Navigation */}
+              <div className="flex justify-center mb-8">
+                <div className="flex space-x-2">
+                  {successStories.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setActiveStory(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                        activeStory === index ? 'bg-brand-600' : 'bg-primary-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Story Content */}
+              <div className="card-hover">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Story Info */}
+                  <div>
+                    <div className={`w-20 h-20 bg-gradient-to-br ${successStories[activeStory].color} rounded-2xl flex items-center justify-center text-3xl mb-6`}>
+                      {successStories[activeStory].avatar}
                     </div>
                     
-                    <div className="flex justify-between items-center pt-4 border-t border-gray-700">
+                    <h3 className="text-3xl font-bold mb-2">
+                      {successStories[activeStory].name}
+                    </h3>
+                    <p className="text-brand-600 font-medium mb-6">
+                      {successStories[activeStory].city}
+                    </p>
+
+                    <div className="space-y-6">
+                      {/* Before */}
                       <div>
-                        <p className="text-sm text-gray-500">Выручка</p>
-                        <p className="text-green-400 font-semibold">{persona.revenue}</p>
+                        <h4 className="text-lg font-semibold mb-3 text-red-600">Было:</h4>
+                        <div className="space-y-2 text-primary-600">
+                          <p><Clock className="w-4 h-4 inline mr-2" />{successStories[activeStory].before.time}</p>
+                          <p><AlertTriangle className="w-4 h-4 inline mr-2" />{successStories[activeStory].before.problem}</p>
+                          <p><DollarSign className="w-4 h-4 inline mr-2" />{successStories[activeStory].before.income}</p>
+                        </div>
                       </div>
+
+                      {/* After */}
                       <div>
-                        <p className="text-sm text-gray-500">LTV/CAC</p>
-                        <p className="text-purple-400 font-semibold">{persona.ltv}</p>
+                        <h4 className="text-lg font-semibold mb-3 text-green-600">Стало:</h4>
+                        <div className="space-y-2 text-primary-600">
+                          <p><Zap className="w-4 h-4 inline mr-2" />{successStories[activeStory].after.time}</p>
+                          <p><CheckCircle className="w-4 h-4 inline mr-2" />{successStories[activeStory].after.result}</p>
+                          <p><DollarSign className="w-4 h-4 inline mr-2" />{successStories[activeStory].after.income}</p>
+                        </div>
                       </div>
+
+                      {/* Quote */}
+                      <div className="bg-primary-50 rounded-xl p-4">
+                        <p className="text-primary-700 italic">
+                          &ldquo;{successStories[activeStory].quote}&rdquo;
+                        </p>
+                      </div>
+
+                      <button className="btn-primary w-full">
+                        {successStories[activeStory].video}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Story Visual */}
+                  <div className="bg-gradient-to-br from-primary-50 to-brand-50 rounded-2xl p-8 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-medium">
+                        <ThumbsUp className="w-12 h-12 text-green-600" />
+                      </div>
+                      <h4 className="text-xl font-semibold mb-2">Результат</h4>
+                      <p className="text-primary-600">
+                        {activeStory === 0 && '+180% к доходу за 6 месяцев'}
+                        {activeStory === 1 && '+280% к доходу за 8 месяцев'}
+                        {activeStory === 2 && '+276% к доходу за 4 месяца'}
+                      </p>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-6">Готов стать частью экосистемы?</h2>
-            <p className="text-xl text-gray-400 mb-8">
-              Присоединяйтесь к тысячам риелторов, которые уже используют M² для роста своего бизнеса
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/register" 
-                className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-xl text-lg font-semibold transition-all transform hover:scale-105"
-              >
-                Начать бесплатно
-              </Link>
-              <button className="px-8 py-4 bg-gray-800 hover:bg-gray-700 rounded-xl text-lg font-semibold transition-all">
-                Связаться с нами
-              </button>
+        {/* Final CTA */}
+        <section className="section-padding">
+          <div className="container-custom">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="card-hover">
+                              <h2 className="text-4xl md:text-5xl font-bold mb-6">ГОТОВЫ УПРОСТИТЬ РАБОТУ?</h2>
+              <p className="text-xl text-primary-600 mb-8 max-w-2xl mx-auto">
+                Присоединяйтесь к 2,847 риелторам, которые уже используют М² для автоматизации
+              </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link 
+                    href="/register" 
+                    className="btn-primary text-lg px-8 py-4 flex items-center justify-center gap-2"
+                  >
+                    <Zap className="w-5 h-5" />
+                    Начать бесплатно
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                  <button className="btn-secondary text-lg px-8 py-4 flex items-center justify-center gap-2">
+                    <MessageCircle className="w-5 h-5" />
+                    Получить консультацию
+                  </button>
+                </div>
+                
+                <div className="mt-8 text-sm text-primary-500">
+                  <p><CheckCircle className="w-4 h-4 inline mr-1" />Без регистрации • <CheckCircle className="w-4 h-4 inline mr-1" />Без карты • <CheckCircle className="w-4 h-4 inline mr-1" />Без обязательств</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 border-t border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <footer className="bg-primary-900 text-white">
+        <div className="container-custom py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
-                  <span className="text-xl font-bold">M²</span>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                  <span className="text-xl font-bold text-white">M²</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold">M² - Аренда</h3>
-                  <p className="text-sm text-gray-400">Платформа для риелторов</p>
+                  <h3 className="text-lg font-bold">M²</h3>
+                  <p className="text-sm text-primary-300">Технологии для риелторов</p>
                 </div>
               </div>
-              <p className="text-gray-400">
-                Первая в России комплексная операционная система для риелторов
+              <p className="text-primary-300 leading-relaxed">
+                Профессиональные инструменты для упрощения работы риелторов
               </p>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Продукт</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white transition-colors">Модули</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">API</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Интеграции</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Документация</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Компания</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white transition-colors">О нас</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Блог</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Карьера</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Контакты</Link></li>
+              <ul className="space-y-3 text-primary-300">
+                <li><Link href="#" className="hover:text-white transition-colors">Скоринг</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Договоры</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Мультилистинг</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Подписи</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Поддержка</h4>
-              <ul className="space-y-2 text-gray-400">
+              <ul className="space-y-3 text-primary-300">
                 <li><Link href="#" className="hover:text-white transition-colors">Помощь</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Документация</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">Сообщество</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Статус</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Безопасность</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Контакты</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Компания</h4>
+              <ul className="space-y-3 text-primary-300">
+                <li><Link href="#" className="hover:text-white transition-colors">О нас</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Блог</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Карьера</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Партнеры</Link></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2024 M² - Аренда. Все права защищены.</p>
+          <div className="border-t border-primary-700 mt-12 pt-8 text-center text-primary-300">
+            <p>© 2024 M². Все права защищены.</p>
           </div>
         </div>
       </footer>

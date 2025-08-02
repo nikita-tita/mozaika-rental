@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/Select'
 import { FileText, Calendar, CheckCircle, XCircle, Clock, AlertCircle, MapPin } from 'lucide-react'
 import { ContractWithDetails } from '@/types'
 import { formatPrice, formatDate } from '@/lib/utils'
+import Breadcrumbs from '@/components/ui/Breadcrumbs'
 
 const statusOptions = [
   { value: 'ALL', label: 'Все статусы' },
@@ -131,6 +132,13 @@ export default function ContractsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumbs */}
+      <div className="bg-white border-b border-gray-200 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Breadcrumbs />
+        </div>
+      </div>
+
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -143,9 +143,9 @@ export async function POST(request: NextRequest) {
     }
 
     const user = verifyToken(token)
-    if (!user || user.role !== 'LANDLORD') {
+    if (!user || (user.role !== 'REALTOR' && user.role !== 'ADMIN')) {
       return NextResponse.json(
-        { success: false, error: 'Недостаточно прав доступа' },
+        { success: false, error: 'Только риелторы и администраторы могут создавать недвижимость' },
         { status: 403 }
       )
     }

@@ -26,18 +26,19 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
-    const role = searchParams.get('role') || 'tenant' // 'tenant' или 'landlord'
+    const role = searchParams.get('role') || 'realtor' // 'realtor' или 'admin'
 
     let whereClause: any = {}
 
-    if (role === 'tenant') {
-      // Бронирования пользователя как арендатора
-      whereClause.tenantId = user.userId
+    if (role === 'realtor') {
+      // Бронирования риелтора
+      whereClause.realtorId = user.userId
+    } else if (role === 'admin') {
+      // Администратор видит все бронирования
+      whereClause = {}
     } else {
-      // Бронирования недвижимости пользователя как арендодателя
-      whereClause.property = {
-        ownerId: user.userId
-      }
+      // По умолчанию показываем бронирования риелтора
+      whereClause.realtorId = user.userId
     }
 
     if (status && status !== 'ALL') {
@@ -105,9 +106,9 @@ export async function POST(request: NextRequest) {
     }
 
     const user = verifyToken(token)
-    if (!user || user.role !== 'TENANT') {
+    if (!user || (user.role !== 'REALTOR' && user.role !== 'ADMIN')) {
       return NextResponse.json(
-        { success: false, error: 'Только арендаторы могут создавать бронирования' },
+        { success: false, error: 'Только риелторы и администраторы могут создавать бронирования' },
         { status: 403 }
       )
     }

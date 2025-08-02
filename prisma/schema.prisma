@@ -13,6 +13,8 @@ datasource db {
 enum UserRole {
   REALTOR     // Риелтор
   ADMIN       // Администратор
+  TENANT      // Арендатор
+  LANDLORD    // Арендодатель
 }
 
 enum PropertyType {

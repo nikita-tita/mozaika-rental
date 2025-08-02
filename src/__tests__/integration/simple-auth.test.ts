@@ -30,7 +30,7 @@ describe('Simple Authentication Integration', () => {
     it('should generate and verify token correctly', () => {
       const userId = 'user123'
       const email = 'test@example.com'
-      const role = 'TENANT'
+      const role = 'REALTOR'
       
       // Generate token
       const token = generateToken(userId, email, role)
@@ -65,7 +65,7 @@ describe('Simple Authentication Integration', () => {
       // Step 3: Generate token
       const userId = 'user123'
       const email = 'user@example.com'
-      const role = 'TENANT'
+      const role = 'REALTOR'
       
       const token = generateToken(userId, email, role)
       

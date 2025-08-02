@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { Building2, ArrowLeft, CheckCircle } from 'lucide-react'
 
 const userRoleOptions = [
-  { value: 'TENANT', label: 'Арендатор' },
-  { value: 'LANDLORD', label: 'Арендодатель' }
+  { value: 'REALTOR', label: 'Риелтор' }
 ]
 
 export default function RegisterPage() {
@@ -21,7 +21,9 @@ export default function RegisterPage() {
     phone: '',
     password: '',
     confirmPassword: '',
-    role: 'TENANT'
+    role: 'REALTOR',
+    agreeToTerms: false,
+    agreeToPrivacy: false
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -40,6 +42,14 @@ export default function RegisterPage() {
 
     if (formData.password.length < 6) {
       newErrors.password = 'Пароль должен содержать минимум 6 символов'
+    }
+
+    if (!formData.agreeToTerms) {
+      newErrors.agreeToTerms = 'Необходимо согласиться с условиями использования'
+    }
+
+    if (!formData.agreeToPrivacy) {
+      newErrors.agreeToPrivacy = 'Необходимо согласиться с политикой конфиденциальности'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -87,19 +97,32 @@ export default function RegisterPage() {
     }
   }
 
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target
+    setFormData(prev => ({ ...prev, [name]: checked }))
+    // Убираем ошибку для поля при изменении
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary-600">M²</h1>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center">
+              <Building2 className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold text-primary-900 mb-2">
             Создать аккаунт
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="text-primary-600">
             Или{' '}
             <Link
               href="/login"
-              className="font-medium text-primary-600 hover:text-primary-500"
+              className="font-medium text-brand-600 hover:text-brand-700 transition-colors"
             >
               войдите в существующий аккаунт
             </Link>
@@ -108,10 +131,10 @@ export default function RegisterPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="card-hover">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.general && (
-              <div className="rounded-md bg-red-50 p-4">
+              <div className="rounded-xl bg-red-50 border border-red-200 p-4">
                 <div className="text-sm text-red-700">{errors.general}</div>
               </div>
             )}
@@ -126,6 +149,7 @@ export default function RegisterPage() {
                 value={formData.firstName}
                 onChange={handleChange}
                 error={errors.firstName}
+                className="text-gray-900"
               />
 
               <Input
@@ -137,6 +161,7 @@ export default function RegisterPage() {
                 value={formData.lastName}
                 onChange={handleChange}
                 error={errors.lastName}
+                className="text-gray-900"
               />
             </div>
 
@@ -149,6 +174,7 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               error={errors.email}
+              className="text-gray-900"
             />
 
             <Input
@@ -161,6 +187,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               error={errors.phone}
               helperText="Необязательно"
+              className="text-gray-900"
             />
 
             <Select
@@ -182,6 +209,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               error={errors.password}
               helperText="Минимум 6 символов"
+              className="text-gray-900"
             />
 
             <Input
@@ -193,7 +221,51 @@ export default function RegisterPage() {
               value={formData.confirmPassword}
               onChange={handleChange}
               error={errors.confirmPassword}
+              className="text-gray-900"
             />
+
+            {/* Согласия */}
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="agreeToTerms"
+                  name="agreeToTerms"
+                  checked={formData.agreeToTerms}
+                  onChange={handleCheckboxChange}
+                  className="mt-1 w-4 h-4 text-brand-600 bg-white border-primary-300 rounded focus:ring-brand-500 focus:ring-2"
+                />
+                <label htmlFor="agreeToTerms" className="text-sm text-primary-700">
+                  Я соглашаюсь с{' '}
+                  <Link href="/terms" className="text-brand-600 hover:text-brand-700 transition-colors font-medium">
+                    условиями использования
+                  </Link>
+                  {errors.agreeToTerms && (
+                    <span className="block text-red-600 text-xs mt-1">{errors.agreeToTerms}</span>
+                  )}
+                </label>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="agreeToPrivacy"
+                  name="agreeToPrivacy"
+                  checked={formData.agreeToPrivacy}
+                  onChange={handleCheckboxChange}
+                  className="mt-1 w-4 h-4 text-brand-600 bg-white border-primary-300 rounded focus:ring-brand-500 focus:ring-2"
+                />
+                <label htmlFor="agreeToPrivacy" className="text-sm text-primary-700">
+                  Я соглашаюсь с{' '}
+                  <Link href="/privacy" className="text-brand-600 hover:text-brand-700 transition-colors font-medium">
+                    политикой конфиденциальности
+                  </Link>
+                  {errors.agreeToPrivacy && (
+                    <span className="block text-red-600 text-xs mt-1">{errors.agreeToPrivacy}</span>
+                  )}
+                </label>
+              </div>
+            </div>
 
             <Button
               type="submit"
@@ -202,18 +274,17 @@ export default function RegisterPage() {
             >
               Создать аккаунт
             </Button>
-
-            <div className="text-xs text-gray-500 text-center">
-              Создавая аккаунт, вы соглашаетесь с{' '}
-              <Link href="/terms" className="text-primary-600 hover:text-primary-500">
-                условиями использования
-              </Link>{' '}
-              и{' '}
-              <Link href="/privacy" className="text-primary-600 hover:text-primary-500">
-                политикой конфиденциальности
-              </Link>
-            </div>
           </form>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Вернуться на главную
+          </Link>
         </div>
       </div>
     </div>

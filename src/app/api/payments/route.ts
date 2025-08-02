@@ -25,24 +25,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const type = searchParams.get('type')
-    const role = searchParams.get('role') || 'all' // 'tenant', 'landlord', 'all'
+    const role = searchParams.get('role') || 'all' // 'realtor', 'admin', 'all'
 
     let whereClause: any = {}
 
-    if (role === 'tenant') {
-      // Платежи пользователя как арендатора
-      whereClause.userId = user.userId
-    } else if (role === 'landlord') {
-      // Платежи за недвижимость пользователя как арендодателя
-      whereClause.property = {
-        ownerId: user.userId
-      }
+    if (role === 'realtor') {
+      // Платежи риелтора
+      whereClause.realtorId = user.userId
+    } else if (role === 'admin') {
+      // Администратор видит все платежи
+      whereClause = {}
     } else {
-      // Все платежи, связанные с пользователем
-      whereClause.OR = [
-        { userId: user.userId },
-        { property: { ownerId: user.userId } }
-      ]
+      // По умолчанию показываем платежи риелтора
+      whereClause.realtorId = user.userId
     }
 
     if (status && status !== 'ALL') {
