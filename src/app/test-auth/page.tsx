@@ -120,7 +120,7 @@ export default function TestAuthPage() {
             <h2 className="text-lg font-semibold mb-4">Результаты тестов:</h2>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {testResults.length === 0 ? (
-                <p className="text-gray-500">Нажмите "Запустить полный тест" для начала тестирования</p>
+                <p className="text-gray-500">Нажмите &quot;Запустить полный тест&quot; для начала тестирования</p>
               ) : (
                 testResults.map((result, index) => (
                   <div key={index} className="text-sm font-mono">
