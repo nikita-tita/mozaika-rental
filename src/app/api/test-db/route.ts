@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const userCount = await prisma.user.count()
     
     // Получаем схему базы данных
-    const tables = await prisma.$queryRaw`
+    const tables = await prisma.$queryRaw<Array<{table_name: string}>>`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = 'public'
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       data: {
         connected: true,
         userCount,
-        tables: tables.map((t: any) => t.table_name)
+        tables: tables.map((t) => t.table_name)
       }
     })
 
