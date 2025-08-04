@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { 
   ExternalLink, 
-  Sync, 
+  RefreshCw, 
   BarChart3, 
   Calendar, 
   MessageSquare, 
@@ -24,7 +24,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 const features = [
   {
-    icon: Sync,
+    icon: RefreshCw,
     title: 'Автоматическая синхронизация',
     description: 'Ваши объекты автоматически появляются на Яндекс.Аренда в течение 5 минут'
   },
