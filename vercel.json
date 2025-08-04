@@ -6,6 +6,11 @@
     "LOG_LEVEL": "INFO",
     "NEXT_TELEMETRY_DISABLED": "1"
   },
+  "build": {
+    "env": {
+      "PRISMA_GENERATE_DATAPROXY": "true"
+    }
+  },
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30
@@ -57,11 +62,5 @@
       "destination": "/api/$1"
     }
   ],
-  "redirects": [
-    {
-      "source": "/dashboard",
-      "destination": "/dashboard-enhanced",
-      "permanent": false
-    }
-  ]
+
 }

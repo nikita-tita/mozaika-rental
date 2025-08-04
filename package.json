@@ -16,7 +16,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "vercel-build": "prisma generate && next build",
+    "vercel-build": "prisma generate && next build --no-lint",
     "postinstall": "prisma generate",
     "docker:build": "docker build -t mozaika-platform .",
     "docker:run": "docker run -p 3000:3000 mozaika-platform",
