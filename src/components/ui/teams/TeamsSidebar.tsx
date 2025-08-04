@@ -1,37 +1,47 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useApp } from '@/components/providers/AppProvider'
-import { 
+import {
   Home,
+  Users,
   Building2,
   FileText,
   CreditCard,
-  Users,
-  Settings,
-  FileSignature,
   TrendingUp,
   Calculator,
-  ExternalLink
+  FileSignature,
+  ExternalLink,
+  Shield,
+  Bell,
+  Settings,
+  LogOut,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 
-interface MenuItem {
-  title: string
-  href: string
-  icon: React.ComponentType<{ className?: string }>
-}
-
-const menuItems: MenuItem[] = [
+const menuItems = [
   {
     title: 'Панель управления',
     href: '/dashboard',
     icon: Home
   },
   {
-    title: 'Недвижимость',
+    title: 'Объекты',
     href: '/properties',
     icon: Building2
+  },
+  {
+    title: 'Клиенты',
+    href: '/clients',
+    icon: Users
+  },
+  {
+    title: 'Сделки',
+    href: '/deals',
+    icon: TrendingUp
   },
   {
     title: 'Договоры',
@@ -42,16 +52,6 @@ const menuItems: MenuItem[] = [
     title: 'Платежи',
     href: '/payments',
     icon: CreditCard
-  },
-  {
-    title: 'Клиенты',
-    href: '/clients',
-    icon: Users
-  },
-  {
-    title: 'Конструктор',
-    href: '/contracts',
-    icon: FileText
   },
   {
     title: 'Скоринг',
@@ -66,12 +66,22 @@ const menuItems: MenuItem[] = [
   {
     title: 'Мультилистинг',
     href: '/multilisting',
-    icon: TrendingUp
+    icon: ExternalLink
   },
   {
-    title: 'M²xЯндексАренда',
+    title: 'Страхование',
+    href: '/insurance',
+    icon: Shield
+  },
+  {
+    title: 'M² x Яндекс.Аренда',
     href: '/yandex-rental',
     icon: ExternalLink
+  },
+  {
+    title: 'Уведомления',
+    href: '/notifications',
+    icon: Bell
   },
   {
     title: 'Настройки',
@@ -83,61 +93,97 @@ const menuItems: MenuItem[] = [
 export function TeamsSidebar() {
   const pathname = usePathname()
   const { user, logout } = useApp()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
+  const handleLogout = async () => {
+    await logout()
+  }
 
   return (
-    <div className="fixed top-16 left-0 h-[calc(100vh-8rem)] bg-white shadow-lg z-40 w-64">
+    <div className={`bg-white shadow-lg flex-shrink-0 transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
       <div className="h-full flex flex-col">
-        {/* Пользователь */}
+        {/* Header */}
         <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">
-                {user?.firstName?.charAt(0) || user?.email?.charAt(0) || 'U'}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {user?.firstName} {user?.lastName}
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                {user?.email}
-              </p>
-            </div>
+          <div className="flex items-center justify-between">
+            {!isCollapsed && (
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">M²</span>
+                </div>
+                <span className="text-lg font-bold text-gray-900">Mozaika</span>
+              </div>
+            )}
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1 rounded-md hover:bg-gray-100"
+            >
+              {isCollapsed ? (
+                <ChevronRight className="w-4 h-4 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-gray-600" />
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Навигация */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {/* Navigation */}
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
-            
+            const isBeta = item.href === '/yandex-rental'
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-100 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                <span>{item.title}</span>
+                <Icon className="w-5 h-5 mr-3" />
+                {!isCollapsed && (
+                  <div className="flex items-center justify-between w-full">
+                    <span>{item.title}</span>
+                    {isBeta && (
+                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                        Бета
+                      </span>
+                    )}
+                  </div>
+                )}
               </Link>
             )
           })}
         </nav>
 
-        {/* Выход */}
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={logout}
-            className="flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-          >
-            <span>Выйти</span>
-          </button>
-        </div>
+        {/* User Section */}
+        {!isCollapsed && user && (
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-medium text-sm">
+                  {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user.firstName} {user.lastName}
+                </p>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors"
+            >
+              <LogOut className="w-4 h-4 mr-3" />
+              Выйти
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

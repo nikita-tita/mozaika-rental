@@ -40,26 +40,42 @@ export function LoginForm() {
     setError('')
 
     try {
+      console.log('🔐 Попытка входа для:', formData.email)
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       })
 
       const data = await response.json()
 
       if (data.success) {
+        console.log('✅ Авторизация успешна, обновляем состояние')
+        
         // Обновляем состояние приложения
         login(data.data)
         
         // Проверяем авторизацию еще раз для уверенности
         await checkAuth()
         
-        // Принудительное обновление страницы
-        window.location.href = redirect
+        console.log('🔄 Перенаправление на:', redirect)
+        
+        // Используем router.push для более плавного перехода
+        router.push(redirect)
+        
+        // Если router.push не сработал, используем принудительное обновление
+        setTimeout(() => {
+          if (window.location.pathname !== redirect) {
+            console.log('🔄 Принудительное перенаправление')
+            window.location.href = redirect
+          }
+        }, 1000)
       } else {
+        console.log('❌ Ошибка авторизации:', data.message)
         setError(data.message || 'Ошибка авторизации')
       }
     } catch (error) {

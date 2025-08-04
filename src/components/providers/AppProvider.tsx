@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface User {
   id: string
@@ -25,6 +26,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined)
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const pathname = usePathname()
 
   const checkAuth = async () => {
     try {
@@ -36,11 +39,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const data = await response.json()
         if (data.success && data.user) {
           setUser(data.user)
+          console.log('✅ Пользователь авторизован:', data.user.email)
         } else {
           setUser(null)
+          console.log('❌ Пользователь не авторизован')
         }
       } else {
         setUser(null)
+        console.log('❌ Ошибка проверки авторизации:', response.status)
       }
     } catch (error) {
       console.error('Ошибка проверки авторизации:', error)
@@ -53,23 +59,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const login = (userData: User) => {
     setUser(userData)
     setLoading(false)
-    console.log('Пользователь авторизован:', userData)
+    console.log('✅ Пользователь авторизован:', userData.email)
   }
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      console.log('🚪 Выполняется выход из системы...')
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include'
+      })
     } catch (error) {
       console.error('Ошибка выхода:', error)
     } finally {
       setUser(null)
+      console.log('✅ Выход выполнен, перенаправление на /login')
+      // Принудительное перенаправление на страницу входа
       window.location.href = '/login'
     }
   }
 
+  // Проверяем авторизацию при загрузке
   useEffect(() => {
     checkAuth()
   }, [])
+
+  // Проверяем авторизацию при изменении маршрута
+  useEffect(() => {
+    if (!loading) {
+      // Если пользователь не авторизован и находится на защищенной странице
+      if (!user && pathname !== '/login' && pathname !== '/register' && pathname !== '/') {
+        console.log('🛡️ Попытка доступа к защищенной странице без авторизации')
+        router.push('/login')
+      }
+    }
+  }, [user, loading, pathname, router])
 
   const value = {
     user,

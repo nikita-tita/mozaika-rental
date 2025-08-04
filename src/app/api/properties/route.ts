@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyJWTToken } from '@/lib/auth'
 import { CreatePropertySchema } from '@/lib/validations'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
+import { existsSync } from 'fs'
 
 export async function GET(request: NextRequest) {
   try {
@@ -106,11 +107,11 @@ export async function POST(request: NextRequest) {
       
       // Извлекаем данные формы
       for (const [key, value] of formDataObj.entries()) {
-        if (key === 'images') {
+        if (key.startsWith('images[')) {
           if (value instanceof File) {
             images.push(value)
           }
-        } else if (key === 'amenities') {
+        } else if (key === 'features') {
           try {
             formData[key] = JSON.parse(value as string)
           } catch {
@@ -125,27 +126,14 @@ export async function POST(request: NextRequest) {
       formData = await request.json()
     }
 
-    const { 
-      title, 
-      description, 
-      type, 
-      address, 
-      price,
-      bedrooms,
-      bathrooms,
-      area,
-      features
-    } = formData
-
-    // Валидация с помощью Zod
-    console.log('FormData before validation:', formData)
+    console.log('Полученные данные формы:', formData)
     
     try {
       const validationResult = CreatePropertySchema.safeParse(formData)
 
       if (!validationResult.success) {
-        console.log('Validation errors:', validationResult.error.errors)
-        const errors = validationResult.error.errors.map(err => err.message).join(', ')
+        console.log('Ошибки валидации:', validationResult.error.errors)
+        const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ')
         return NextResponse.json(
           { success: false, error: `Ошибка валидации: ${errors}` },
           { status: 400 }
@@ -153,81 +141,96 @@ export async function POST(request: NextRequest) {
       }
 
       const validatedData = validationResult.data
+      console.log('Валидированные данные:', validatedData)
 
+      // Создаем объект недвижимости
       const property = await prisma.property.create({
         data: {
           title: validatedData.title,
-          description: validatedData.description,
+          description: validatedData.description || '',
           type: validatedData.type,
           address: validatedData.address,
-          price: validatedData.price,
+          price: validatedData.pricePerMonth, // Используем pricePerMonth как price
           bedrooms: validatedData.bedrooms || null,
           bathrooms: validatedData.bathrooms || null,
           area: validatedData.area || null,
           features: validatedData.features || [],
+          images: [], // Пока оставляем пустым, добавим после обработки изображений
           userId: existingUser.id
         }
       })
 
+      console.log('Объект создан:', property)
+
       // Обрабатываем загрузку изображений
+      const imageUrls: string[] = []
       if (images.length > 0) {
-      const imagePromises = images.map(async (image, index) => {
-        try {
-          // Проверяем тип файла
-          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-          if (!allowedTypes.includes(image.type)) {
-            throw new Error(`Недопустимый тип файла: ${image.type}`)
-          }
-
-          // Проверяем размер файла (10MB)
-          const maxSize = 10 * 1024 * 1024 // 10MB
-          if (image.size > maxSize) {
-            throw new Error('Файл слишком большой. Максимальный размер: 10MB')
-          }
-
-          const bytes = await image.arrayBuffer()
-          const buffer = Buffer.from(bytes)
-
-          // Генерируем уникальное имя файла
-          const timestamp = Date.now()
-          const random = Math.random().toString(36).substring(2, 15)
-          const extension = image.name.split('.').pop()
-          const filename = `${timestamp}-${random}.${extension}`
-
-          // Сохраняем файл
-          const uploadDir = join(process.cwd(), 'public', 'uploads')
-          const filePath = join(uploadDir, filename)
-          
-          await writeFile(filePath, buffer)
-
-          const fileUrl = `/uploads/${filename}`
-
-          // Создаем запись в базе данных
-          return prisma.propertyImage.create({
-            data: {
-              propertyId: property.id,
-              url: fileUrl,
-              alt: `Фото ${index + 1} - ${property.title}`,
-              order: index
-            }
-          })
-        } catch (error) {
-          console.error(`Error saving image ${image.name}:`, error)
-          throw error
+        // Создаем директорию для загрузок, если её нет
+        const uploadDir = join(process.cwd(), 'public', 'uploads')
+        if (!existsSync(uploadDir)) {
+          await mkdir(uploadDir, { recursive: true })
         }
-      })
 
-      await Promise.all(imagePromises)
-    }
+        const imagePromises = images.map(async (image, index) => {
+          try {
+            // Проверяем тип файла
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+            if (!allowedTypes.includes(image.type)) {
+              throw new Error(`Недопустимый тип файла: ${image.type}`)
+            }
+
+            // Проверяем размер файла (10MB)
+            const maxSize = 10 * 1024 * 1024 // 10MB
+            if (image.size > maxSize) {
+              throw new Error('Файл слишком большой. Максимальный размер: 10MB')
+            }
+
+            const bytes = await image.arrayBuffer()
+            const buffer = Buffer.from(bytes)
+
+            // Генерируем уникальное имя файла
+            const timestamp = Date.now()
+            const random = Math.random().toString(36).substring(2, 15)
+            const extension = image.name.split('.').pop()
+            const filename = `${timestamp}-${random}.${extension}`
+
+            // Сохраняем файл
+            const filePath = join(uploadDir, filename)
+            await writeFile(filePath, buffer)
+
+            const fileUrl = `/uploads/${filename}`
+            imageUrls.push(fileUrl)
+
+            console.log(`Изображение ${index + 1} сохранено:`, fileUrl)
+          } catch (error) {
+            console.error(`Ошибка сохранения изображения ${image.name}:`, error)
+            throw error
+          }
+        })
+
+        await Promise.all(imagePromises)
+
+        // Обновляем объект с URL изображений
+        if (imageUrls.length > 0) {
+          await prisma.property.update({
+            where: { id: property.id },
+            data: { images: imageUrls }
+          })
+        }
+      }
 
       return NextResponse.json({
         success: true,
-        data: property
+        data: {
+          ...property,
+          images: imageUrls
+        }
       })
+
     } catch (error) {
-      console.error('Validation error:', error)
+      console.error('Ошибка валидации или создания:', error)
       return NextResponse.json(
-        { success: false, error: 'Ошибка валидации данных' },
+        { success: false, error: error instanceof Error ? error.message : 'Ошибка валидации данных' },
         { status: 400 }
       )
     }

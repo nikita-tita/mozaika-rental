@@ -27,6 +27,7 @@ export default function TeamsHeader() {
               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm sm:text-lg">M²</span>
               </div>
+              <span className="text-lg sm:text-xl font-bold text-gray-900">Mozaika</span>
             </Link>
           </div>
 

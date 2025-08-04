@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { TeamsButton, TeamsInput, TeamsSelect, TeamsCard } from '@/components/ui/teams'
 import { Search, MapPin, Filter, Heart, Star, Calendar, Users, Home } from 'lucide-react'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
 const propertyTypeOptions = [
   { value: '', label: 'Все типы' },
@@ -188,8 +189,8 @@ export default function PropertiesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="lg:pl-64">
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-50">
           <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <div className="animate-pulse">
               <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
@@ -205,13 +206,13 @@ export default function PropertiesPage() {
             </div>
           </main>
         </div>
-      </div>
+      </ProtectedRoute>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="lg:pl-64">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
         <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           {/* Заголовок и поиск */}
           <div className="mb-8">
@@ -403,6 +404,6 @@ export default function PropertiesPage() {
           )}
         </main>
       </div>
-    </div>
+    </ProtectedRoute>
   )
 }
