@@ -2,22 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { 
-  Bell, 
-  CheckCircle, 
-  AlertCircle, 
-  Calendar, 
-  CreditCard, 
-  FileText, 
-  Home,
-  MessageSquare,
-  Settings as SettingsIcon,
-  Check,
-  CheckCheck
-} from 'lucide-react'
+import { TeamsButton, TeamsCard, TeamsBadge, TeamsNavigation } from '@/components/ui/teams'
+import { Bell, Check, X, Clock, AlertCircle, CheckCircle, Calendar, CreditCard, FileText, Home, MessageSquare, Settings as SettingsIcon, CheckCheck } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import Breadcrumbs from '@/components/ui/Breadcrumbs'
 
 interface Notification {
   id: string
@@ -181,7 +168,22 @@ export default function NotificationsPage() {
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-200 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumbs />
+          <nav className="flex" aria-label="Breadcrumb">
+            <ol className="flex items-center space-x-4">
+              <li>
+                <div className="flex items-center">
+                  <a href="/dashboard" className="text-gray-400 hover:text-gray-500">
+                    Главная
+                  </a>
+                </div>
+              </li>
+              <li>
+                <div className="flex items-center">
+                  <span className="text-gray-500">Уведомления</span>
+                </div>
+              </li>
+            </ol>
+          </nav>
         </div>
       </div>
 
@@ -234,10 +236,10 @@ export default function NotificationsPage() {
           </div>
 
           {unreadCount > 0 && (
-            <Button variant="outline" onClick={markAllAsRead}>
+            <TeamsButton variant="outline" onClick={markAllAsRead}>
               <CheckCheck className="h-4 w-4 mr-2" />
               Отметить все как прочитанные
-            </Button>
+            </TeamsButton>
           )}
         </div>
 
@@ -282,13 +284,13 @@ export default function NotificationsPage() {
 
             {hasMore && (
               <div className="text-center pt-6">
-                <Button
+                <TeamsButton
                   variant="outline"
                   onClick={() => setPage(prev => prev + 1)}
                   loading={loading}
                 >
                   Загрузить еще
-                </Button>
+                </TeamsButton>
               </div>
             )}
           </div>
@@ -341,13 +343,13 @@ function NotificationCard({
                 )}
                 
                 {!notification.read && (
-                  <Button
+                  <TeamsButton
                     size="sm"
                     variant="ghost"
                     onClick={() => onMarkAsRead(notification.id)}
                   >
                     <Check className="h-4 w-4" />
-                  </Button>
+                  </TeamsButton>
                 )}
               </div>
             </div>
@@ -371,9 +373,9 @@ function NotificationCard({
 
               {relatedLink && (
                 <Link href={relatedLink}>
-                  <Button size="sm" variant="outline">
+                  <TeamsButton size="sm" variant="outline">
                     Перейти
-                  </Button>
+                  </TeamsButton>
                 </Link>
               )}
             </div>

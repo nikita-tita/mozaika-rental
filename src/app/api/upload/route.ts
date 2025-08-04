@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
-import { verifyToken } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const user = verifyToken(token)
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Недействительный токен' },

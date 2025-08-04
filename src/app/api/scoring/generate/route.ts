@@ -1,27 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
-    // Проверяем авторизацию
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
+    // Проверяем авторизацию через cookies
+    const token = request.cookies.get('auth-token')?.value
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const user = await verifyToken(token)
-    if (!user || (user.role !== 'REALTOR' && user.role !== 'ADMIN')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const user = verifyJWTToken(token)
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
     const body = await request.json()
     const { scoringData } = body
 
-    // Генерируем отчет по скорингу
-    const reportContent = generateScoringReport(scoringData)
+    // Генерируем простой отчет по скорингу
+    const reportContent = `ОТЧЕТ ПО СКОРИНГУ АРЕНДАТОРА
+
+Дата проверки: ${new Date().toLocaleDateString('ru-RU')}
+ФИО: ${scoringData?.fullName || 'Не указано'}
+Скоринговый балл: ${scoringData?.score || 0} из 1000
+Уровень риска: ${scoringData?.riskLevel || 'Не определен'}
+
+Отчет сгенерирован автоматически системой М²`
     
     // Создаем файл для скачивания
-    const fileName = `Отчет_скоринга_${scoringData.fullName.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`
+    const fileName = `Отчет_скоринга_${scoringData?.fullName?.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_') || 'client'}_${new Date().toISOString().split('T')[0]}.txt`
     
     return NextResponse.json({
       success: true,

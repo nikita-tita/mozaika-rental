@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Select } from '@/components/ui/Select'
+import { TeamsSelect } from '@/components/ui/teams'
 import { CreditCard, AlertCircle } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 
@@ -166,12 +166,17 @@ export function PaymentForm({
         )}
 
         {/* Payment Method */}
-        <Select
-          label="Способ оплаты"
-          options={paymentMethodOptions}
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Способ оплаты
+          </label>
+          <TeamsSelect
+            options={paymentMethodOptions}
+            value={paymentMethod}
+            onChange={(value) => setPaymentMethod(value)}
+            placeholder="Выберите способ оплаты"
+          />
+        </div>
 
         {/* Card Details */}
         {paymentMethod === 'card' && (

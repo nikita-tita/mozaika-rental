@@ -1,269 +1,381 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { Plus, Home, Calendar, FileText, Settings, LogOut, CreditCard } from 'lucide-react'
-import { NotificationBell } from '@/components/notifications/NotificationBell'
-import Breadcrumbs from '@/components/ui/Breadcrumbs'
-
-interface User {
-  id: string
-  email: string
-  firstName: string
-  lastName: string
-  role: string
-}
+import { 
+  Plus, 
+  Home, 
+  Calendar, 
+  FileText, 
+  Settings, 
+  CreditCard, 
+  TrendingUp,
+  Users,
+  Building2,
+  CheckCircle,
+  AlertCircle,
+  Calculator,
+  FileSignature,
+  ExternalLink,
+  ArrowRight
+} from 'lucide-react'
+import { TeamsCard, TeamsButton, TeamsBadge } from '@/components/ui/teams'
+import { useApp } from '@/components/providers/AppProvider'
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null)
-  const [stats, setStats] = useState({
-    properties: 0,
-    bookings: 0,
-    contracts: 0
-  })
+  const { user, loading, logout, isAuthenticated } = useApp()
 
-  useEffect(() => {
-    // Здесь можно загрузить данные пользователя из API
-    // Пока используем моковые данные
-    setUser({
-      id: '1',
-      email: 'user@example.com',
-      firstName: 'Иван',
-      lastName: 'Петров',
-      role: 'LANDLORD'
-    })
+  // Убираем useEffect, так как AppProvider уже загружает пользователя
 
-    setStats({
-      properties: 3,
-      bookings: 5,
-      contracts: 2
-    })
-  }, [])
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      window.location.href = '/'
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
-  }
-
-  if (!user) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Загрузка...</p>
+        </div>
       </div>
     )
   }
 
+  // Проверяем авторизацию
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Требуется авторизация</h1>
+          <p className="text-gray-600 mb-6">Для доступа к панели управления необходимо войти в систему</p>
+          <Link href="/login">
+            <TeamsButton>Войти в систему</TeamsButton>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const quickActions = [
+    {
+      title: 'Недвижимость',
+      description: 'Управление объектами',
+      icon: <Building2 className="h-6 w-6" />,
+      href: '/properties',
+      color: 'bg-blue-500'
+    },
+    {
+      title: 'Сделки',
+      description: 'Управление сделками',
+      icon: <FileText className="h-6 w-6" />,
+      href: '/deals',
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Клиенты',
+      description: 'База клиентов',
+      icon: <Users className="h-6 w-6" />,
+      href: '/clients',
+      color: 'bg-purple-500'
+    },
+    {
+      title: 'Платежи',
+      description: 'Финансовые операции',
+      icon: <CreditCard className="h-6 w-6" />,
+      href: '/payments',
+      color: 'bg-yellow-500'
+    },
+    {
+      title: 'Договоры',
+      description: 'Юридические документы',
+      icon: <FileText className="h-6 w-6" />,
+      href: '/contracts',
+      color: 'bg-red-500'
+    },
+    {
+      title: 'Аналитика',
+      description: 'Отчеты и статистика',
+      icon: <TrendingUp className="h-6 w-6" />,
+      href: '/analytics',
+      color: 'bg-indigo-500'
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumbs */}
-      <div className="bg-white border-b border-gray-200 py-4">
+      {/* Header */}
+      <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumbs />
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Панель управления
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Добро пожаловать, {user?.firstName} {user?.lastName}
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <TeamsBadge variant="success">
+                {user?.role}
+              </TeamsBadge>
+              <button
+                onClick={logout}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Выйти
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-primary-600">
-                M²
-              </Link>
-              <nav className="hidden md:ml-6 md:flex md:space-x-8">
-                <Link
-                  href="/dashboard"
-                  className="text-primary-600 border-b-2 border-primary-600 px-1 pt-1 pb-4 text-sm font-medium"
-                >
-                  Панель управления
-                </Link>
-                <Link
-                  href="/properties"
-                  className="text-gray-500 hover:text-gray-700 px-1 pt-1 pb-4 text-sm font-medium"
-                >
-                  Недвижимость
-                </Link>
-                <Link
-                  href="/bookings"
-                  className="text-gray-500 hover:text-gray-700 px-1 pt-1 pb-4 text-sm font-medium"
-                >
-                  Бронирования
-                </Link>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                {user.firstName} {user.lastName}
-              </span>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Выйти
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Добро пожаловать, {user.firstName}!
-          </h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Управляйте своей недвижимостью и отслеживайте бронирования
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Home className="h-6 w-6 text-gray-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Объектов недвижимости
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {stats.properties}
-                    </dd>
-                  </dl>
-                </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <TeamsCard>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Building2 className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Объекты</p>
+                <p className="text-2xl font-semibold text-gray-900">12</p>
               </div>
             </div>
-          </div>
+          </TeamsCard>
 
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Calendar className="h-6 w-6 text-gray-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Активных бронирований
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {stats.bookings}
-                    </dd>
-                  </dl>
-                </div>
+          <TeamsCard>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <FileText className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Сделки</p>
+                <p className="text-2xl font-semibold text-gray-900">8</p>
               </div>
             </div>
-          </div>
+          </TeamsCard>
 
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <FileText className="h-6 w-6 text-gray-400" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Договоров аренды
-                    </dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {stats.contracts}
-                    </dd>
-                  </dl>
-                </div>
+          <TeamsCard>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Users className="h-8 w-8 text-purple-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Клиенты</p>
+                <p className="text-2xl font-semibold text-gray-900">24</p>
               </div>
             </div>
-          </div>
+          </TeamsCard>
+
+          <TeamsCard>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <CreditCard className="h-8 w-8 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Доход</p>
+                <p className="text-2xl font-semibold text-gray-900">₽2.4M</p>
+              </div>
+            </div>
+          </TeamsCard>
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Быстрые действия
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {user.role === 'LANDLORD' && (
-                <Link href="/properties/new">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Добавить недвижимость
-                  </Button>
-                </Link>
-              )}
-              
-              <Link href="/properties">
-                <Button className="w-full justify-start" variant="outline">
-                  <Home className="h-4 w-4 mr-2" />
-                  Просмотреть недвижимость
-                </Button>
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Быстрые действия
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {quickActions.map((action, index) => (
+              <Link key={index} href={action.href}>
+                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <div className="flex items-center p-4">
+                    <div className={`${action.color} p-3 rounded-lg`}>
+                      <div className="text-white">
+                        {action.icon}
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">
+                        {action.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {action.description}
+                      </p>
+                    </div>
+                  </div>
+                </TeamsCard>
               </Link>
-              
-              <Link href="/bookings">
-                <Button className="w-full justify-start" variant="outline">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Мои бронирования
-                </Button>
-              </Link>
-              
-              <Link href="/contracts">
-                <Button className="w-full justify-start" variant="outline">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Договоры аренды
-                </Button>
-              </Link>
-              
-              <Link href="/payments">
-                <Button className="w-full justify-start" variant="outline">
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Платежи
-                </Button>
-              </Link>
-              
-              <Link href="/profile">
-                <Button className="w-full justify-start" variant="outline">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Настройки профиля
-                </Button>
-              </Link>
-            </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Services Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Сервисы
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link href="/contracts">
+              <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Конструктор</h3>
+                      <TeamsBadge variant="success" className="text-xs">Активен</TeamsBadge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Создание профессиональных договоров аренды с автоматическим заполнением данных
+                  </p>
+                  <div className="flex items-center text-blue-600 text-sm font-medium">
+                    Открыть
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </div>
+                </div>
+              </TeamsCard>
+            </Link>
+
+            <Link href="/scoring">
+              <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Calculator className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Скоринг</h3>
+                      <TeamsBadge variant="success" className="text-xs">Активен</TeamsBadge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Оценка надежности потенциальных арендаторов на основе различных критериев
+                  </p>
+                  <div className="flex items-center text-green-600 text-sm font-medium">
+                    Открыть
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </div>
+                </div>
+              </TeamsCard>
+            </Link>
+
+            <Link href="/signature">
+              <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <FileSignature className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Электронная подпись</h3>
+                      <TeamsBadge variant="success" className="text-xs">Активен</TeamsBadge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Безопасное подписание документов в электронном виде
+                  </p>
+                  <div className="flex items-center text-purple-600 text-sm font-medium">
+                    Открыть
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </div>
+                </div>
+              </TeamsCard>
+            </Link>
+
+            <Link href="/multilisting">
+              <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Мультилистинг</h3>
+                      <TeamsBadge variant="success" className="text-xs">Активен</TeamsBadge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Размещение объектов на всех популярных площадках одновременно
+                  </p>
+                  <div className="flex items-center text-orange-600 text-sm font-medium">
+                    Открыть
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </div>
+                </div>
+              </TeamsCard>
+            </Link>
+
+            <Link href="/yandex-rental">
+              <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                      <ExternalLink className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">M²xЯндексАренда</h3>
+                      <TeamsBadge variant="warning" className="text-xs">Бета</TeamsBadge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Интеграция с Яндекс.Аренда для автоматического размещения объектов
+                  </p>
+                  <div className="flex items-center text-red-600 text-sm font-medium">
+                    Открыть
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </div>
+                </div>
+              </TeamsCard>
+            </Link>
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="mt-8 bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Последняя активность
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center text-sm text-gray-600">
-                <div className="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full mr-3"></div>
-                <span>Новое бронирование квартиры на ул. Ленина, 15</span>
-                <span className="ml-auto text-gray-400">2 часа назад</span>
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Последние действия
+          </h2>
+          <TeamsCard>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                  <div>
+                    <p className="font-medium">Новая сделка создана</p>
+                    <p className="text-sm text-gray-500">Квартира на Ленина, 15</p>
+                  </div>
+                </div>
+                <span className="text-sm text-gray-500">2 часа назад</span>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <div className="flex-shrink-0 w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
-                <span>Обновлена информация о доме на ул. Пушкина, 22</span>
-                <span className="ml-auto text-gray-400">1 день назад</span>
+              
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-yellow-500 mr-3" />
+                  <div>
+                    <p className="font-medium">Требуется подпись договора</p>
+                    <p className="text-sm text-gray-500">Сделка #1234</p>
+                  </div>
+                </div>
+                <span className="text-sm text-gray-500">1 день назад</span>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <div className="flex-shrink-0 w-2 h-2 bg-yellow-400 rounded-full mr-3"></div>
-                <span>Подписан договор аренды студии в центре города</span>
-                <span className="ml-auto text-gray-400">3 дня назад</span>
+              
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                  <div>
+                    <p className="font-medium">Платеж получен</p>
+                    <p className="text-sm text-gray-500">₽150,000</p>
+                  </div>
+                </div>
+                <span className="text-sm text-gray-500">2 дня назад</span>
               </div>
             </div>
-          </div>
+          </TeamsCard>
         </div>
-      </main>
+      </div>
     </div>
   )
-}
+} 

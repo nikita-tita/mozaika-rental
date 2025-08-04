@@ -436,7 +436,7 @@ export default function PropertyInventory({ onComplete, onBack }: PropertyInvent
                   <select
                     value={selectedItem.condition}
                     onChange={(e) => setSelectedItem({...selectedItem, condition: e.target.value as any})}
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none"
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none text-white"
                   >
                     <option value="excellent">Отличное</option>
                     <option value="good">Хорошее</option>

@@ -1,4 +1,4 @@
-import { hashPassword, verifyPassword, generateToken, verifyToken, sanitizeUser } from '@/lib/auth'
+import { hashPassword, verifyPassword, generateToken, verifyJWTToken, sanitizeUser } from '@/lib/auth'
 
 describe('Auth Module', () => {
   describe('hashPassword', () => {
@@ -53,14 +53,14 @@ describe('Auth Module', () => {
     })
   })
 
-  describe('verifyToken', () => {
+  describe('verifyJWTToken', () => {
     it('should verify valid token', () => {
       const userId = 'user123'
       const email = 'test@example.com'
       const role = 'REALTOR'
       
       const token = generateToken(userId, email, role)
-      const decoded = verifyToken(token)
+      const decoded = verifyJWTToken(token)
       
       expect(decoded).toBeDefined()
       expect(decoded?.userId).toBe(userId)
@@ -70,14 +70,14 @@ describe('Auth Module', () => {
 
     it('should reject invalid token', () => {
       const invalidToken = 'invalid.token.here'
-      const decoded = verifyToken(invalidToken)
+      const decoded = verifyJWTToken(invalidToken)
       
       expect(decoded).toBeNull()
     })
 
     it('should reject invalid token', () => {
       const invalidToken = 'invalid.token.here'
-      const decoded = verifyToken(invalidToken)
+      const decoded = verifyJWTToken(invalidToken)
       
       expect(decoded).toBeNull()
     })

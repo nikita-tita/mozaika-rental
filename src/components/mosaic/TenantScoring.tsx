@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react'
 import type { TenantScoring } from '@/types'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { TeamsButton, TeamsInput, TeamsCard } from '@/components/ui/teams'
 
 interface TenantScoringProps {
   onScoringComplete: (scoring: TenantScoring) => void
@@ -138,7 +137,7 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
             <label className="block text-sm font-medium text-gray-300 mb-2">
               ФИО арендатора
             </label>
-            <Input
+            <TeamsInput
               value={formData.fullName}
               onChange={(e) => updateFormData('fullName', e.target.value)}
               className="bg-gray-700 border-gray-600 text-white"
@@ -150,7 +149,7 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Паспортные данные
             </label>
-            <Input
+            <TeamsInput
               value={formData.passport}
               onChange={(e) => updateFormData('passport', e.target.value)}
               className="bg-gray-700 border-gray-600 text-white"
@@ -162,7 +161,7 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Дата рождения
             </label>
-            <Input
+            <TeamsInput
               type="date"
               value={formData.birthDate}
               onChange={(e) => updateFormData('birthDate', e.target.value)}
@@ -192,20 +191,20 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
       </div>
 
       <div className="flex justify-between">
-        <Button
+        <TeamsButton
           onClick={onClose}
           variant="outline"
           className="border-gray-600 text-gray-300 hover:bg-gray-700"
         >
           Отмена
-        </Button>
-        <Button
+        </TeamsButton>
+        <TeamsButton
           onClick={startScoring}
           disabled={!formData.fullName || !formData.passport || !formData.birthDate}
           className="bg-green-500 hover:bg-green-600 text-black"
         >
           🔍 Начать проверку
-        </Button>
+        </TeamsButton>
       </div>
     </div>
   )
@@ -375,14 +374,14 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
         </div>
 
         <div className="flex justify-between">
-          <Button
+          <TeamsButton
             onClick={() => setStep('form')}
             variant="outline"
             className="border-gray-600 text-gray-300 hover:bg-gray-700"
           >
             Проверить другого
-          </Button>
-          <Button
+          </TeamsButton>
+          <TeamsButton
             onClick={async () => {
               try {
                 // Получаем токен из localStorage
@@ -441,7 +440,7 @@ export default function TenantScoring({ onScoringComplete, onClose }: TenantScor
             className="bg-green-500 hover:bg-green-600 text-black"
           >
             ✅ Использовать результат
-          </Button>
+          </TeamsButton>
         </div>
       </div>
     )

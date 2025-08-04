@@ -3,7 +3,8 @@
   "buildCommand": "npm run vercel-build",
   "outputDirectory": ".next",
   "env": {
-    "LOG_LEVEL": "INFO"
+    "LOG_LEVEL": "INFO",
+    "NEXT_TELEMETRY_DISABLED": "1"
   },
   "functions": {
     "src/app/api/**/*.ts": {
@@ -27,12 +28,40 @@
           "value": "Content-Type, Authorization, x-request-id"
         }
       ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "origin-when-cross-origin"
+        },
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        }
+      ]
     }
   ],
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard-enhanced",
+      "permanent": false
     }
   ]
 }

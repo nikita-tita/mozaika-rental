@@ -1,4 +1,4 @@
-import { clsx, type ClassValue } from 'clsx'
+import { type ClassValue, clsx } from "clsx"
 
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs)
@@ -32,6 +32,52 @@ export function calculateDaysBetween(startDate: Date, endDate: Date): number {
 export function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email)
+}
+
+export function sanitizeInput(input: string): string {
+  if (typeof input !== 'string') {
+    return input
+  }
+  
+  // Удаляем потенциально опасные HTML теги и скрипты
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '')
+    .replace(/<input\b[^>]*>/gi, '')
+    .replace(/<textarea\b[^<]*(?:(?!<\/textarea>)<[^<]*)*<\/textarea>/gi, '')
+    .replace(/<select\b[^<]*(?:(?!<\/select>)<[^<]*)*<\/select>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .trim()
+}
+
+export function validatePassword(password: string): { isValid: boolean; errors: string[] } {
+  const errors: string[] = []
+  
+  if (password.length < 6) {
+    errors.push('Пароль должен содержать минимум 6 символов')
+  }
+  
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Пароль должен содержать хотя бы одну заглавную букву')
+  }
+  
+  if (!/[a-z]/.test(password)) {
+    errors.push('Пароль должен содержать хотя бы одну строчную букву')
+  }
+  
+  if (!/\d/.test(password)) {
+    errors.push('Пароль должен содержать хотя бы одну цифру')
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  }
 }
 
 export function validatePhone(phone: string): boolean {

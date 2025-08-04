@@ -1,4 +1,4 @@
-import { hashPassword, verifyPassword, generateToken, verifyToken } from '@/lib/auth'
+import { hashPassword, verifyPassword, generateToken, verifyJWTToken } from '@/lib/auth'
 
 describe('Simple Authentication Integration', () => {
   describe('Password Hashing and Verification', () => {
@@ -38,7 +38,7 @@ describe('Simple Authentication Integration', () => {
       expect(typeof token).toBe('string')
       
       // Verify token
-      const decoded = verifyToken(token)
+      const decoded = verifyJWTToken(token)
       expect(decoded).toBeDefined()
       expect(decoded?.userId).toBe(userId)
       expect(decoded?.email).toBe(email)
@@ -47,7 +47,7 @@ describe('Simple Authentication Integration', () => {
 
     it('should reject invalid token', () => {
       const invalidToken = 'invalid.token.here'
-      const decoded = verifyToken(invalidToken)
+      const decoded = verifyJWTToken(invalidToken)
       expect(decoded).toBeNull()
     })
   })
@@ -70,7 +70,7 @@ describe('Simple Authentication Integration', () => {
       const token = generateToken(userId, email, role)
       
       // Step 4: Verify token
-      const decoded = verifyToken(token)
+      const decoded = verifyJWTToken(token)
       expect(decoded).toBeDefined()
       expect(decoded?.userId).toBe(userId)
       

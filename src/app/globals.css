@@ -50,6 +50,10 @@ a {
 }
 
 @layer base {
+  input, textarea, select {
+    @apply text-gray-900 bg-white;
+  }
+  
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
   }
@@ -97,7 +101,7 @@ a {
   }
 
   .input-field {
-    @apply w-full px-4 py-3 border border-primary-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200 bg-white;
+    @apply w-full px-4 py-3 border border-primary-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900;
   }
 
   .gradient-text {

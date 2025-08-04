@@ -3,8 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { 
+  TeamsButton, 
+  TeamsInput, 
+  TeamsCard, 
+  TeamsBadge,
+  TeamsModal,
+  TeamsNavigation,
+  TeamsSkeleton
+} from '@/components/ui/teams'
 import { 
   ArrowLeft, 
   FileText, 
@@ -149,10 +156,10 @@ export default function ContractDetailPage() {
             Договор не найден
           </h2>
           <Link href="/contracts">
-            <Button>
+            <TeamsButton>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Вернуться к договорам
-            </Button>
+            </TeamsButton>
           </Link>
         </div>
       </div>
@@ -179,29 +186,29 @@ export default function ContractDetailPage() {
             </Link>
 
             <div className="flex space-x-2">
-              <Button variant="outline" onClick={handlePrint}>
+              <TeamsButton variant="outline" onClick={handlePrint}>
                 <Download className="h-4 w-4 mr-2" />
                 Скачать PDF
-              </Button>
+              </TeamsButton>
 
               {canEdit && !editing && (
-                <Button variant="outline" onClick={() => setEditing(true)}>
+                <TeamsButton variant="outline" onClick={() => setEditing(true)}>
                   <Edit className="h-4 w-4 mr-2" />
                   Редактировать
-                </Button>
+                </TeamsButton>
               )}
 
               {canSign && (
-                <Button onClick={() => handleStatusChange('SIGNED')}>
+                <TeamsButton onClick={() => handleStatusChange('SIGNED')}>
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Подписать договор
-                </Button>
+                </TeamsButton>
               )}
 
               {canTerminate && (
-                <Button variant="outline" onClick={() => handleStatusChange('CANCELLED')}>
+                <TeamsButton variant="outline" onClick={() => handleStatusChange('CANCELLED')}>
                   Расторгнуть договор
-                </Button>
+                </TeamsButton>
               )}
             </div>
           </div>
@@ -313,7 +320,7 @@ export default function ContractDetailPage() {
                   <h3 className="font-medium text-gray-900">Арендная плата</h3>
                 </div>
                 {editing ? (
-                  <Input
+                  <TeamsInput
                     type="number"
                     value={editData.monthlyRent}
                     onChange={(e) => setEditData(prev => ({ ...prev, monthlyRent: e.target.value }))}
@@ -332,7 +339,7 @@ export default function ContractDetailPage() {
                   <h3 className="font-medium text-gray-900">Залог</h3>
                 </div>
                 {editing ? (
-                  <Input
+                  <TeamsInput
                     type="number"
                     value={editData.deposit}
                     onChange={(e) => setEditData(prev => ({ ...prev, deposit: e.target.value }))}
@@ -354,12 +361,12 @@ export default function ContractDetailPage() {
               <h2 className="text-xl font-semibold text-gray-900">Условия договора</h2>
               {editing && (
                 <div className="flex space-x-2">
-                  <Button variant="outline" onClick={() => setEditing(false)}>
+                  <TeamsButton variant="outline" onClick={() => setEditing(false)}>
                     Отмена
-                  </Button>
-                  <Button onClick={handleSaveEdit}>
+                  </TeamsButton>
+                  <TeamsButton onClick={handleSaveEdit}>
                     Сохранить
-                  </Button>
+                  </TeamsButton>
                 </div>
               )}
             </div>
@@ -373,7 +380,7 @@ export default function ContractDetailPage() {
               />
             ) : (
               <div className="prose max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-gray-900">
                   {contract.content}
                 </pre>
               </div>

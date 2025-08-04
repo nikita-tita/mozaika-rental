@@ -1,27 +1,33 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { BookingForm } from '@/components/bookings/BookingForm'
+import { TeamsButton, TeamsCard, TeamsBadge, TeamsNavigation, TeamsModal } from '@/components/ui/teams'
 import { 
   ArrowLeft, 
+  Edit, 
+  Trash2, 
   MapPin, 
-  Home, 
+  Calendar, 
   Users, 
-  Square,
+  Home,
+  Bed,
   Bath,
-  Car,
+  Square,
+  Phone,
+  Mail,
+  Star,
+  Heart,
   Wifi,
   Tv,
   Coffee,
   Wind,
-  Star,
-  Heart
+  Car
 } from 'lucide-react'
 import { PropertyWithImages, ReviewWithAuthor } from '@/types'
 import { formatPrice, formatArea, formatDate } from '@/lib/utils'
+import BookingForm from '@/components/bookings/BookingForm'
 
 const amenityIcons: Record<string, any> = {
   'Wi-Fi': Wifi,
@@ -92,10 +98,10 @@ export default function PropertyDetailsPage() {
             Недвижимость не найдена
           </h2>
           <Link href="/properties">
-            <Button>
+            <TeamsButton>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Вернуться к поиску
-            </Button>
+            </TeamsButton>
           </Link>
         </div>
       </div>
@@ -225,13 +231,13 @@ export default function PropertyDetailsPage() {
                   </div>
                 </div>
 
-                <Button
+                <TeamsButton
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsFavorite(!isFavorite)}
                 >
                   <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-                </Button>
+                </TeamsButton>
               </div>
 
               {/* Property Type Badge */}

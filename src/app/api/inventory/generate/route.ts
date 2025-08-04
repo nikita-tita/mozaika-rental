@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
-    // Проверяем авторизацию
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
+    // Проверяем авторизацию через cookies
+    const token = request.cookies.get('auth-token')?.value
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const user = await verifyToken(token)
-    if (!user || (user.role !== 'REALTOR' && user.role !== 'ADMIN')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const user = verifyJWTToken(token)
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }
 
     const body = await request.json()

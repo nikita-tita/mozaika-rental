@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 import { NotificationService } from '@/lib/notifications/service'
 
 // GET /api/notifications - Получить уведомления пользователя
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const user = verifyToken(token)
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Недействительный токен' },
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const user = verifyToken(token)
+    const user = verifyJWTToken(token)
     if (!user || user.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: 'Недостаточно прав доступа' },

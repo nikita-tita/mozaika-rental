@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { ContractTemplate, Property, User } from '@/types'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
-import { Select } from '@/components/ui/Select'
+import { TeamsButton, TeamsInput, TeamsCard, TeamsSelect, TeamsTextarea } from '@/components/ui/teams'
 
 interface ContractBuilderProps {
   property: Property
@@ -222,7 +219,7 @@ export default function ContractBuilder({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-white mb-2">📝 Конструктор договора</h2>
-        <p className="text-gray-400">Создайте профессиональный договор аренды за 3 минуты</p>
+        <p className="text-gray-300">Создайте профессиональный договор аренды за 3 минуты</p>
       </div>
 
       <div className="bg-gray-800 rounded-lg p-6">
@@ -239,7 +236,7 @@ export default function ContractBuilder({
               onClick={() => setSelectedTemplate(template.id)}
             >
               <h4 className="font-medium text-white">{template.name}</h4>
-              <p className="text-sm text-gray-400 mt-1">{template.description}</p>
+                              <p className="text-sm text-gray-600 mt-1">{template.description}</p>
               {template.isDefault && (
                 <span className="inline-block bg-green-500 text-black text-xs px-2 py-1 rounded mt-2">
                   По умолчанию
@@ -252,13 +249,13 @@ export default function ContractBuilder({
 
       <div className="flex justify-between">
         <div></div>
-        <Button
+        <TeamsButton
           onClick={() => setStep(2)}
           disabled={!selectedTemplate}
-          className="bg-green-500 hover:bg-green-600 text-black"
+          variant="primary"
         >
           Далее
-        </Button>
+        </TeamsButton>
       </div>
     </div>
   )
@@ -267,26 +264,25 @@ export default function ContractBuilder({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Данные объекта</h2>
-        <p className="text-gray-400">Проверьте и при необходимости измените информацию об объекте</p>
+        <p className="text-gray-300">Проверьте и при необходимости измените информацию об объекте</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Название объекта
           </label>
-          <Input
+          <TeamsInput
             value={contractData.propertyTitle}
-            onChange={(e) => updateContractData('propertyTitle', e.target.value)}
-            className="bg-gray-700 border-gray-600 text-white"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateContractData('propertyTitle', e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Адрес
           </label>
-          <Input
+          <TeamsInput
             value={contractData.propertyAddress}
             onChange={(e) => updateContractData('propertyAddress', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -294,10 +290,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Тип недвижимости
           </label>
-          <Select
+          <TeamsSelect
             value={contractData.propertyType}
             onChange={(e) => updateContractData('propertyType', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -312,10 +308,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Арендная плата (₽/мес)
           </label>
-          <Input
+          <TeamsInput
             type="number"
             value={contractData.monthlyRent}
             onChange={(e) => updateContractData('monthlyRent', Number(e.target.value))}
@@ -324,10 +320,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Площадь (м²)
           </label>
-          <Input
+          <TeamsInput
             type="number"
             value={contractData.propertyArea}
             onChange={(e) => updateContractData('propertyArea', Number(e.target.value))}
@@ -336,10 +332,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Количество комнат
           </label>
-          <Input
+          <TeamsInput
             type="number"
             value={contractData.propertyRooms}
             onChange={(e) => updateContractData('propertyRooms', Number(e.target.value))}
@@ -348,10 +344,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Этаж
           </label>
-          <Input
+          <TeamsInput
             type="number"
             value={contractData.propertyFloor}
             onChange={(e) => updateContractData('propertyFloor', Number(e.target.value))}
@@ -360,10 +356,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Всего этажей
           </label>
-          <Input
+          <TeamsInput
             type="number"
             value={contractData.propertyTotalFloors}
             onChange={(e) => updateContractData('propertyTotalFloors', Number(e.target.value))}
@@ -372,10 +368,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Кадастровый номер
           </label>
-          <Input
+          <TeamsInput
             value={contractData.propertyCadastralNumber}
             onChange={(e) => updateContractData('propertyCadastralNumber', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -384,10 +380,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Тип собственности
           </label>
-          <Select
+          <TeamsSelect
             value={contractData.propertyOwnershipType}
             onChange={(e) => updateContractData('propertyOwnershipType', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -400,10 +396,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Залог (₽)
           </label>
-          <Input
+          <TeamsInput
             type="number"
             value={contractData.deposit}
             onChange={(e) => updateContractData('deposit', Number(e.target.value))}
@@ -412,7 +408,7 @@ export default function ContractBuilder({
         </div>
 
         <div className="md:col-span-2">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-200 mb-2">
             <input
               type="checkbox"
               checked={contractData.propertyFurnished}
@@ -424,7 +420,7 @@ export default function ContractBuilder({
         </div>
 
         <div className="md:col-span-2">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-200 mb-2">
             <input
               type="checkbox"
               id="utilities"
@@ -438,19 +434,19 @@ export default function ContractBuilder({
       </div>
 
       <div className="flex justify-between">
-        <Button
+        <TeamsButton
           onClick={() => setStep(1)}
           variant="outline"
-          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+          className="border-gray-600 text-gray-200 hover:bg-gray-700"
         >
           Назад
-        </Button>
-        <Button
+        </TeamsButton>
+        <TeamsButton
           onClick={() => setStep(3)}
           className="bg-green-500 hover:bg-green-600 text-black"
         >
           Далее
-        </Button>
+        </TeamsButton>
       </div>
     </div>
   )
@@ -459,15 +455,15 @@ export default function ContractBuilder({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Данные арендодателя</h2>
-        <p className="text-gray-400">Введите информацию о собственнике недвижимости</p>
+        <p className="text-gray-300">Введите информацию о собственнике недвижимости</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             ФИО арендодателя
           </label>
-          <Input
+          <TeamsInput
             value={contractData.landlordName}
             onChange={(e) => updateContractData('landlordName', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -476,10 +472,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Паспортные данные
           </label>
-          <Input
+          <TeamsInput
             value={contractData.landlordPassport}
             onChange={(e) => updateContractData('landlordPassport', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -488,10 +484,10 @@ export default function ContractBuilder({
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Адрес регистрации
           </label>
-          <Input
+          <TeamsInput
             value={contractData.landlordAddress}
             onChange={(e) => updateContractData('landlordAddress', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -501,19 +497,19 @@ export default function ContractBuilder({
       </div>
 
       <div className="flex justify-between">
-        <Button
+        <TeamsButton
           onClick={() => setStep(2)}
           variant="outline"
-          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+          className="border-gray-600 text-gray-200 hover:bg-gray-700"
         >
           Назад
-        </Button>
-        <Button
+        </TeamsButton>
+        <TeamsButton
           onClick={() => setStep(4)}
           className="bg-green-500 hover:bg-green-600 text-black"
         >
           Далее
-        </Button>
+        </TeamsButton>
       </div>
     </div>
   )
@@ -522,15 +518,15 @@ export default function ContractBuilder({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Данные арендатора</h2>
-        <p className="text-gray-400">Введите информацию о будущем арендаторе</p>
+        <p className="text-gray-300">Введите информацию о будущем арендаторе</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             ФИО арендатора
           </label>
-          <Input
+          <TeamsInput
             value={contractData.tenantName}
             onChange={(e) => updateContractData('tenantName', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -539,10 +535,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Паспортные данные
           </label>
-          <Input
+          <TeamsInput
             value={contractData.tenantPassport}
             onChange={(e) => updateContractData('tenantPassport', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -551,10 +547,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Телефон
           </label>
-          <Input
+          <TeamsInput
             value={contractData.tenantPhone}
             onChange={(e) => updateContractData('tenantPhone', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -563,10 +559,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Email
           </label>
-          <Input
+          <TeamsInput
             type="email"
             value={contractData.tenantEmail}
             onChange={(e) => updateContractData('tenantEmail', e.target.value)}
@@ -577,19 +573,19 @@ export default function ContractBuilder({
       </div>
 
       <div className="flex justify-between">
-        <Button
+        <TeamsButton
           onClick={() => setStep(3)}
           variant="outline"
-          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+          className="border-gray-600 text-gray-200 hover:bg-gray-700"
         >
           Назад
-        </Button>
-        <Button
+        </TeamsButton>
+        <TeamsButton
           onClick={() => setStep(5)}
           className="bg-green-500 hover:bg-green-600 text-black"
         >
           Далее
-        </Button>
+        </TeamsButton>
       </div>
     </div>
   )
@@ -598,15 +594,15 @@ export default function ContractBuilder({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Условия аренды</h2>
-        <p className="text-gray-400">Укажите сроки и дополнительные условия</p>
+        <p className="text-gray-300">Укажите сроки и дополнительные условия</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Дата начала аренды
           </label>
-          <Input
+          <TeamsInput
             type="date"
             value={contractData.startDate}
             onChange={(e) => updateContractData('startDate', e.target.value)}
@@ -615,10 +611,10 @@ export default function ContractBuilder({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Дата окончания аренды
           </label>
-          <Input
+          <TeamsInput
             type="date"
             value={contractData.endDate}
             onChange={(e) => updateContractData('endDate', e.target.value)}
@@ -627,10 +623,10 @@ export default function ContractBuilder({
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-200 mb-2">
             Дополнительные условия
           </label>
-          <Textarea
+          <TeamsTextarea
             value={contractData.additionalTerms}
             onChange={(e) => updateContractData('additionalTerms', e.target.value)}
             className="bg-gray-700 border-gray-600 text-white"
@@ -641,19 +637,19 @@ export default function ContractBuilder({
       </div>
 
       <div className="flex justify-between">
-        <Button
+        <TeamsButton
           onClick={() => setStep(4)}
           variant="outline"
-          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+          className="border-gray-600 text-gray-200 hover:bg-gray-700"
         >
           Назад
-        </Button>
-        <Button
+        </TeamsButton>
+        <TeamsButton
           onClick={() => setStep(6)}
           className="bg-green-500 hover:bg-green-600 text-black"
         >
           Далее
-        </Button>
+        </TeamsButton>
       </div>
     </div>
   )
@@ -662,14 +658,14 @@ export default function ContractBuilder({
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Проверка данных</h2>
-        <p className="text-gray-400">Проверьте все данные перед генерацией договора</p>
+        <p className="text-gray-300">Проверьте все данные перед генерацией договора</p>
       </div>
 
       <div className="bg-gray-800 rounded-lg p-6 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <h4 className="font-medium text-white mb-2">Объект недвижимости</h4>
-            <div className="text-sm text-gray-400 space-y-1">
+            <div className="text-sm text-gray-300 space-y-1">
               <p><strong>Название:</strong> {contractData.propertyTitle}</p>
               <p><strong>Адрес:</strong> {contractData.propertyAddress}</p>
               <p><strong>Тип:</strong> {contractData.propertyType}</p>
@@ -680,7 +676,7 @@ export default function ContractBuilder({
 
           <div>
             <h4 className="font-medium text-white mb-2">Арендодатель</h4>
-            <div className="text-sm text-gray-400 space-y-1">
+            <div className="text-sm text-gray-300 space-y-1">
               <p><strong>ФИО:</strong> {contractData.landlordName}</p>
               <p><strong>Паспорт:</strong> {contractData.landlordPassport}</p>
               <p><strong>Адрес:</strong> {contractData.landlordAddress}</p>
@@ -689,7 +685,7 @@ export default function ContractBuilder({
 
           <div>
             <h4 className="font-medium text-white mb-2">Арендатор</h4>
-            <div className="text-sm text-gray-400 space-y-1">
+            <div className="text-sm text-gray-300 space-y-1">
               <p><strong>ФИО:</strong> {contractData.tenantName}</p>
               <p><strong>Паспорт:</strong> {contractData.tenantPassport}</p>
               <p><strong>Телефон:</strong> {contractData.tenantPhone}</p>
@@ -699,7 +695,7 @@ export default function ContractBuilder({
 
           <div>
             <h4 className="font-medium text-white mb-2">Условия</h4>
-            <div className="text-sm text-gray-400 space-y-1">
+            <div className="text-sm text-gray-300 space-y-1">
               <p><strong>Начало:</strong> {contractData.startDate}</p>
               <p><strong>Окончание:</strong> {contractData.endDate}</p>
               <p><strong>Коммунальные:</strong> {contractData.utilities ? 'Включены' : 'Не включены'}</p>
@@ -710,32 +706,32 @@ export default function ContractBuilder({
         {contractData.additionalTerms && (
           <div>
             <h4 className="font-medium text-white mb-2">Дополнительные условия</h4>
-            <p className="text-sm text-gray-400">{contractData.additionalTerms}</p>
+            <p className="text-sm text-gray-300">{contractData.additionalTerms}</p>
           </div>
         )}
       </div>
 
       <div className="flex justify-between">
-        <Button
+        <TeamsButton
           onClick={() => setStep(5)}
           variant="outline"
-          className="border-gray-600 text-gray-300 hover:bg-gray-700"
+          className="border-gray-600 text-gray-200 hover:bg-gray-700"
         >
           Назад
-        </Button>
-        <Button
+        </TeamsButton>
+        <TeamsButton
           onClick={generateContract}
           className="bg-green-500 hover:bg-green-600 text-black"
         >
           🎉 Создать договор
-        </Button>
+        </TeamsButton>
       </div>
     </div>
   )
 
   const renderProgressBar = () => (
     <div className="mb-8">
-      <div className="flex justify-between text-sm text-gray-400 mb-2">
+      <div className="flex justify-between text-sm text-gray-300 mb-2">
         <span>Шаг {step} из 6</span>
         <span>{Math.round((step / 6) * 100)}%</span>
       </div>

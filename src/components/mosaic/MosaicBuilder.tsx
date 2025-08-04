@@ -57,12 +57,12 @@ export default function MosaicBuilder({ onComplete }: MosaicBuilderProps) {
     city: 'Москва',
     area: 65,
     rooms: 2,
-    pricePerMonth: 45000,
-    deposit: 45000,
-    utilities: true,
     amenities: ['Wi-Fi', 'Мебель', 'Бытовая техника'],
     images: [],
     ownerId: '1',
+    pricePerMonth: 0,
+    deposit: 0,
+    utilities: false,
     createdAt: new Date(),
     updatedAt: new Date()
   };

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
+import { TeamsButton } from '@/components/ui/teams'
+import { TeamsInput } from '@/components/ui/teams'
 import { Calendar, Clock } from 'lucide-react'
 import { formatPrice, calculateDaysBetween } from '@/lib/utils'
 
@@ -12,7 +12,7 @@ interface BookingFormProps {
   onBookingSuccess?: () => void
 }
 
-export function BookingForm({ propertyId, pricePerMonth, onBookingSuccess }: BookingFormProps) {
+export default function BookingForm({ propertyId, pricePerMonth, onBookingSuccess }: BookingFormProps) {
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
@@ -146,7 +146,7 @@ export function BookingForm({ propertyId, pricePerMonth, onBookingSuccess }: Boo
 
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <Input
+            <TeamsInput
               label="Дата заезда"
               name="startDate"
               type="date"
@@ -157,7 +157,7 @@ export function BookingForm({ propertyId, pricePerMonth, onBookingSuccess }: Boo
             />
           </div>
           <div>
-            <Input
+            <TeamsInput
               label="Дата выезда"
               name="endDate"
               type="date"
@@ -201,7 +201,7 @@ export function BookingForm({ propertyId, pricePerMonth, onBookingSuccess }: Boo
           <p className="text-xs text-gray-500 mt-1">Необязательно</p>
         </div>
 
-        <Button
+        <TeamsButton
           type="submit"
           className="w-full"
           loading={isLoading}
@@ -209,7 +209,7 @@ export function BookingForm({ propertyId, pricePerMonth, onBookingSuccess }: Boo
         >
           <Calendar className="h-4 w-4 mr-2" />
           Забронировать
-        </Button>
+        </TeamsButton>
 
         <div className="text-center">
           <p className="text-xs text-gray-500">

@@ -1,6 +1,6 @@
 {
   "name": "m2-rental-platform",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,7 +17,11 @@
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "vercel-build": "prisma generate && next build",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "docker:build": "docker build -t mozaika-platform .",
+    "docker:run": "docker run -p 3000:3000 mozaika-platform",
+    "docker:compose": "docker-compose up -d",
+    "docker:compose:down": "docker-compose down"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
@@ -28,19 +32,25 @@
     "autoprefixer": "^10.4.16",
     "bcryptjs": "^3.0.2",
     "clsx": "^2.0.0",
+    "critters": "^0.0.23",
+    "docx-templates": "^4.14.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.294.0",
-    "next": "14.0.0",
+    "next": "15.4.5",
+    "pdf-lib": "^1.17.1",
     "postcss": "^8.4.31",
     "prisma": "^6.13.0",
+    "puppeteer": "^24.15.0",
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
     "tailwindcss": "^3.3.0",
     "typescript": "^5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zod": "^4.0.14",
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",

@@ -5,37 +5,76 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runner
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:password@db:5432/m2_rental
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-password}@db:5432/m2_rental
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-here}
+      - NEXT_TELEMETRY_DISABLED=1
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
-      - ./src:/app/src
-      - ./public:/app/public
+      - app_data:/app/.next
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   db:
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: m2_rental
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   adminer:
-    image: adminer
+    image: adminer:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_data:
+    driver: local
+
+networks:
+  default:
+    name: mozaika-network

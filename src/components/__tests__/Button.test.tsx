@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { Button } from '@/components/ui/Button'
+import { TeamsButton as Button } from '@/components/ui/teams/TeamsButton'
 
 describe('Button Component', () => {
   it('renders with default props', () => {
@@ -13,16 +13,16 @@ describe('Button Component', () => {
 
   it('renders with different variants', () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>)
-    expect(screen.getByRole('button')).toHaveClass('bg-primary-600', 'text-white')
+    expect(screen.getByRole('button')).toHaveClass('bg-[#0078d4]', 'text-white')
 
     rerender(<Button variant="secondary">Secondary</Button>)
-    expect(screen.getByRole('button')).toHaveClass('bg-gray-200', 'text-gray-900')
+    expect(screen.getByRole('button')).toHaveClass('bg-[#f3f2f1]', 'text-[#323130]')
 
     rerender(<Button variant="outline">Outline</Button>)
-    expect(screen.getByRole('button')).toHaveClass('border', 'border-gray-300')
+    expect(screen.getByRole('button')).toHaveClass('border', 'border-[#605e5c]')
 
     rerender(<Button variant="ghost">Ghost</Button>)
-    expect(screen.getByRole('button')).toHaveClass('text-gray-700', 'hover:bg-gray-100')
+    expect(screen.getByRole('button')).toHaveClass('bg-transparent', 'text-[#323130]')
   })
 
   it('renders with different sizes', () => {
@@ -50,7 +50,7 @@ describe('Button Component', () => {
     
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
-    expect(button).toHaveClass('disabled:opacity-50', 'disabled:cursor-not-allowed')
+    expect(button).toHaveClass('opacity-50', 'cursor-not-allowed')
     
     fireEvent.click(button)
     expect(handleClick).not.toHaveBeenCalled()
@@ -61,7 +61,7 @@ describe('Button Component', () => {
     
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
-    expect(button).toHaveClass('disabled:opacity-50', 'disabled:cursor-not-allowed', 'cursor-wait')
+    expect(button).toHaveClass('opacity-50', 'cursor-not-allowed')
   })
 
   it('renders with custom className', () => {

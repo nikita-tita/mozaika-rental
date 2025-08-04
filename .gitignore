@@ -117,3 +117,4 @@ Thumbs.db
 .dockerignore
 /generated/prisma
 .vercel
+.env*.local

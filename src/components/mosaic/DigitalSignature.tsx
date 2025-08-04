@@ -38,6 +38,9 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
   const [signatureMethod, setSignatureMethod] = useState<'sms' | 'email' | 'gosuslugi'>('sms');
   const [verificationCode, setVerificationCode] = useState('');
   const [showVerification, setShowVerification] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [selectedSigners, setSelectedSigners] = useState<Signer[]>([]);
+  const [availableClients, setAvailableClients] = useState<any[]>([]);
 
   // Статусы документов
   const getStatusColor = (status: string) => {
@@ -85,6 +88,48 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
       case 'escrow': return '🏦';
       default: return '📄';
     }
+  };
+
+  // Загрузка файла
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+    }
+  };
+
+  // Загрузка клиентов
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const response = await fetch('/api/clients');
+        const data = await response.json();
+        if (data.success) {
+          setAvailableClients(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching clients:', error);
+      }
+    };
+    fetchClients();
+  }, []);
+
+  // Добавление подписанта
+  const addSigner = (client: any, role: 'landlord' | 'tenant' | 'realtor' | 'witness') => {
+    const newSigner: Signer = {
+      id: client.id,
+      name: `${client.firstName} ${client.lastName}`,
+      email: client.email || '',
+      phone: client.phone,
+      role,
+      status: 'pending'
+    };
+    setSelectedSigners(prev => [...prev, newSigner]);
+  };
+
+  // Удаление подписанта
+  const removeSigner = (signerId: string) => {
+    setSelectedSigners(prev => prev.filter(s => s.id !== signerId));
   };
 
   // Отправка кода верификации
@@ -198,71 +243,130 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
           </div>
         </div>
 
-        {/* Шаг 1: Список документов */}
+        {/* Шаг 1: Загрузка документа и выбор подписантов */}
         {currentStep === 1 && (
           <div className="space-y-6">
             <div className="bg-gray-800 rounded-xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold">Документы для подписания</h2>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-green-400">50₽</div>
-                  <div className="text-sm text-gray-400">за документ</div>
+                <h2 className="text-xl font-semibold">Загрузка документа для подписания</h2>
+              </div>
+
+              {/* Загрузка документа */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium mb-4">1. Загрузите документ</h3>
+                <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                  {uploadedFile ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-center gap-3">
+                        <FileText className="w-8 h-8 text-green-400" />
+                        <div>
+                          <p className="font-medium">{uploadedFile.name}</p>
+                          <p className="text-sm text-gray-400">
+                            {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setUploadedFile(null)}
+                        className="text-red-400 hover:text-red-300 text-sm"
+                      >
+                        Удалить файл
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="file-upload"
+                      />
+                      <label
+                        htmlFor="file-upload"
+                        className="cursor-pointer flex flex-col items-center gap-4"
+                      >
+                        <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
+                          <FileText className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Нажмите для загрузки документа</p>
+                          <p className="text-sm text-gray-400">
+                            Поддерживаются форматы: PDF, DOC, DOCX
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="grid gap-4">
-                {documents.map((doc) => (
-                  <div key={doc.id} className="bg-gray-700 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="text-2xl">{getDocumentTypeIcon(doc.type)}</div>
-                        <div>
-                          <h3 className="font-medium">{doc.name}</h3>
-                          <p className="text-gray-400 text-sm">{getDocumentTypeText(doc.type)}</p>
-                          <div className="flex items-center gap-4 mt-2">
-                            <span className={`flex items-center gap-1 text-sm ${getStatusColor(doc.status)}`}>
-                              {getStatusIcon(doc.status)}
-                              {getStatusText(doc.status)}
-                            </span>
-                            <span className="text-gray-400 text-sm">
-                              Создан: {doc.createdAt.toLocaleDateString()}
-                            </span>
-                            <span className="text-gray-400 text-sm">
-                              Истекает: {doc.expiresAt.toLocaleDateString()}
-                            </span>
+              {/* Выбор подписантов */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium mb-4">2. Выберите подписантов</h3>
+                
+                {/* Список выбранных подписантов */}
+                {selectedSigners.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-md font-medium mb-3">Выбранные подписанты:</h4>
+                    <div className="space-y-2">
+                      {selectedSigners.map((signer) => (
+                        <div key={signer.id} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                          <div className="flex items-center gap-3">
+                            <User className="w-5 h-5 text-gray-400" />
+                            <div>
+                              <p className="font-medium">{signer.name}</p>
+                              <p className="text-sm text-gray-400">{signer.phone}</p>
+                              <span className="inline-block px-2 py-1 bg-blue-500 text-xs rounded">
+                                {signer.role === 'landlord' ? 'Арендодатель' :
+                                 signer.role === 'tenant' ? 'Арендатор' :
+                                 signer.role === 'realtor' ? 'Риелтор' : 'Свидетель'}
+                              </span>
+                            </div>
                           </div>
+                          <button
+                            onClick={() => removeSigner(signer.id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            Удалить
+                          </button>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => window.open(doc.fileUrl, '_blank')}
-                          className="p-2 bg-gray-600 hover:bg-gray-500 rounded-lg transition-colors"
-                          title="Просмотреть документ"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => window.open(doc.fileUrl, '_blank')}
-                          className="p-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
-                          title="Скачать документ"
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedDocument(doc);
-                            setCurrentStep(2);
-                          }}
-                          className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg transition-all flex items-center gap-2"
-                        >
-                          <Send className="w-4 h-4" />
-                          Подписать
-                        </button>
-                      </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
+
+                {/* Добавление новых подписантов */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {availableClients.map((client) => (
+                    <div key={client.id} className="bg-gray-700 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="font-medium">{client.firstName} {client.lastName}</p>
+                          <p className="text-sm text-gray-400">{client.phone}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          {client.type === 'LANDLORD' || client.type === 'BOTH' ? (
+                            <button
+                              onClick={() => addSigner(client, 'landlord')}
+                              className="px-3 py-1 bg-green-500 hover:bg-green-600 rounded text-xs"
+                            >
+                              Арендодатель
+                            </button>
+                          ) : null}
+                          {client.type === 'TENANT' || client.type === 'BOTH' ? (
+                            <button
+                              onClick={() => addSigner(client, 'tenant')}
+                              className="px-3 py-1 bg-blue-500 hover:bg-blue-600 rounded text-xs"
+                            >
+                              Арендатор
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="mt-6 flex gap-4">
@@ -272,37 +376,47 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                 >
                   Назад
                 </button>
+                <button
+                  onClick={() => setCurrentStep(2)}
+                  disabled={!uploadedFile || selectedSigners.length === 0}
+                  className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-4 h-4" />
+                  Отправить на подпись
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Шаг 2: Выбор способа подписи */}
-        {currentStep === 2 && selectedDocument && (
+        {/* Шаг 2: Отправка на подпись */}
+        {currentStep === 2 && (
           <div className="space-y-6">
             <div className="bg-gray-800 rounded-xl p-6">
-              <h2 className="text-xl font-semibold mb-6">Выберите способ подписи</h2>
+              <h2 className="text-xl font-semibold mb-6">Отправка документа на подпись</h2>
               
               <div className="mb-6">
-                <h3 className="font-medium mb-3">Документ: {selectedDocument.name}</h3>
+                <h3 className="font-medium mb-3">Документ: {uploadedFile?.name}</h3>
                 <div className="bg-gray-700 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">{getDocumentTypeIcon(selectedDocument.type)}</span>
+                    <span className="text-2xl">📄</span>
                     <div>
-                      <p className="font-medium">{getDocumentTypeText(selectedDocument.type)}</p>
-                      <p className="text-gray-400 text-sm">Создан {selectedDocument.createdAt.toLocaleDateString()}</p>
+                      <p className="font-medium">Загруженный документ</p>
+                      <p className="text-gray-400 text-sm">
+                        Размер: {(uploadedFile?.size || 0 / 1024 / 1024).toFixed(2)} MB
+                      </p>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
                     <p className="text-sm text-gray-400">Подписанты:</p>
-                    {selectedDocument.signers.map((signer) => (
+                    {selectedSigners.map((signer) => (
                       <div key={signer.id} className="flex items-center justify-between bg-gray-600 rounded p-2">
                         <div className="flex items-center gap-3">
                           <User className="w-4 h-4 text-gray-400" />
                           <div>
                             <p className="font-medium text-sm">{signer.name}</p>
-                            <p className="text-gray-400 text-xs">{signer.email}</p>
+                            <p className="text-gray-400 text-xs">{signer.phone}</p>
                           </div>
                         </div>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -396,7 +510,7 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-yellow-400 font-medium">200₽</p>
+                      <p className="text-green-400 font-medium">Бесплатно</p>
                       <p className="text-gray-400 text-xs">1-2 минуты</p>
                     </div>
                   </label>
@@ -412,16 +526,13 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                 </button>
                 <button
                   onClick={() => {
-                    if (signatureMethod === 'gosuslugi') {
-                      setCurrentStep(3);
-                    } else {
-                      sendVerificationCode(selectedDocument.signers[0]);
-                    }
+                    // Здесь будет логика отправки на подпись
+                    setCurrentStep(3);
                   }}
                   className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-lg transition-all flex items-center gap-2"
                 >
-                  <Lock className="w-4 h-4" />
-                  Подписать документ
+                  <Send className="w-4 h-4" />
+                  Отправить на подпись
                 </button>
               </div>
             </div>
@@ -514,9 +625,9 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-400">Стоимость:</span>
+                        <span className="text-gray-400">Статус:</span>
                         <span className="font-medium text-green-400">
-                          {signatureMethod === 'gosuslugi' ? '200₽' : 'Бесплатно'}
+                          Готов к отправке
                         </span>
                       </div>
                     </div>
