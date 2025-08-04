@@ -24,10 +24,9 @@ export default function TeamsHeader() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm sm:text-lg">M²</span>
-              </div>
-              <span className="text-lg sm:text-xl font-bold text-gray-900">Mozaika</span>
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm sm:text-lg">M²</span>
+            </div>
             </Link>
           </div>
 
