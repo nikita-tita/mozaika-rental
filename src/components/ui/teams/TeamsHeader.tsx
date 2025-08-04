@@ -30,18 +30,7 @@ export default function TeamsHeader() {
             </Link>
           </div>
 
-          {/* Navigation - скрыто на мобильных */}
-          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            <Link href="/properties" className="text-gray-600 hover:text-gray-900 transition-colors text-sm lg:text-base">
-              Объекты
-            </Link>
-            <Link href="/clients" className="text-gray-600 hover:text-gray-900 transition-colors text-sm lg:text-base">
-              Клиенты
-            </Link>
-            <Link href="/deals" className="text-gray-600 hover:text-gray-900 transition-colors text-sm lg:text-base">
-              Сделки
-            </Link>
-          </nav>
+          {/* Navigation - убрано согласно требованиям */}
 
           {/* Right side */}
           <div className="flex items-center space-x-2 sm:space-x-4">
@@ -55,17 +44,17 @@ export default function TeamsHeader() {
             {/* User menu */}
             {isAuthenticated ? (
               <div className="flex items-center space-x-2 sm:space-x-3">
-                <div className="text-right hidden sm:block">
+                <Link href="/dashboard" className="text-right hidden sm:block hover:opacity-80 transition-opacity">
                   <div className="text-sm font-medium text-gray-900">
                     {user?.firstName} {user?.lastName}
                   </div>
                   <div className="text-xs text-gray-500">
                     {user?.role === 'REALTOR' ? 'Риелтор' : user?.role}
                   </div>
-                </div>
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                </Link>
+                <Link href="/dashboard" className="w-6 h-6 sm:w-8 sm:h-8 bg-primary-100 rounded-full flex items-center justify-center hover:bg-primary-200 transition-colors">
                   <User className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
-                </div>
+                </Link>
                 <TeamsButton 
                   variant="ghost" 
                   size="sm" 

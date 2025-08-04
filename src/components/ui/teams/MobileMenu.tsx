@@ -18,9 +18,6 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
   const navigationItems = [
     { label: 'Панель управления', href: '/dashboard', icon: <Home className="h-5 w-5" /> },
-    { label: 'Объекты', href: '/properties', icon: <Building2 className="h-5 w-5" /> },
-    { label: 'Клиенты', href: '/clients', icon: <Users className="h-5 w-5" /> },
-    { label: 'Сделки', href: '/deals', icon: <FileText className="h-5 w-5" /> },
     { label: 'Платежи', href: '/payments', icon: <CreditCard className="h-5 w-5" /> },
     { label: 'Настройки', href: '/settings', icon: <Settings className="h-5 w-5" /> },
   ]
