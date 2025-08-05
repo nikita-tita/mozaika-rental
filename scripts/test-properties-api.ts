@@ -15,7 +15,23 @@ async function testPropertiesAPI() {
   // Читаем cookies для авторизации
   let cookies = ''
   try {
-    cookies = readFileSync('test_cookies.txt', 'utf-8').trim()
+    const cookieContent = readFileSync('test_cookies.txt', 'utf-8')
+    // Извлекаем только значение auth-token
+    const lines = cookieContent.split('\n')
+    for (const line of lines) {
+      if (line.includes('auth-token')) {
+        const parts = line.split('\t')
+        if (parts.length >= 7) {
+          cookies = `auth-token=${parts[6]}`
+          break
+        }
+      }
+    }
+    
+    if (!cookies) {
+      console.error('❌ Не удалось найти auth-token в cookies.')
+      return
+    }
   } catch (error) {
     console.error('❌ Не удалось прочитать cookies. Сначала выполните вход.')
     return

@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
           description: validatedData.description || '',
           type: validatedData.type,
           address: validatedData.address,
-          price: validatedData.price || validatedData.pricePerMonth || 0, // Используем price или pricePerMonth
+          price: validatedData.price || validatedData.pricePerMonth || 0, // Используем price или pricePerMonth, по умолчанию 0
           bedrooms: validatedData.bedrooms || null,
           bathrooms: validatedData.bathrooms || null,
           area: validatedData.area || null,
