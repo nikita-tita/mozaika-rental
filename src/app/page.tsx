@@ -118,11 +118,11 @@ export default function HomePage() {
                     Попробовать демо
                   </TeamsButton>
                 </Link>
-                <Link href="/login" className="w-full sm:w-auto">
-                  <TeamsButton variant="outline" size="xl" className="w-full sm:w-auto">
-                    Войти в систему
-                  </TeamsButton>
-                </Link>
+                              <Link href="/login" className="w-full sm:w-auto">
+                <TeamsButton variant="outline" size="xl" className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50">
+                  Войти в систему
+                </TeamsButton>
+              </Link>
               </div>
               
               {/* Дополнительная информация */}
