@@ -164,13 +164,45 @@ export const M2DesignSystem = {
     }
   },
   
-  // Breakpoints
+  // Breakpoints для резиновой верстки
   breakpoints: {
-    sm: '640px',
-    md: '768px',
+    xs: '320px',    // Малые телефоны
+    sm: '480px',    // Большие телефоны
+    md: '768px',    // Планшеты
+    lg: '1024px',   // Малые ноутбуки
+    xl: '1280px',   // Большие ноутбуки
+    '2xl': '1536px', // Десктопы
+    '3xl': '1920px', // Большие экраны
+  },
+  
+  // Резиновые размеры контейнеров
+  containers: {
+    xs: '100%',
+    sm: '100%',
+    md: '100%',
     lg: '1024px',
     xl: '1280px',
     '2xl': '1536px',
+    '3xl': '1920px',
+  },
+  
+  // Резиновые отступы
+  responsiveSpacing: {
+    xs: 'clamp(1rem, 4vw, 1.5rem)',
+    sm: 'clamp(1.5rem, 5vw, 2rem)',
+    md: 'clamp(2rem, 6vw, 3rem)',
+    lg: 'clamp(3rem, 8vw, 4rem)',
+    xl: 'clamp(4rem, 10vw, 6rem)',
+  },
+  
+  // Резиновые размеры шрифтов
+  responsiveTypography: {
+    h1: 'clamp(2rem, 8vw, 4rem)',
+    h2: 'clamp(1.5rem, 6vw, 3rem)',
+    h3: 'clamp(1.25rem, 5vw, 2rem)',
+    h4: 'clamp(1.125rem, 4vw, 1.5rem)',
+    body: 'clamp(0.875rem, 2vw, 1rem)',
+    small: 'clamp(0.75rem, 1.5vw, 0.875rem)',
   }
 }
 

@@ -100,22 +100,22 @@ export default function HomePage() {
       <div className="bg-gradient-to-br from-gray-50 to-white">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+          <div className="max-w-7xl mx-auto px-responsive-sm sm:px-responsive-md lg:px-responsive-lg py-responsive-xl sm:py-responsive-2xl">
             <div className="text-center">
               {/* Логотип */}
-              <div className="flex justify-center mb-8">
+              <div className="flex justify-center mb-responsive-lg sm:mb-responsive-xl">
                 <M2Logo size="xl" />
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 sm:mb-8 leading-tight">
+              <h1 className="text-responsive-h1 font-extrabold text-gray-900 mb-responsive-md sm:mb-responsive-lg leading-tight">
                 Сделка сложится как по{' '}
                 <span className="text-primary-600">нотам</span>
               </h1>
-              <p className="text-xl sm:text-2xl text-gray-600 mb-8 sm:mb-10 max-w-4xl mx-auto px-4 leading-relaxed">
+              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-responsive-lg sm:mb-responsive-xl max-w-4xl mx-auto px-responsive-sm leading-relaxed">
                 Профессиональные инструменты для упрощения работы с клиентами и объектами недвижимости
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center px-4 mb-12">
+              <div className="flex flex-col sm:flex-row gap-responsive-sm sm:gap-responsive-md justify-center px-responsive-sm mb-responsive-xl">
                 <Link href="/register" className="w-full sm:w-auto">
                   <TeamsButton size="xl" className="w-full sm:w-auto">
                     Попробовать демо
@@ -129,7 +129,7 @@ export default function HomePage() {
               </div>
               
               {/* Дополнительная информация */}
-              <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500">
+              <div className="flex flex-wrap justify-center gap-responsive-md sm:gap-responsive-lg text-sm sm:text-base text-gray-500">
                 <div className="flex items-center">
                   <CheckCircle className="w-4 h-4 mr-2 text-success-500" />
                   Бесплатно для начала
@@ -148,28 +148,28 @@ export default function HomePage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 sm:py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+        <section className="py-responsive-xl sm:py-responsive-2xl bg-white">
+          <div className="max-w-7xl mx-auto px-responsive-sm sm:px-responsive-md lg:px-responsive-lg">
+            <div className="text-center mb-responsive-xl">
+              <h2 className="text-responsive-h2 font-bold text-gray-900 mb-responsive-md">
                 Доверяют профессионалы
               </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
                 Тысячи риелторов уже используют M² для упрощения своей работы
               </p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-responsive-md sm:gap-responsive-lg">
               {stats.map((stat, index) => {
                 const Icon = stat.icon
                 return (
-                  <TeamsCard key={index} className="text-center p-6 hover:shadow-lg transition-all duration-300" interactive>
-                    <div className="flex justify-center mb-4">
-                      <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-primary-600" />
+                  <TeamsCard key={index} className="text-center p-responsive-md sm:p-responsive-lg hover:shadow-lg transition-all duration-300" interactive>
+                    <div className="flex justify-center mb-responsive-md">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
                       </div>
                     </div>
-                    <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                    <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-responsive-sm">
                       {stat.value}
                     </div>
                     <div className="text-sm sm:text-base text-gray-600">

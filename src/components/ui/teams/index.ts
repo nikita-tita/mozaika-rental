@@ -7,6 +7,7 @@ export { TeamsInput } from './TeamsInput'
 export { TeamsSelect } from './TeamsSelect'
 export { TeamsTextarea } from './TeamsTextarea'
 export { TeamsCard } from './TeamsCard'
+export { TeamsContainer } from './TeamsContainer'
 export { default as TeamsHeader } from './TeamsHeader'
 
 // Advanced Components

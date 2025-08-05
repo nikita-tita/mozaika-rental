@@ -13,10 +13,10 @@ export const M2Logo: React.FC<M2LogoProps> = ({
   className
 }) => {
   const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
-    xl: 'w-16 h-16'
+    sm: 'w-6 h-6 sm:w-8 sm:h-8',
+    md: 'w-8 h-8 sm:w-10 sm:h-10',
+    lg: 'w-12 h-12 sm:w-14 sm:h-14',
+    xl: 'w-16 h-16 sm:w-20 sm:h-20'
   }
 
   const variantClasses = {
@@ -44,10 +44,10 @@ export const M2Logo: React.FC<M2LogoProps> = ({
         <div className={cn(
           'font-bold tracking-tight',
           variantClasses[variant],
-          size === 'sm' && 'text-sm',
-          size === 'md' && 'text-base',
-          size === 'lg' && 'text-lg',
-          size === 'xl' && 'text-xl'
+          size === 'sm' && 'text-sm sm:text-base',
+          size === 'md' && 'text-base sm:text-lg',
+          size === 'lg' && 'text-lg sm:text-xl',
+          size === 'xl' && 'text-xl sm:text-2xl'
         )}>
           Метр квадратный
         </div>
@@ -69,10 +69,10 @@ export const M2Icon: React.FC<Omit<M2LogoProps, 'variant'> & { variant?: 'defaul
   className
 }) => {
   const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
-    xl: 'w-16 h-16'
+    sm: 'w-6 h-6 sm:w-8 sm:h-8',
+    md: 'w-8 h-8 sm:w-10 sm:h-10',
+    lg: 'w-12 h-12 sm:w-14 sm:h-14',
+    xl: 'w-16 h-16 sm:w-20 sm:h-20'
   }
 
   const variantClasses = {

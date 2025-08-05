@@ -77,16 +77,16 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-responsive-lg sm:py-responsive-xl px-responsive-sm sm:px-responsive-md lg:px-responsive-lg">
+      <div className="max-w-md w-full space-y-responsive-lg sm:space-y-responsive-xl">
         <div>
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-responsive-md sm:mb-responsive-lg">
             <M2Logo size="lg" />
           </div>
-          <h2 className="text-center text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-center text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-responsive-sm sm:mb-responsive-md">
             Войти в аккаунт
           </h2>
-          <p className="text-center text-gray-600">
+          <p className="text-center text-sm sm:text-base text-gray-600">
             Или{' '}
             <a
               href="/register"
@@ -97,11 +97,11 @@ export function LoginForm() {
           </p>
         </div>
 
-        <TeamsCard className="p-8 shadow-xl">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        <TeamsCard className="p-responsive-lg sm:p-responsive-xl shadow-xl">
+          <form className="space-y-responsive-md sm:space-y-responsive-lg" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <div className="bg-error-50 border border-error-200 text-error-700 px-responsive-sm py-responsive-sm rounded-lg flex items-center">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
                 {error}
