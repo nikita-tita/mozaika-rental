@@ -2,8 +2,8 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 
 interface TeamsButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
-  size?: 'sm' | 'md' | 'lg'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success' | 'warning'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
   loading?: boolean
   icon?: React.ReactNode
   iconPosition?: 'left' | 'right'
@@ -23,17 +23,20 @@ export const TeamsButton: React.FC<TeamsButtonProps> = ({
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
   
   const variantClasses = {
-    primary: 'bg-[#0078d4] text-white hover:bg-[#106ebe] focus:ring-[#0078d4] shadow-sm',
-    secondary: 'bg-[#f3f2f1] text-[#323130] hover:bg-[#e1dfdd] focus:ring-[#605e5c]',
-    outline: 'border border-[#605e5c] bg-transparent text-[#323130] hover:bg-[#f3f2f1] focus:ring-[#605e5c]',
-    ghost: 'bg-transparent text-[#323130] hover:bg-[#f3f2f1] focus:ring-[#605e5c]',
-    danger: 'bg-[#d13438] text-white hover:bg-[#b02a2e] focus:ring-[#d13438] shadow-sm',
+    primary: 'bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-sm hover:shadow-md transition-all duration-200',
+    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500 shadow-sm hover:shadow-md transition-all duration-200',
+    outline: 'border border-gray-300 bg-transparent text-gray-900 hover:bg-gray-50 focus:ring-primary-500 transition-all duration-200',
+    ghost: 'bg-transparent text-gray-900 hover:bg-gray-100 focus:ring-gray-500 transition-all duration-200',
+    danger: 'bg-error-500 text-white hover:bg-error-600 focus:ring-error-500 shadow-sm hover:shadow-md transition-all duration-200',
+    success: 'bg-success-500 text-white hover:bg-success-600 focus:ring-success-500 shadow-sm hover:shadow-md transition-all duration-200',
+    warning: 'bg-warning-500 text-white hover:bg-warning-600 focus:ring-warning-500 shadow-sm hover:shadow-md transition-all duration-200',
   }
   
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-sm',
     lg: 'px-6 py-3 text-base',
+    xl: 'px-8 py-4 text-lg',
   }
   
   const disabledClasses = 'opacity-50 cursor-not-allowed'
