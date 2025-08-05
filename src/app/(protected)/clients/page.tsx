@@ -44,6 +44,9 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [showPropertyLink, setShowPropertyLink] = useState(false)
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('ALL')
   const [formData, setFormData] = useState({
@@ -124,6 +127,75 @@ export default function ClientsPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleEditClient = (client: Client) => {
+    setSelectedClient(client)
+    setFormData({
+      firstName: client.firstName,
+      lastName: client.lastName,
+      middleName: client.middleName || '',
+      email: client.email || '',
+      phone: client.phone,
+      birthDate: client.birthDate || '',
+      type: client.type,
+      passport: client.passport || '',
+      snils: client.snils || '',
+      inn: client.inn || '',
+      address: client.address || '',
+      city: client.city || '',
+      notes: client.notes || '',
+      source: client.source || ''
+    })
+    setShowEditForm(true)
+  }
+
+  const handleLinkProperty = (client: Client) => {
+    setSelectedClient(client)
+    setShowPropertyLink(true)
+  }
+
+  const handleUpdateClient = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedClient) return
+
+    try {
+      const response = await fetch(`/api/clients/${selectedClient.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        setShowEditForm(false)
+        setSelectedClient(null)
+        fetchClients()
+        // Сброс формы
+        setFormData({
+          firstName: '',
+          lastName: '',
+          middleName: '',
+          email: '',
+          phone: '',
+          birthDate: '',
+          type: 'TENANT',
+          passport: '',
+          snils: '',
+          inn: '',
+          address: '',
+          city: '',
+          notes: '',
+          source: ''
+        })
+      }
+    } catch (error) {
+      console.error('Error updating client:', error)
+    }
   }
 
   const filteredClients = clients.filter(client => {
@@ -221,7 +293,7 @@ export default function ClientsPage() {
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 options={[
-                  { value: 'ALL', label: 'Все типы' },
+                  { value: 'ALL', label: 'Все клиенты' },
                   { value: 'TENANT', label: 'Арендаторы' },
                   { value: 'LANDLORD', label: 'Арендодатели' },
                   { value: 'BOTH', label: 'Оба типа' }
@@ -260,6 +332,9 @@ export default function ClientsPage() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
                         Дата добавления
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
+                        Действия
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-[#e1dfdd]">
@@ -294,6 +369,24 @@ export default function ClientsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-[#605e5c]">
                           {formatDate(client.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#605e5c]">
+                          <div className="flex space-x-2">
+                            <TeamsButton
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditClient(client)}
+                            >
+                              Редактировать
+                            </TeamsButton>
+                            <TeamsButton
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleLinkProperty(client)}
+                            >
+                              Связать с объектом
+                            </TeamsButton>
+                          </div>
                         </td>
                       </tr>
                     ))}
