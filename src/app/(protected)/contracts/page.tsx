@@ -1,24 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TeamsCard, TeamsButton, TeamsBadge, TeamsInput, TeamsSelect, TeamsTextarea, TeamsModal } from '@/components/ui/teams'
+import { TeamsCard, TeamsButton, TeamsBadge, TeamsModal } from '@/components/ui/teams'
+import { ContractForm } from '@/components/ui/ContractForm'
 import { FileText, Download, Eye, Edit, Plus, Calendar, User, Home } from 'lucide-react'
 
 export default function ContractsPage() {
-  const [contractData, setContractData] = useState({
-    propertyType: '',
-    address: '',
-    landlordName: '',
-    landlordPassport: '',
-    tenantName: '',
-    tenantPassport: '',
-    startDate: '',
-    endDate: '',
-    rentAmount: '',
-    deposit: '',
-    utilities: false,
-    additionalTerms: ''
-  })
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [selectedContract, setSelectedContract] = useState<any>(null)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -47,45 +35,23 @@ export default function ContractsPage() {
     }
   ])
 
-  const propertyTypes = [
-    { value: 'APARTMENT', label: 'Квартира' },
-    { value: 'HOUSE', label: 'Дом' },
-    { value: 'OFFICE', label: 'Офис' },
-    { value: 'COMMERCIAL', label: 'Коммерческое помещение' },
-    { value: 'WAREHOUSE', label: 'Склад' }
-  ]
-
-  const handleGenerate = async () => {
+  const handleCreateContract = async (contractData: any) => {
     setGenerating(true)
     // Имитация генерации договора
     setTimeout(() => {
       const newContract = {
         id: Date.now().toString(),
-        title: `Договор аренды ${contractData.propertyType.toLowerCase()}`,
-        property: contractData.address,
+        title: `Договор аренды ${contractData.property?.title || 'объекта'}`,
+        property: contractData.property?.address || 'Не указан',
         tenant: contractData.tenantName,
         startDate: contractData.startDate,
         endDate: contractData.endDate,
         status: 'DRAFT',
-        amount: contractData.rentAmount
+        amount: contractData.monthlyRent
       }
       setContracts(prev => [newContract, ...prev])
       setGenerating(false)
-      // Сброс формы
-      setContractData({
-        propertyType: '',
-        address: '',
-        landlordName: '',
-        landlordPassport: '',
-        tenantName: '',
-        tenantPassport: '',
-        startDate: '',
-        endDate: '',
-        rentAmount: '',
-        deposit: '',
-        utilities: false,
-        additionalTerms: ''
-      })
+      setShowCreateForm(false)
     }, 2000)
   }
 
@@ -179,59 +145,21 @@ export default function ContractsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Форма создания договора */}
-          <TeamsCard className="p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Plus className="w-5 h-5 mr-2" />
-              Новый договор
-            </h2>
-            
-            <div className="space-y-4">
-              <TeamsSelect
-                label="Тип недвижимости"
-                value={contractData.propertyType}
-                onChange={(value) => setContractData(prev => ({ ...prev, propertyType: value }))}
-                options={propertyTypes}
-                placeholder="Выберите тип"
-              />
-              
-              <TeamsInput
-                label="Адрес объекта"
-                value={contractData.address}
-                onChange={(e) => setContractData(prev => ({ ...prev, address: e.target.value }))}
-                placeholder="ул. Ленина, 1, кв. 5"
-              />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TeamsInput
-                  label="Имя арендодателя"
-                  value={contractData.landlordName}
-                  onChange={(e) => setContractData(prev => ({ ...prev, landlordName: e.target.value }))}
-                  placeholder="Иванов Иван Иванович"
-                />
-                <TeamsInput
-                  label="Паспорт арендодателя"
-                  value={contractData.landlordPassport}
-                  onChange={(e) => setContractData(prev => ({ ...prev, landlordPassport: e.target.value }))}
-                  placeholder="1234 567890"
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TeamsInput
-                  label="Имя арендатора"
-                  value={contractData.tenantName}
-                  onChange={(e) => setContractData(prev => ({ ...prev, tenantName: e.target.value }))}
-                  placeholder="Петров Петр Петрович"
-                />
-                <TeamsInput
-                  label="Паспорт арендатора"
-                  value={contractData.tenantPassport}
-                  onChange={(e) => setContractData(prev => ({ ...prev, tenantPassport: e.target.value }))}
-                  placeholder="9876 543210"
-                />
-              </div>
+        {/* Кнопка создания нового договора */}
+        <div className="mb-8">
+          <TeamsButton
+            onClick={() => setShowCreateForm(true)}
+            variant="primary"
+            size="lg"
+            className="flex items-center"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Создать новый договор
+          </TeamsButton>
+        </div>
+
+        {/* Список договоров */}
+        <div className="space-y-6">
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TeamsInput
@@ -521,6 +449,19 @@ export default function ContractsPage() {
             </div>
           </div>
         )}
+      </TeamsModal>
+
+      {/* Модальное окно создания нового договора */}
+      <TeamsModal
+        isOpen={showCreateForm}
+        onClose={() => setShowCreateForm(false)}
+        title="Создание нового договора"
+        size="xl"
+      >
+        <ContractForm
+          onSubmit={handleCreateContract}
+          loading={generating}
+        />
       </TeamsModal>
     </div>
   )
