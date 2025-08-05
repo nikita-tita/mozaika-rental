@@ -59,10 +59,10 @@ export function LoginForm() {
         // Обновляем состояние приложения
         login(data.data)
         
-        console.log('🔄 Перенаправление на dashboard')
+        console.log('🔄 Перенаправление на home')
         
-        // Принудительное перенаправление на dashboard
-        window.location.href = '/dashboard'
+        // Принудительное перенаправление на home
+        window.location.href = '/home'
       } else {
         console.log('❌ Ошибка авторизации:', data.message)
         setError(data.message || 'Ошибка авторизации')

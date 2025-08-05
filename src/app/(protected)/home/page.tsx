@@ -73,46 +73,26 @@ export default function HomePage() {
 
   console.log('🏠 HomePage: Рендер, isAuthenticated:', isAuthenticated)
 
-  // Если пользователь авторизован, перенаправляем на защищенную главную страницу
-  if (isAuthenticated && user) {
-    // Используем useEffect для редиректа, чтобы избежать ошибок гидратации
-    useEffect(() => {
-      window.location.href = '/home'
-    }, [])
-    
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Перенаправление...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-              Сделка сложится как по нотам
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
-              Профессиональные инструменты для упрощения работы с клиентами и объектами недвижимости
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-              <Link href="/register" className="w-full sm:w-auto">
-                <TeamsButton size="lg" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
-                  Попробовать демо
-                </TeamsButton>
-              </Link>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
+        <div className="text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+            Добро пожаловать, {user?.firstName || 'Пользователь'}!
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
+            Вы успешно авторизованы в системе M²
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+            <Link href="/dashboard">
+              <TeamsButton size="lg" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
+                Перейти в панель управления
+              </TeamsButton>
+            </Link>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Stats Section */}
       <section className="py-12 sm:py-16">
@@ -180,30 +160,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 bg-primary-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Готовы начать?
-          </h2>
-          <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
-            Присоединяйтесь к тысячам риелторов, которые уже используют M² для упрощения своей работы
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Link href="/register">
-              <TeamsButton size="lg" variant="secondary" className="w-full sm:w-auto">
-                Начать бесплатно
-              </TeamsButton>
-            </Link>
-            <Link href="/login">
-              <TeamsButton size="lg" variant="outline" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-primary-600">
-                Войти в систему
-              </TeamsButton>
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   )
-}
+} 

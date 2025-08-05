@@ -5,6 +5,7 @@ import { verifyJWTToken } from '@/lib/auth'
 // Защищенные маршруты
 const protectedPaths = [
   '/dashboard',
+  '/home',
   '/properties',
   '/clients',
   '/deals',
