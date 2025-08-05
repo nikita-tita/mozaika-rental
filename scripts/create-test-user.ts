@@ -1,28 +1,55 @@
-import { PrismaClient } from '@prisma/client'
-import { hashPassword } from '../src/lib/auth'
+import { PrismaClient } from '@prisma/client/edge'
+import { withAccelerate } from '@prisma/extension-accelerate'
+import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient().$extends(withAccelerate())
 
 async function createTestUser() {
   try {
-    const hashedPassword = await hashPassword('test123')
+    console.log('🚀 Создаем тестового пользователя...')
     
-    const user = await prisma.user.create({
-      data: {
-        email: 'test@example.com',
-        password: hashedPassword,
-        firstName: 'Тест',
-        lastName: 'Пользователь',
-        phone: '+7 (999) 123-45-67',
-        role: 'REALTOR',
-        verified: true,
-        active: true
-      }
-    })
+    // Проверяем подключение
+    await prisma.$connect()
+    console.log('✅ Подключение к базе данных успешно')
     
-    console.log('✅ Тестовый пользователь создан:', user.email)
+    // Проверяем существующих пользователей
+    const users = await prisma.user.findMany()
+    console.log(`📊 Найдено пользователей: ${users.length}`)
+    
+    if (users.length === 0) {
+      console.log('⚠️ Пользователей нет, создаем тестового пользователя...')
+      
+      const hashedPassword = await bcrypt.hash('password123', 10)
+      
+      const testUser = await prisma.user.create({
+        data: {
+          email: 'nikitatitov070@gmail.com',
+          password: hashedPassword,
+          firstName: 'Никита',
+          lastName: 'Титов',
+          role: 'REALTOR'
+        }
+      })
+      
+      console.log('✅ Тестовый пользователь создан:', {
+        id: testUser.id,
+        email: testUser.email,
+        firstName: testUser.firstName,
+        lastName: testUser.lastName
+      })
+      
+      console.log('🔐 Данные для входа:')
+      console.log('Email: nikitatitov070@gmail.com')
+      console.log('Password: password123')
+    } else {
+      console.log('👥 Существующие пользователи:')
+      users.forEach(user => {
+        console.log(`- ${user.email} (${user.firstName} ${user.lastName})`)
+      })
+    }
+    
   } catch (error) {
-    console.error('❌ Ошибка создания пользователя:', error)
+    console.error('❌ Ошибка:', error)
   } finally {
     await prisma.$disconnect()
   }

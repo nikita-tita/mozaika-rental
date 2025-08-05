@@ -5,7 +5,7 @@ export const CreatePropertySchema = z.object({
   title: z.string().min(1, 'Название обязательно'),
   description: z.string().optional(),
   address: z.string().min(1, 'Адрес обязателен'),
-  city: z.string().min(1, 'Город обязателен'),
+  city: z.string().optional(),
   district: z.string().optional(),
   type: z.enum(['APARTMENT', 'HOUSE', 'COMMERCIAL', 'LAND'], {
     errorMap: () => ({ message: 'Тип должен быть APARTMENT, HOUSE, COMMERCIAL или LAND' })

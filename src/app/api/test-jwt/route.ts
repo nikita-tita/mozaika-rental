@@ -1,30 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyJWTToken } from '@/lib/auth'
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
+  const token = request.cookies.get('auth-token')?.value
+
+  if (!token) {
+    return NextResponse.json({
+      success: false,
+      message: 'Токен не найден'
+    })
+  }
+
   try {
-    const { token } = await request.json()
+    const decoded = verifyJWTToken(token)
     
-    if (!token) {
+    if (!decoded) {
       return NextResponse.json({
         success: false,
-        message: 'Токен не предоставлен'
+        message: 'Токен недействителен',
+        token: token.substring(0, 50) + '...'
       })
     }
 
-    const decoded = verifyJWTToken(token)
-    
     return NextResponse.json({
       success: true,
-      isValid: !!decoded,
-      decoded: decoded,
+      message: 'Токен действителен',
+      decoded,
       token: token.substring(0, 50) + '...'
     })
   } catch (error) {
     return NextResponse.json({
       success: false,
       message: 'Ошибка проверки токена',
-      error: error.message
+      error: error.message,
+      token: token.substring(0, 50) + '...'
     })
   }
 } 

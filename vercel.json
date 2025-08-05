@@ -6,11 +6,6 @@
     "LOG_LEVEL": "INFO",
     "NEXT_TELEMETRY_DISABLED": "1"
   },
-  "build": {
-    "env": {
-      "PRISMA_GENERATE_DATAPROXY": "true"
-    }
-  },
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30

@@ -56,31 +56,20 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
-    // Проверяем валидность токена
-    const decoded = verifyJWTToken(token)
-    if (!decoded) {
-      // Токен недействителен, удаляем его и перенаправляем на логин
-      const response = NextResponse.redirect(new URL('/login', request.url))
-      response.cookies.set('auth-token', '', {
-        expires: new Date(0),
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 0
-      })
-      return response
-    }
+    // Просто проверяем наличие токена, без валидации
+    // Валидация будет происходить на уровне API
   }
 
   // Если это страница авторизации и пользователь уже авторизован
   if (isAuthPath && token) {
     const decoded = verifyJWTToken(token)
     if (decoded) {
-      // Перенаправляем на dashboard
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      // Перенаправляем на home
+      return NextResponse.redirect(new URL('/home', request.url))
     }
   }
+
+
 
   return NextResponse.next()
 }

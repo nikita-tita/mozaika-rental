@@ -132,8 +132,8 @@ export async function POST(request: NextRequest) {
       const validationResult = CreatePropertySchema.safeParse(formData)
 
       if (!validationResult.success) {
-        console.log('Ошибки валидации:', validationResult.error.errors)
-        const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ')
+        console.log('Ошибки валидации:', validationResult.error)
+        const errors = validationResult.error.errors?.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') || 'Неизвестная ошибка валидации'
         return NextResponse.json(
           { success: false, error: `Ошибка валидации: ${errors}` },
           { status: 400 }
@@ -156,7 +156,11 @@ export async function POST(request: NextRequest) {
           area: validatedData.area || null,
           features: validatedData.features || [],
           images: [], // Пока оставляем пустым, добавим после обработки изображений
-          userId: existingUser.id
+          user: {
+            connect: {
+              id: existingUser.id
+            }
+          }
         }
       })
 
