@@ -18,41 +18,40 @@ export default function TeamsHeader() {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="bg-white border-b border-[#e1dfdd] shadow-sm">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex justify-between items-center h-14 sm:h-16">
-          {/* Logo - убрано согласно требованиям */}
-
-          {/* Navigation - убрано согласно требованиям */}
+          {/* Left side - пустое место для баланса */}
+          <div className="flex-1"></div>
 
           {/* Right side */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
             {/* Notifications */}
             {isAuthenticated && (
-              <button className="relative p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 transition-colors">
+              <button className="relative p-2 sm:p-2.5 text-[#605e5c] hover:text-[#323130] transition-colors rounded-md hover:bg-[#f3f2f1]">
                 <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             )}
 
             {/* User menu */}
             {isAuthenticated ? (
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <Link href="/dashboard" className="text-right hidden sm:block hover:opacity-80 transition-opacity">
-                  <div className="text-sm font-medium text-gray-900">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <Link href="/dashboard" className="text-right hidden sm:block hover:opacity-80 transition-opacity px-2 py-1 rounded-md hover:bg-[#f3f2f1]">
+                  <div className="text-sm font-medium text-[#323130]">
                     {user?.firstName} {user?.lastName}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-[#605e5c]">
                     {user?.role === 'REALTOR' ? 'Риелтор' : user?.role}
                   </div>
                 </Link>
-                <Link href="/dashboard" className="w-6 h-6 sm:w-8 sm:h-8 bg-[#deecf9] rounded-full flex items-center justify-center hover:bg-[#c7e0f4] transition-colors">
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#0078d4]" />
+                <Link href="/dashboard" className="w-8 h-8 sm:w-9 sm:h-9 bg-[#deecf9] rounded-full flex items-center justify-center hover:bg-[#c7e0f4] transition-colors">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#0078d4]" />
                 </Link>
                 <TeamsButton 
                   variant="ghost" 
                   size="sm" 
                   onClick={handleLogout}
-                  className="hidden lg:flex"
+                  className="hidden lg:flex text-[#605e5c] hover:text-[#323130] hover:bg-[#f3f2f1]"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Выйти
@@ -62,7 +61,7 @@ export default function TeamsHeader() {
                   variant="ghost" 
                   size="sm" 
                   onClick={handleLogout}
-                  className="lg:hidden p-1.5"
+                  className="lg:hidden p-2 text-[#605e5c] hover:text-[#323130] hover:bg-[#f3f2f1]"
                 >
                   <LogOut className="w-4 h-4" />
                 </TeamsButton>
