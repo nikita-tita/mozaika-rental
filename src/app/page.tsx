@@ -102,20 +102,7 @@ export default function HomePage() {
         <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50">
           <div className="max-w-7xl mx-auto px-responsive-sm sm:px-responsive-md lg:px-responsive-lg py-responsive-xl sm:py-responsive-2xl">
             <div className="text-center">
-              {/* Логотип */}
-              <div className="flex justify-center mb-responsive-lg sm:mb-responsive-xl">
-                <div className="flex items-center">
-                  <div className="flex items-center justify-center rounded-lg font-bold w-16 h-16 sm:w-20 sm:h-20 text-primary-600">
-                    <div className="relative">
-                      <span className="text-2xl font-extrabold tracking-tight">M</span>
-                      <span className="absolute -top-1 -right-1 text-xs font-bold">²</span>
-                    </div>
-                  </div>
-                  <div className="ml-2">
-                    <div className="font-bold tracking-tight text-primary-600 text-xl sm:text-2xl">Метр квадратный</div>
-                  </div>
-                </div>
-              </div>
+
               
               <h1 className="text-responsive-h1 font-extrabold text-gray-900 mb-responsive-md sm:mb-responsive-lg leading-tight">
                 Сделка сложится как по{' '}
@@ -244,19 +231,7 @@ export default function HomePage() {
           </div>
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="flex justify-center mb-8">
-              <div className="flex items-center">
-                <div className="flex items-center justify-center rounded-lg font-bold w-12 h-12 sm:w-14 sm:h-14 text-white">
-                  <div className="relative">
-                    <span className="text-2xl font-extrabold tracking-tight">M</span>
-                    <span className="absolute -top-1 -right-1 text-xs font-bold">²</span>
-                  </div>
-                </div>
-                <div className="ml-2">
-                  <div className="font-bold tracking-tight text-white text-lg sm:text-xl">Метр квадратный</div>
-                </div>
-              </div>
-            </div>
+
             
             <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
               Готовы начать?
