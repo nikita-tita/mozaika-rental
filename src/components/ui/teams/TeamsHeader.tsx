@@ -21,14 +21,7 @@ export default function TeamsHeader() {
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
-                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm sm:text-lg">M²</span>
-            </div>
-            </Link>
-          </div>
+          {/* Logo - убрано согласно требованиям */}
 
           {/* Navigation - убрано согласно требованиям */}
 
@@ -52,8 +45,8 @@ export default function TeamsHeader() {
                     {user?.role === 'REALTOR' ? 'Риелтор' : user?.role}
                   </div>
                 </Link>
-                <Link href="/dashboard" className="w-6 h-6 sm:w-8 sm:h-8 bg-primary-100 rounded-full flex items-center justify-center hover:bg-primary-200 transition-colors">
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-primary-600" />
+                <Link href="/dashboard" className="w-6 h-6 sm:w-8 sm:h-8 bg-[#deecf9] rounded-full flex items-center justify-center hover:bg-[#c7e0f4] transition-colors">
+                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-[#0078d4]" />
                 </Link>
                 <TeamsButton 
                   variant="ghost" 

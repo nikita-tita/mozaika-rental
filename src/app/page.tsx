@@ -78,16 +78,17 @@ export default function HomePage() {
   console.log('🏠 HomePage: Рендер, isAuthenticated:', isAuthenticated)
 
   // Если пользователь авторизован, перенаправляем на защищенную главную страницу
-  if (isAuthenticated && user) {
-    // Используем useEffect для редиректа, чтобы избежать ошибок гидратации
-    useEffect(() => {
+  useEffect(() => {
+    if (isAuthenticated && user) {
       window.location.href = '/home'
-    }, [])
-    
+    }
+  }, [isAuthenticated, user])
+
+  if (isAuthenticated && user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#0078d4] mx-auto"></div>
           <p className="mt-4 text-gray-600">Перенаправление...</p>
         </div>
       </div>
@@ -128,7 +129,7 @@ export default function HomePage() {
                 return (
                   <div key={index} className="text-center">
                     <div className="flex justify-center mb-2">
-                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#0078d4]" />
                     </div>
                     <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
                       {stat.value}
@@ -174,7 +175,7 @@ export default function HomePage() {
                       <p className="text-gray-600 mb-4">
                         {feature.description}
                       </p>
-                      <div className="flex items-center text-primary-600 text-sm font-medium">
+                      <div className="flex items-center text-[#0078d4] text-sm font-medium">
                         Подробнее
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </div>
@@ -187,12 +188,12 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-12 sm:py-16 bg-primary-600">
+        <section className="py-12 sm:py-16 bg-[#0078d4]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               Готовы начать?
             </h2>
-            <p className="text-lg text-primary-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-[#deecf9] mb-8 max-w-2xl mx-auto">
               Присоединяйтесь к тысячам риелторов, которые уже используют M² для упрощения своей работы
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
