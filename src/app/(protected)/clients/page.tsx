@@ -44,6 +44,9 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [showPropertyLink, setShowPropertyLink] = useState(false)
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('ALL')
   const [formData, setFormData] = useState({
@@ -126,6 +129,75 @@ export default function ClientsPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleEditClient = (client: Client) => {
+    setSelectedClient(client)
+    setFormData({
+      firstName: client.firstName,
+      lastName: client.lastName,
+      middleName: client.middleName || '',
+      email: client.email || '',
+      phone: client.phone,
+      birthDate: client.birthDate || '',
+      type: client.type,
+      passport: client.passport || '',
+      snils: client.snils || '',
+      inn: client.inn || '',
+      address: client.address || '',
+      city: client.city || '',
+      notes: client.notes || '',
+      source: client.source || ''
+    })
+    setShowEditForm(true)
+  }
+
+  const handleLinkProperty = (client: Client) => {
+    setSelectedClient(client)
+    setShowPropertyLink(true)
+  }
+
+  const handleUpdateClient = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!selectedClient) return
+
+    try {
+      const response = await fetch(`/api/clients/${selectedClient.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        setShowEditForm(false)
+        setSelectedClient(null)
+        fetchClients()
+        // Сброс формы
+        setFormData({
+          firstName: '',
+          lastName: '',
+          middleName: '',
+          email: '',
+          phone: '',
+          birthDate: '',
+          type: 'TENANT',
+          passport: '',
+          snils: '',
+          inn: '',
+          address: '',
+          city: '',
+          notes: '',
+          source: ''
+        })
+      }
+    } catch (error) {
+      console.error('Error updating client:', error)
+    }
+  }
+
   const filteredClients = clients.filter(client => {
     const matchesSearch = 
       client.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -169,43 +241,25 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <nav className="flex mb-6" aria-label="Breadcrumb">
-          <ol className="flex items-center space-x-4">
-            <li>
-              <div className="flex items-center">
-                <a href="/dashboard" className="text-gray-400 hover:text-gray-500">
-                  Главная
-                </a>
-              </div>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <span className="text-gray-500">Клиенты</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
-
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-[#323130] flex items-center">
-                <Users className="mr-3 h-8 w-8 text-[#0078d4]" />
-                Клиенты
-              </h1>
-              <p className="mt-2 text-[#605e5c]">
-                Управление базой клиентов
-              </p>
-            </div>
-            <TeamsButton
-              onClick={() => setShowAddForm(true)}
-              icon={<Plus className="w-4 h-4" />}
-            >
-              Добавить клиента
-            </TeamsButton>
-          </div>
+    <div>
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#323130] flex items-center">
+            <Users className="mr-3 h-8 w-8 text-[#0078d4]" />
+            Клиенты
+          </h1>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-[#605e5c]">
+            Управление базой клиентов
+          </p>
+        </div>
+                  <div className="flex justify-end mb-6">
+          <TeamsButton
+            onClick={() => setShowAddForm(true)}
+            icon={<Plus className="w-4 h-4" />}
+          >
+            Добавить клиента
+          </TeamsButton>
+        </div>
 
           {/* Фильтры и поиск */}
           <TeamsCard variant="elevated" padding="lg" className="mb-6">
@@ -221,7 +275,7 @@ export default function ClientsPage() {
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 options={[
-                  { value: 'ALL', label: 'Все типы' },
+                  { value: 'ALL', label: 'Все клиенты' },
                   { value: 'TENANT', label: 'Арендаторы' },
                   { value: 'LANDLORD', label: 'Арендодатели' },
                   { value: 'BOTH', label: 'Оба типа' }
@@ -260,6 +314,9 @@ export default function ClientsPage() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
                         Дата добавления
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
+                        Действия
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-[#e1dfdd]">
@@ -295,6 +352,24 @@ export default function ClientsPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-[#605e5c]">
                           {formatDate(client.createdAt)}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#605e5c]">
+                          <div className="flex space-x-2">
+                            <TeamsButton
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditClient(client)}
+                            >
+                              Редактировать
+                            </TeamsButton>
+                            <TeamsButton
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleLinkProperty(client)}
+                            >
+                              Связать с объектом
+                            </TeamsButton>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -313,7 +388,7 @@ export default function ClientsPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-[#323130] mb-1">
                         Имя <span className="text-red-500">*</span>
                       </label>
                       <TeamsInput
@@ -325,7 +400,7 @@ export default function ClientsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-[#323130] mb-1">
                         Фамилия <span className="text-red-500">*</span>
                       </label>
                       <TeamsInput
@@ -338,7 +413,7 @@ export default function ClientsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Отчество
                     </label>
                     <TeamsInput
@@ -349,7 +424,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Телефон <span className="text-red-500">*</span>
                     </label>
                     <TeamsInput
@@ -361,7 +436,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Email
                     </label>
                     <TeamsInput
@@ -373,7 +448,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Дата рождения
                     </label>
                     <TeamsInput
@@ -385,7 +460,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Тип клиента
                     </label>
                     <TeamsSelect
@@ -400,7 +475,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Паспорт
                     </label>
                     <TeamsInput
@@ -411,7 +486,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       СНИЛС
                     </label>
                     <TeamsInput
@@ -422,7 +497,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       ИНН
                     </label>
                     <TeamsInput
@@ -433,7 +508,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Адрес
                     </label>
                     <TeamsInput
@@ -444,7 +519,7 @@ export default function ClientsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-[#323130] mb-1">
                       Город
                     </label>
                     <TeamsInput
@@ -490,6 +565,271 @@ export default function ClientsPage() {
                     </TeamsButton>
                   </div>
                 </form>
+        </TeamsModal>
+
+        {/* Модальное окно редактирования клиента */}
+        <TeamsModal
+          isOpen={showEditForm}
+          onClose={() => setShowEditForm(false)}
+          title="Редактировать клиента"
+        >
+          <form onSubmit={handleUpdateClient} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Имя <span className="text-red-500">*</span>
+                </label>
+                <TeamsInput
+                  name="firstName"
+                  placeholder="Имя"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Фамилия <span className="text-red-500">*</span>
+                </label>
+                <TeamsInput
+                  name="lastName"
+                  placeholder="Фамилия"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Отчество
+                </label>
+                <TeamsInput
+                  name="middleName"
+                  placeholder="Отчество"
+                  value={formData.middleName}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Телефон <span className="text-red-500">*</span>
+                </label>
+                <TeamsInput
+                  name="phone"
+                  placeholder="+7 (999) 123-45-67"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <TeamsInput
+                  name="email"
+                  type="email"
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Дата рождения
+                </label>
+                <TeamsInput
+                  name="birthDate"
+                  type="date"
+                  value={formData.birthDate}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Тип клиента <span className="text-red-500">*</span>
+              </label>
+              <TeamsSelect
+                name="type"
+                value={formData.type}
+                onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'TENANT' | 'LANDLORD' | 'BOTH' }))}
+                options={[
+                  { value: 'TENANT', label: 'Арендатор' },
+                  { value: 'LANDLORD', label: 'Арендодатель' },
+                  { value: 'BOTH', label: 'Оба типа' }
+                ]}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Паспорт
+                </label>
+                <TeamsInput
+                  name="passport"
+                  placeholder="Паспорт (серия номер)"
+                  value={formData.passport}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  СНИЛС
+                </label>
+                <TeamsInput
+                  name="snils"
+                  placeholder="СНИЛС"
+                  value={formData.snils}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ИНН
+                </label>
+                <TeamsInput
+                  name="inn"
+                  placeholder="ИНН"
+                  value={formData.inn}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Город
+                </label>
+                <TeamsInput
+                  name="city"
+                  placeholder="Город"
+                  value={formData.city}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Адрес
+              </label>
+              <TeamsInput
+                name="address"
+                placeholder="Адрес"
+                value={formData.address}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Источник клиента
+              </label>
+              <TeamsInput
+                name="source"
+                placeholder="Источник клиента"
+                value={formData.source}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Заметки
+              </label>
+              <TeamsTextarea
+                name="notes"
+                placeholder="Заметки"
+                value={formData.notes}
+                onChange={handleChange}
+                rows={3}
+              />
+            </div>
+            <div className="flex justify-end space-x-3 pt-4">
+              <TeamsButton
+                type="button"
+                variant="outline"
+                onClick={() => setShowEditForm(false)}
+              >
+                Отмена
+              </TeamsButton>
+              <TeamsButton type="submit">
+                Сохранить изменения
+              </TeamsButton>
+            </div>
+          </form>
+        </TeamsModal>
+
+        {/* Модальное окно связывания с объектом */}
+        <TeamsModal
+          isOpen={showPropertyLink}
+          onClose={() => setShowPropertyLink(false)}
+          title="Связать клиента с объектом"
+        >
+          <div className="space-y-4">
+            <div className="bg-[#faf9f8] p-4 rounded-lg">
+              <h3 className="font-medium text-[#323130] mb-2">
+                Клиент: {selectedClient?.firstName} {selectedClient?.lastName}
+              </h3>
+              <p className="text-sm text-[#605e5c]">
+                Выберите объект недвижимости для связывания с этим клиентом
+              </p>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Выберите объект
+              </label>
+              <TeamsSelect
+                placeholder="Выберите объект недвижимости"
+                options={[
+                  { value: '1', label: 'Объект 1 - ул. Ленина, 1' },
+                  { value: '2', label: 'Объект 2 - ул. Пушкина, 10' },
+                  { value: '3', label: 'Объект 3 - ул. Гагарина, 25' }
+                ]}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Тип связи
+              </label>
+              <TeamsSelect
+                placeholder="Выберите тип связи"
+                options={[
+                  { value: 'owner', label: 'Владелец объекта' },
+                  { value: 'tenant', label: 'Арендатор объекта' },
+                  { value: 'interested', label: 'Заинтересован в аренде' }
+                ]}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Комментарий
+              </label>
+              <TeamsTextarea
+                placeholder="Дополнительная информация о связи"
+                rows={3}
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <TeamsButton
+                type="button"
+                variant="outline"
+                onClick={() => setShowPropertyLink(false)}
+              >
+                Отмена
+              </TeamsButton>
+              <TeamsButton>
+                Связать
+              </TeamsButton>
+            </div>
+          </div>
         </TeamsModal>
       </div>
     </div>

@@ -61,12 +61,16 @@ git pull origin stable-version-v1.0
 
 ### Деплои стабильной версии
 - **Основной деплой:** https://mozaikarental.vercel.app
-- **Стабильная версия v1.0:** https://mozaikarentalstableversionv1.vercel.app
+- **Стабильная версия v1.0 (деплой 1):** https://mozaikarental-pjnm9bjoc-nikitas-projects-c62d7451.vercel.app
+- **Стабильная версия v1.0 (деплой 2):** https://mozaikarental-o0camp1l3-nikitas-projects-c62d7451.vercel.app
 - **Статус:** Все деплои работают стабильно
 - **Последний деплой:** 5 августа 2025
 
 ### Создание нового деплоя
 ```bash
+# Переключиться на стабильную ветку
+git checkout stable-version-v1.0
+
 # Деплой с этой ветки
 npx vercel --prod
 

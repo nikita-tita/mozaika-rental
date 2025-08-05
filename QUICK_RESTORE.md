@@ -26,7 +26,8 @@ npx vercel --prod
 
 ## 🌐 Деплои стабильной версии
 - **Основной:** https://mozaikarental.vercel.app
-- **Стабильная v1.0:** https://mozaikarentalstableversionv1.vercel.app
+- **Стабильная v1.0 (1):** https://mozaikarental-pjnm9bjoc-nikitas-projects-c62d7451.vercel.app
+- **Стабильная v1.0 (2):** https://mozaikarental-o0camp1l3-nikitas-projects-c62d7451.vercel.app
 
 ## 🧪 Проверка работоспособности
 ```bash

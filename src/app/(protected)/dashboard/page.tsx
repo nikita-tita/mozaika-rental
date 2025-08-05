@@ -115,19 +115,19 @@ const dealMechanisms = [
 const getColorClasses = (color: string) => {
   switch (color) {
     case 'blue':
-      return 'bg-blue-50 border-blue-200 text-blue-700'
+      return 'bg-[#deecf9] border-[#0078d4] text-[#0078d4]'
     case 'green':
-      return 'bg-green-50 border-green-200 text-green-700'
+      return 'bg-[#dff6dd] border-[#107c10] text-[#107c10]'
     case 'purple':
-      return 'bg-purple-50 border-purple-200 text-purple-700'
+      return 'bg-[#f3e5f5] border-[#5c2d91] text-[#5c2d91]'
     case 'orange':
-      return 'bg-orange-50 border-orange-200 text-orange-700'
+      return 'bg-[#fce4ec] border-[#ca5010] text-[#ca5010]'
     case 'red':
-      return 'bg-red-50 border-red-200 text-red-700'
+      return 'bg-[#fde7e9] border-[#d13438] text-[#d13438]'
     case 'yellow':
-      return 'bg-yellow-50 border-yellow-200 text-yellow-700'
+      return 'bg-[#fff4ce] border-[#ca5010] text-[#ca5010]'
     default:
-      return 'bg-gray-50 border-gray-200 text-gray-700'
+      return 'bg-[#f3f2f1] border-[#605e5c] text-[#605e5c]'
   }
 }
 
@@ -213,13 +213,13 @@ export default function DashboardPage() {
   const getActivityColor = (status: string) => {
     switch (status) {
       case 'success':
-        return 'text-green-500'
+        return 'text-[#107c10]'
       case 'warning':
-        return 'text-yellow-500'
+        return 'text-[#ca5010]'
       case 'info':
-        return 'text-blue-500'
+        return 'text-[#0078d4]'
       default:
-        return 'text-gray-500'
+        return 'text-[#605e5c]'
     }
   }
 
@@ -242,26 +242,26 @@ export default function DashboardPage() {
   return (
     <div>
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#323130]">
             Панель управления
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-[#605e5c]">
             Добро пожаловать, {user?.firstName} {user?.lastName}
           </p>
         </div>
 
         {/* Main Content */}
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <TeamsCard>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <Building2 className="h-8 w-8 text-blue-600" />
+                  <Building2 className="h-8 w-8 text-[#0078d4]" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Объекты</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.properties}</p>
+                  <p className="text-sm font-medium text-[#605e5c]">Объекты</p>
+                  <p className="text-2xl font-semibold text-[#323130]">{stats.properties}</p>
                 </div>
               </div>
             </TeamsCard>
@@ -269,11 +269,11 @@ export default function DashboardPage() {
             <TeamsCard>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <Users className="h-8 w-8 text-green-600" />
+                  <Users className="h-8 w-8 text-[#107c10]" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Клиенты</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.clients}</p>
+                  <p className="text-sm font-medium text-[#605e5c]">Клиенты</p>
+                  <p className="text-2xl font-semibold text-[#323130]">{stats.clients}</p>
                 </div>
               </div>
             </TeamsCard>
@@ -281,11 +281,11 @@ export default function DashboardPage() {
             <TeamsCard>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <TrendingUp className="h-8 w-8 text-purple-600" />
+                  <TrendingUp className="h-8 w-8 text-[#5c2d91]" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Сделки</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.deals}</p>
+                  <p className="text-sm font-medium text-[#605e5c]">Сделки</p>
+                  <p className="text-2xl font-semibold text-[#323130]">{stats.deals}</p>
                 </div>
               </div>
             </TeamsCard>
@@ -293,30 +293,30 @@ export default function DashboardPage() {
             <TeamsCard>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <DollarSign className="h-8 w-8 text-yellow-600" />
+                  <DollarSign className="h-8 w-8 text-[#ca5010]" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Доход</p>
-                  <p className="text-2xl font-semibold text-gray-900">{formatCurrency(stats.totalRevenue)}</p>
+                  <p className="text-sm font-medium text-[#605e5c]">Доход</p>
+                  <p className="text-2xl font-semibold text-[#323130]">{formatCurrency(stats.totalRevenue)}</p>
                 </div>
               </div>
             </TeamsCard>
           </div>
 
           {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-[#323130] mb-3 sm:mb-4">
               Быстрые действия
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <Link href="/properties/new">
                 <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="flex items-center p-4">
-                    <div className="bg-blue-500 p-3 rounded-lg">
+                    <div className="bg-[#0078d4] p-3 rounded-lg">
                       <Building2 className="w-6 h-6 text-white" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Добавить объект</h3>
+                      <h3 className="text-lg font-medium text-[#323130]">Добавить объект</h3>
                       <p className="text-gray-600">Создать новое объявление</p>
                     </div>
                   </div>
@@ -326,12 +326,12 @@ export default function DashboardPage() {
               <Link href="/clients/new">
                 <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="flex items-center p-4">
-                    <div className="bg-green-500 p-3 rounded-lg">
+                    <div className="bg-[#107c10] p-3 rounded-lg">
                       <Users className="w-6 h-6 text-white" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Добавить клиента</h3>
-                      <p className="text-gray-600">Новый клиент в базе</p>
+                      <h3 className="text-lg font-medium text-[#323130]">Добавить клиента</h3>
+                      <p className="text-[#605e5c]">Новый клиент в базе</p>
                     </div>
                   </div>
                 </TeamsCard>
@@ -340,12 +340,12 @@ export default function DashboardPage() {
               <Link href="/contracts/new">
                 <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="flex items-center p-4">
-                    <div className="bg-purple-500 p-3 rounded-lg">
+                    <div className="bg-[#5c2d91] p-3 rounded-lg">
                       <FileText className="w-6 h-6 text-white" />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Создать договор</h3>
-                      <p className="text-gray-600">Новый договор аренды</p>
+                      <h3 className="text-lg font-medium text-[#323130]">Создать договор</h3>
+                      <p className="text-[#605e5c]">Новый договор аренды</p>
                     </div>
                   </div>
                 </TeamsCard>
@@ -354,8 +354,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-[#323130] mb-3 sm:mb-4">
               Последняя активность
             </h2>
             <TeamsCard>
@@ -367,12 +367,12 @@ export default function DashboardPage() {
                         {getActivityIcon(activity.type)}
                       </div>
                       <div className="ml-3 flex-1">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-[#323130]">
                           {activity.title}
                         </p>
-                        <p className="text-sm text-gray-500">{activity.description}</p>
+                        <p className="text-sm text-[#605e5c]">{activity.description}</p>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-[#605e5c]">
                         {formatDate(activity.timestamp)}
                       </div>
                     </div>
@@ -380,23 +380,23 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Пока нет активности</p>
+                  <Clock className="h-12 w-12 text-[#605e5c] mx-auto mb-4" />
+                  <p className="text-[#605e5c]">Пока нет активности</p>
                 </div>
               )}
             </TeamsCard>
           </div>
 
           {/* Deal Mechanisms */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-[#323130] mb-3 sm:mb-4">
               Сделочные механизмы
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-[#605e5c] mb-4 sm:mb-6">
               Инструменты для эффективной работы с арендой недвижимости
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {dealMechanisms.map((mechanism) => {
                 const Icon = mechanism.icon
                 return (
@@ -408,7 +408,7 @@ export default function DashboardPage() {
                             <Icon className="w-6 h-6" />
                           </div>
                           <div className="ml-4">
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className="text-lg font-semibold text-[#323130]">
                               {mechanism.title}
                             </h3>
                             {mechanism.status === 'beta' && (
@@ -417,20 +417,20 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         
-                        <p className="text-gray-600 mb-4 leading-relaxed">
+                        <p className="text-[#605e5c] mb-4 leading-relaxed">
                           {mechanism.description}
                         </p>
                         
                         <div className="space-y-2 mb-4">
                           {mechanism.features.map((feature, index) => (
-                            <div key={index} className="flex items-center text-sm text-gray-500">
-                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                            <div key={index} className="flex items-center text-sm text-[#605e5c]">
+                              <CheckCircle className="w-4 h-4 text-[#107c10] mr-2" />
                               {feature}
                             </div>
                           ))}
                         </div>
                         
-                        <div className="flex items-center text-primary-600 text-sm font-medium">
+                        <div className="flex items-center text-[#0078d4] text-sm font-medium">
                           Открыть
                           <ArrowRight className="w-4 h-4 ml-1" />
                         </div>

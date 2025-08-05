@@ -15,7 +15,8 @@
 - ✅ Документация добавлена в репозиторий
 
 ### 3. Vercel деплои
-- ✅ Создан деплой стабильной версии: https://mozaikarentalstableversionv1.vercel.app
+- ✅ Создан деплой 1: https://mozaikarental-pjnm9bjoc-nikitas-projects-c62d7451.vercel.app
+- ✅ Создан деплой 2: https://mozaikarental-o0camp1l3-nikitas-projects-c62d7451.vercel.app
 - ✅ Основной деплой: https://mozaikarental.vercel.app
 - ✅ Все деплои работают стабильно
 
@@ -31,6 +32,11 @@
 - **Репозиторий:** https://github.com/nikita-tita/mozaika-rental
 - **Ветка:** https://github.com/nikita-tita/mozaika-rental/tree/stable-version-v1.0
 - **Тег:** https://github.com/nikita-tita/mozaika-rental/releases/tag/v1.0-stable
+
+### Vercel деплои
+- **Основной:** https://mozaikarental.vercel.app
+- **Стабильная v1.0 (1):** https://mozaikarental-pjnm9bjoc-nikitas-projects-c62d7451.vercel.app
+- **Стабильная v1.0 (2):** https://mozaikarental-o0camp1l3-nikitas-projects-c62d7451.vercel.app
 
 ## 🚀 Как вернуться к версии
 
@@ -91,7 +97,6 @@ git reset --hard 67d9625
 
 - **GitHub:** https://github.com/nikita-tita/mozaika-rental
 - **Vercel:** https://vercel.com/nikitas-projects-c62d7451/mozaikarental
-- **Стабильная версия:** https://mozaikarentalstableversionv1.vercel.app
 - **Документация:** `STABLE_VERSION_GUIDE.md`
 
 ---
