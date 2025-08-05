@@ -16,9 +16,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">M²</span>
+                <div className="relative">
+                  <span className="text-lg font-bold text-white">M</span>
+                  <span className="absolute -top-1 -right-1 text-xs font-bold text-white">²</span>
+                </div>
               </div>
-              <span className="text-xl font-bold text-gray-900">Сервисы для аренды</span>
+              <span className="text-xl font-bold text-gray-900">Метр квадратный</span>
             </div>
 
             {/* Navigation */}
@@ -61,12 +64,15 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">M²</span>
+                          <div className="flex items-center space-x-3 mb-4">
+              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                <div className="relative">
+                  <span className="text-lg font-bold text-white">M</span>
+                  <span className="absolute -top-1 -right-1 text-xs font-bold text-white">²</span>
                 </div>
-                <span className="text-xl font-bold">Сервисы для аренды</span>
               </div>
+              <span className="text-xl font-bold">Метр квадратный</span>
+            </div>
               <p className="text-gray-300 mb-4">
                 Профессиональные инструменты для упрощения работы риелторов с арендой недвижимости
               </p>
