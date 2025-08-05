@@ -240,83 +240,83 @@ export default function DashboardPage() {
   }
 
   return (
-    <div>
+    <div className="px-responsive-sm sm:px-responsive-md lg:px-responsive-lg">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+        <div className="mb-responsive-lg sm:mb-responsive-xl">
+          <h1 className="text-responsive-h2 font-bold text-gray-900">
             Панель управления
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-responsive-sm text-sm sm:text-base text-gray-500">
             Добро пожаловать, {user?.firstName} {user?.lastName}
           </p>
         </div>
 
         {/* Main Content */}
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <TeamsCard>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-responsive-md sm:gap-responsive-lg mb-responsive-lg sm:mb-responsive-xl">
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <Building2 className="h-8 w-8 text-blue-600" />
+                  <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Объекты</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.properties}</p>
+                <div className="ml-responsive-sm sm:ml-responsive-md">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500">Объекты</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.properties}</p>
                 </div>
               </div>
             </TeamsCard>
 
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <Users className="h-8 w-8 text-green-600" />
+                  <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Клиенты</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.clients}</p>
+                <div className="ml-responsive-sm sm:ml-responsive-md">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500">Клиенты</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.clients}</p>
                 </div>
               </div>
             </TeamsCard>
 
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <TrendingUp className="h-8 w-8 text-purple-600" />
+                  <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
                 </div>
-                <div className="ml-4">
+                <div className="ml-responsive-sm sm:ml-responsive-md">
                   <p className="text-sm font-medium text-gray-500">Сделки</p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.deals}</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.deals}</p>
                 </div>
               </div>
             </TeamsCard>
 
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <DollarSign className="h-8 w-8 text-yellow-600" />
+                  <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Доход</p>
-                  <p className="text-2xl font-semibold text-gray-900">{formatCurrency(stats.totalRevenue)}</p>
+                <div className="ml-responsive-sm sm:ml-responsive-md">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500">Доход</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{formatCurrency(stats.totalRevenue)}</p>
                 </div>
               </div>
             </TeamsCard>
           </div>
 
           {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="mb-responsive-lg sm:mb-responsive-xl">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-responsive-md">
               Быстрые действия
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/properties/new">
-                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center p-4">
-                    <div className="bg-blue-500 p-3 rounded-lg">
-                      <Building2 className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Добавить объект</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-responsive-md sm:gap-responsive-lg">
+                              <Link href="/properties/new">
+                  <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer p-responsive-md sm:p-responsive-lg">
+                    <div className="flex items-center">
+                      <div className="bg-blue-500 p-2 sm:p-3 rounded-lg">
+                        <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      </div>
+                      <div className="ml-responsive-sm sm:ml-responsive-md">
+                        <h3 className="text-base sm:text-lg font-medium text-gray-900">Добавить объект</h3>
                       <p className="text-gray-600">Создать новое объявление</p>
                     </div>
                   </div>
@@ -324,13 +324,13 @@ export default function DashboardPage() {
               </Link>
 
               <Link href="/clients/new">
-                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center p-4">
-                    <div className="bg-green-500 p-3 rounded-lg">
-                      <Users className="w-6 h-6 text-white" />
+                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer p-responsive-md sm:p-responsive-lg">
+                  <div className="flex items-center">
+                    <div className="bg-green-500 p-2 sm:p-3 rounded-lg">
+                      <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Добавить клиента</h3>
+                    <div className="ml-responsive-sm sm:ml-responsive-md">
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900">Добавить клиента</h3>
                       <p className="text-gray-600">Новый клиент в базе</p>
                     </div>
                   </div>
@@ -338,13 +338,13 @@ export default function DashboardPage() {
               </Link>
 
               <Link href="/contracts/new">
-                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center p-4">
-                    <div className="bg-purple-500 p-3 rounded-lg">
-                      <FileText className="w-6 h-6 text-white" />
+                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer p-responsive-md sm:p-responsive-lg">
+                  <div className="flex items-center">
+                    <div className="bg-purple-500 p-2 sm:p-3 rounded-lg">
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Создать договор</h3>
+                    <div className="ml-responsive-sm sm:ml-responsive-md">
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900">Создать договор</h3>
                       <p className="text-gray-600">Новый договор аренды</p>
                     </div>
                   </div>
@@ -354,11 +354,11 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="mb-responsive-lg sm:mb-responsive-xl">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-responsive-md">
               Последняя активность
             </h2>
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               {recentActivity.length > 0 ? (
                 <div className="space-y-4">
                   {recentActivity.map((activity) => (
@@ -388,27 +388,27 @@ export default function DashboardPage() {
           </div>
 
           {/* Deal Mechanisms */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="mb-responsive-lg sm:mb-responsive-xl">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-responsive-md">
               Сделочные механизмы
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-responsive-md sm:mb-responsive-lg">
               Инструменты для эффективной работы с арендой недвижимости
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-responsive-md sm:gap-responsive-lg">
               {dealMechanisms.map((mechanism) => {
                 const Icon = mechanism.icon
                 return (
                   <Link key={mechanism.id} href={mechanism.href}>
-                    <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                      <div className="p-6">
-                        <div className="flex items-center mb-4">
-                          <div className={`w-12 h-12 ${getColorClasses(mechanism.color)} rounded-lg flex items-center justify-center`}>
-                            <Icon className="w-6 h-6" />
+                    <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer h-full p-responsive-md sm:p-responsive-lg">
+                      <div>
+                        <div className="flex items-center mb-responsive-md">
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${getColorClasses(mechanism.color)} rounded-lg flex items-center justify-center`}>
+                            <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                           </div>
-                          <div className="ml-4">
-                            <h3 className="text-lg font-semibold text-gray-900">
+                          <div className="ml-responsive-sm sm:ml-responsive-md">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                               {mechanism.title}
                             </h3>
                             {mechanism.status === 'beta' && (
@@ -417,22 +417,22 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         
-                        <p className="text-gray-600 mb-4 leading-relaxed">
+                        <p className="text-sm sm:text-base text-gray-600 mb-responsive-md leading-relaxed">
                           {mechanism.description}
                         </p>
                         
-                        <div className="space-y-2 mb-4">
+                        <div className="space-y-responsive-xs sm:space-y-responsive-sm mb-responsive-md">
                           {mechanism.features.map((feature, index) => (
-                            <div key={index} className="flex items-center text-sm text-gray-500">
-                              <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                            <div key={index} className="flex items-center text-xs sm:text-sm text-gray-500">
+                              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mr-responsive-xs sm:mr-responsive-sm" />
                               {feature}
                             </div>
                           ))}
                         </div>
                         
-                        <div className="flex items-center text-primary-600 text-sm font-medium">
+                        <div className="flex items-center text-primary-600 text-xs sm:text-sm font-medium">
                           Открыть
-                          <ArrowRight className="w-4 h-4 ml-1" />
+                          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-responsive-xs sm:ml-responsive-sm" />
                         </div>
                       </div>
                     </TeamsCard>

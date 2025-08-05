@@ -170,46 +170,47 @@ export default function ClientsPage() {
 
   return (
     <div className="min-h-screen bg-[#faf9f8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <nav className="flex mb-6" aria-label="Breadcrumb">
-          <ol className="flex items-center space-x-4">
+      <div className="max-w-7xl mx-auto px-responsive-sm sm:px-responsive-md lg:px-responsive-lg py-responsive-lg sm:py-responsive-xl">
+        <nav className="flex mb-responsive-md sm:mb-responsive-lg" aria-label="Breadcrumb">
+          <ol className="flex items-center space-x-responsive-sm sm:space-x-responsive-md">
             <li>
               <div className="flex items-center">
-                <a href="/dashboard" className="text-gray-400 hover:text-gray-500">
+                <a href="/dashboard" className="text-gray-400 hover:text-gray-500 text-sm sm:text-base">
                   Главная
                 </a>
               </div>
             </li>
             <li>
               <div className="flex items-center">
-                <span className="text-gray-500">Клиенты</span>
+                <span className="text-gray-500 text-sm sm:text-base">Клиенты</span>
               </div>
             </li>
           </ol>
         </nav>
 
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-6">
+        <div className="mt-responsive-lg sm:mt-responsive-xl">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-responsive-md sm:mb-responsive-lg gap-responsive-sm sm:gap-responsive-md">
             <div>
-              <h1 className="text-3xl font-bold text-[#323130] flex items-center">
-                <Users className="mr-3 h-8 w-8 text-[#0078d4]" />
+              <h1 className="text-responsive-h2 font-bold text-[#323130] flex items-center">
+                <Users className="mr-responsive-sm sm:mr-responsive-md h-6 w-6 sm:h-8 sm:w-8 text-[#0078d4]" />
                 Клиенты
               </h1>
-              <p className="mt-2 text-[#605e5c]">
+              <p className="mt-responsive-sm sm:mt-responsive-md text-sm sm:text-base text-[#605e5c]">
                 Управление базой клиентов
               </p>
             </div>
             <TeamsButton
               onClick={() => setShowAddForm(true)}
               icon={<Plus className="w-4 h-4" />}
+              className="w-full sm:w-auto"
             >
               Добавить клиента
             </TeamsButton>
           </div>
 
           {/* Фильтры и поиск */}
-          <TeamsCard variant="elevated" padding="lg" className="mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <TeamsCard variant="elevated" padding="lg" className="mb-responsive-md sm:mb-responsive-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-responsive-sm sm:gap-responsive-md">
               <TeamsInput
                 type="text"
                 placeholder="Поиск по имени, телефону, email..."
@@ -233,10 +234,10 @@ export default function ClientsPage() {
           {/* Список клиентов */}
           <TeamsCard variant="elevated" padding="sm" className="overflow-hidden">
             {filteredClients.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="mx-auto h-12 w-12 text-[#605e5c]" />
-                <h3 className="mt-2 text-sm font-medium text-[#323130]">Клиенты не найдены</h3>
-                <p className="mt-1 text-sm text-[#605e5c]">
+              <div className="text-center py-responsive-lg sm:py-responsive-xl">
+                <Users className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-[#605e5c]" />
+                <h3 className="mt-responsive-sm sm:mt-responsive-md text-sm sm:text-base font-medium text-[#323130]">Клиенты не найдены</h3>
+                <p className="mt-responsive-xs sm:mt-responsive-sm text-xs sm:text-sm text-[#605e5c]">
                   {searchTerm || filterType !== 'ALL' 
                     ? 'Попробуйте изменить параметры поиска'
                     : 'Начните с добавления первого клиента'
@@ -248,13 +249,13 @@ export default function ClientsPage() {
                 <table className="min-w-full divide-y divide-[#e1dfdd]">
                   <thead className="bg-[#faf9f8]">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
+                      <th className="px-responsive-sm sm:px-responsive-md py-responsive-sm sm:py-responsive-md text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
                         Клиент
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
+                      <th className="px-responsive-sm sm:px-responsive-md py-responsive-sm sm:py-responsive-md text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
                         Контакты
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
+                      <th className="px-responsive-sm sm:px-responsive-md py-responsive-sm sm:py-responsive-md text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
                         Тип
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-[#605e5c] uppercase tracking-wider">
