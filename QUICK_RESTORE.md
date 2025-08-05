@@ -24,6 +24,10 @@ git pull origin stable-version-v1.0
 npx vercel --prod
 ```
 
+## 🌐 Деплои стабильной версии
+- **Основной:** https://mozaikarental.vercel.app
+- **Стабильная v1.0:** https://mozaikarentalstableversionv1.vercel.app
+
 ## 🧪 Проверка работоспособности
 ```bash
 # Тест авторизации
