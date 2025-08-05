@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,25 +8,23 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  phone     String?
-  role      UserRole @default(REALTOR)
-  avatar    String?
-  verified  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  properties    Property[]
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  role          UserRole       @default(REALTOR)
+  avatar        String?
+  verified      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   clients       Client[]
-  deals         Deal[]
   contracts     Contract[]
-  payments      Payment[]
+  deals         Deal[]
   notifications Notification[]
+  payments      Payment[]
+  properties    Property[]
   sessions      Session[]
 
   @@map("users")
@@ -44,59 +39,53 @@ model Session {
   ipAddress String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
 
 model Property {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String?
-  address     String
-  price       Float
   type        PropertyType
   status      PropertyStatus @default(AVAILABLE)
+  address     String
+  area        Float?
   bedrooms    Int?
   bathrooms   Int?
-  area        Float?
-  images      String[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   features    String[]
+  images      String[]
+  price       Float
   userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deals  Deal[]
+  deals       Deal[]
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("properties")
 }
 
 model Client {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
+  id         String     @id @default(cuid())
+  firstName  String
+  lastName   String
+  email      String?
+  phone      String
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  userId     String
+  address    String?
+  birthDate  DateTime?
+  city       String?
+  inn        String?
+  isActive   Boolean    @default(true)
   middleName String?
-  email     String?
-  phone     String
-  birthDate DateTime?
-  type      ClientType @default(TENANT)
-  passport  String?
-  snils     String?
-  inn       String?
-  address   String?
-  city      String?
-  notes     String?
-  source    String?
-  isActive  Boolean   @default(true)
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
+  passport   String?
+  snils      String?
+  source     String?
+  type       ClientType @default(TENANT)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   deals      Deal[]
 
@@ -104,7 +93,7 @@ model Client {
 }
 
 model Deal {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   title       String
   description String?
   status      DealStatus @default(NEW)
@@ -114,65 +103,57 @@ model Deal {
   userId      String
   clientId    String?
   propertyId  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  client   Client?  @relation(fields: [clientId], references: [id])
-  property Property? @relation(fields: [propertyId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  client      Client?    @relation(fields: [clientId], references: [id])
+  property    Property?  @relation(fields: [propertyId], references: [id])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("deals")
 }
 
 model Contract {
-  id          String   @id @default(cuid())
-  title       String
-  content     String
-  status      ContractStatus @default(DRAFT)
-  signedAt    DateTime?
-  expiresAt   DateTime?
-  userId      String
-  dealId      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  status    ContractStatus @default(DRAFT)
+  signedAt  DateTime?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  content   String
+  dealId    String?
+  expiresAt DateTime?
+  title     String
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("contracts")
 }
 
 model Payment {
-  id        String   @id @default(cuid())
-  amount    Float
+  id        String        @id @default(cuid())
   type      PaymentType
   status    PaymentStatus @default(PENDING)
+  amount    Float
+  userId    String
   dueDate   DateTime?
   paidAt    DateTime?
-  userId    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
   dealId    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("payments")
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   title     String
   message   String
-  type      NotificationType
-  read      Boolean  @default(false)
   userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  type      NotificationType
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
