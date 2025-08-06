@@ -10,10 +10,25 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'no-store, must-revalidate',
           },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
         ],
       },
     ]
   },
+
+  // Настройки для middleware
+  experimental: {
+    allowMiddlewareResponseBody: true,
+    optimizePackageImports: ['lucide-react', '@headlessui/react'],
+  },
+
   // Отключаем ESLint и TypeScript проверки для деплоя
   eslint: {
     ignoreDuringBuilds: true,
@@ -31,11 +46,6 @@ const nextConfig = {
         hostname: '**.vercel.app',
       },
     ],
-  },
-  
-  // Экспериментальные функции
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@headlessui/react'],
   },
 }
 
