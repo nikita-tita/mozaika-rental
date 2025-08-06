@@ -56,5 +56,10 @@
       "source": "/api/(.*)",
       "destination": "/api/$1"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_FORCE_REFRESH": "true"
+    }
+  }
 }
