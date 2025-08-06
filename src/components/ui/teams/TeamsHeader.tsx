@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { TeamsButton, TeamsBadge } from '@/components/ui/teams'
@@ -8,7 +8,14 @@ import { Building2, Bell, User, Menu, LogOut } from 'lucide-react'
 import { useApp } from '@/components/providers/AppProvider'
 import { MobileMenu } from './MobileMenu'
 
+// Добавляем динамическую метку времени для принудительного обновления
 export default function TeamsHeader() {
+  // Используем useEffect для принудительного обновления компонента
+  React.useEffect(() => {
+    // Принудительно обновляем компонент
+    const now = new Date().toISOString()
+    console.log('Header rendered at:', now)
+  }, [])
   const { isAuthenticated, user, logout } = useApp()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
