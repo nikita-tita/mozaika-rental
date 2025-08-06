@@ -23,9 +23,8 @@ const nextConfig = {
     ]
   },
 
-  // Настройки для middleware
+  // Настройки для динамических маршрутов
   experimental: {
-    allowMiddlewareResponseBody: true,
     optimizePackageImports: ['lucide-react', '@headlessui/react'],
   },
 
@@ -47,6 +46,11 @@ const nextConfig = {
       },
     ],
   },
+
+  // Принудительно отключаем кэширование
+  generateEtags: false,
+  poweredByHeader: false,
+  compress: true,
 }
 
 module.exports = nextConfig

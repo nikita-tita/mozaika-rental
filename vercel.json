@@ -4,7 +4,8 @@
   "outputDirectory": ".next",
   "env": {
     "LOG_LEVEL": "INFO",
-    "NEXT_TELEMETRY_DISABLED": "1"
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "NEXT_RUNTIME": "nodejs"
   },
   "functions": {
     "src/app/api/**/*.ts": {
@@ -71,7 +72,8 @@
   ],
   "build": {
     "env": {
-      "NEXT_PUBLIC_FORCE_REFRESH": "true"
+      "NEXT_PUBLIC_FORCE_REFRESH": "true",
+      "NEXT_RUNTIME": "nodejs"
     }
   }
 }

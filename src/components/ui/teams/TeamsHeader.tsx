@@ -1,24 +1,28 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { TeamsButton, TeamsBadge } from '@/components/ui/teams'
-import { Building2, Bell, User, Menu, LogOut } from 'lucide-react'
+import { TeamsButton } from '@/components/ui/teams'
+import { Bell, User, Menu, LogOut } from 'lucide-react'
 import { useApp } from '@/components/providers/AppProvider'
 import { MobileMenu } from './MobileMenu'
 
 // Добавляем динамическую метку времени для принудительного обновления
 export default function TeamsHeader() {
-  // Используем useEffect для принудительного обновления компонента
-  React.useEffect(() => {
-    // Принудительно обновляем компонент
-    const now = new Date().toISOString()
-    console.log('Header rendered at:', now)
-  }, [])
   const { isAuthenticated, user, logout } = useApp()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [timestamp, setTimestamp] = useState('')
+
+  useEffect(() => {
+    // Принудительно обновляем компонент каждую секунду
+    const interval = setInterval(() => {
+      setTimestamp(new Date().toISOString())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -28,13 +32,15 @@ export default function TeamsHeader() {
     <header className="bg-white border-b border-[#e1dfdd] shadow-sm">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex justify-between items-center h-14 sm:h-16">
-          {/* Left side - Метр квадратный (обновлено: 2025-08-06) */}
+          {/* Left side - Метр квадратный */}
           <div className="flex items-center">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-[#0078d4] rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">M²</span>
               </div>
-              <span className="text-lg font-semibold text-[#323130] hidden sm:block">Метр квадратный</span>
+              <span className="text-lg font-semibold text-[#323130] hidden sm:block">
+                Метр квадратный
+              </span>
             </div>
           </div>
 
@@ -111,6 +117,9 @@ export default function TeamsHeader() {
         isOpen={mobileMenuOpen} 
         onClose={() => setMobileMenuOpen(false)} 
       />
+
+      {/* Скрытый элемент для принудительного обновления */}
+      <div className="hidden">{timestamp}</div>
     </header>
   )
-} 
+}
