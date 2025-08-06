@@ -9,6 +9,14 @@
   },
   "env": {
     "LOG_LEVEL": "INFO",
-    "NEXT_TELEMETRY_DISABLED": "1"
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "NEXT_PUBLIC_VERCEL_URL": "mozaikarental.vercel.app",
+    "VERCEL_URL": "mozaikarental.vercel.app"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_VERCEL_URL": "mozaikarental.vercel.app",
+      "VERCEL_URL": "mozaikarental.vercel.app"
+    }
   }
 }
