@@ -21,7 +21,7 @@ export default function TeamsHeader() {
     <header className="bg-white border-b border-[#e1dfdd] shadow-sm">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex justify-between items-center h-14 sm:h-16">
-          {/* Left side - Метр квадратный */}
+          {/* Left side - Метр квадратный (обновлено: 2025-08-06) */}
           <div className="flex items-center">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-[#0078d4] rounded-lg flex items-center justify-center">
