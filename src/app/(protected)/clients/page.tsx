@@ -56,7 +56,7 @@ export default function ClientsPage() {
     email: '',
     phone: '',
     birthDate: '',
-    type: 'TENANT' as const,
+    type: 'TENANT' as 'TENANT' | 'LANDLORD' | 'BOTH',
     passport: '',
     snils: '',
     inn: '',
@@ -262,23 +262,23 @@ export default function ClientsPage() {
       {/* Фильтры и поиск */}
       <TeamsCard variant="elevated" padding="lg" className="mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <TeamsInput
-            type="text"
-            placeholder="Поиск по имени, телефону, email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            icon={<Search className="w-4 h-4" />}
-          />
-          <TeamsSelect
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            options={[
-              { value: 'ALL', label: 'Все клиенты' },
-              { value: 'TENANT', label: 'Арендаторы' },
-              { value: 'LANDLORD', label: 'Арендодатели' },
-              { value: 'BOTH', label: 'Оба типа' }
-            ]}
-          />
+                        <TeamsInput
+                type="text"
+                placeholder="Поиск по имени, телефону, email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                icon={<Search className="w-4 h-4" />}
+              />
+              <TeamsSelect
+                value={filterType}
+                onChange={(value) => setFilterType(value)}
+                options={[
+                  { value: 'ALL', label: 'Все клиенты' },
+                  { value: 'TENANT', label: 'Арендаторы' },
+                  { value: 'LANDLORD', label: 'Арендодатели' },
+                  { value: 'BOTH', label: 'Оба типа' }
+                ]}
+              />
         </div>
       </TeamsCard>
 
@@ -653,15 +653,14 @@ export default function ClientsPage() {
               Тип клиента <span className="text-red-500">*</span>
             </label>
             <TeamsSelect
-              name="type"
               value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'TENANT' | 'LANDLORD' | 'BOTH' }))}
+              onChange={(value) => setFormData(prev => ({ ...prev, type: value as 'TENANT' | 'LANDLORD' | 'BOTH' }))}
               options={[
                 { value: 'TENANT', label: 'Арендатор' },
                 { value: 'LANDLORD', label: 'Арендодатель' },
                 { value: 'BOTH', label: 'Оба типа' }
               ]}
-              required
+              placeholder="Выберите тип клиента"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
