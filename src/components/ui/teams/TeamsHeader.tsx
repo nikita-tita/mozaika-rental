@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { TeamsButton } from '@/components/ui/teams'
@@ -8,21 +8,10 @@ import { Bell, User, Menu, LogOut } from 'lucide-react'
 import { useApp } from '@/components/providers/AppProvider'
 import { MobileMenu } from './MobileMenu'
 
-// Добавляем динамическую метку времени для принудительного обновления
 export default function TeamsHeader() {
   const { isAuthenticated, user, logout } = useApp()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [timestamp, setTimestamp] = useState('')
-
-  useEffect(() => {
-    // Принудительно обновляем компонент каждую секунду
-    const interval = setInterval(() => {
-      setTimestamp(new Date().toISOString())
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
 
   const handleLogout = () => {
     logout()
@@ -117,9 +106,6 @@ export default function TeamsHeader() {
         isOpen={mobileMenuOpen} 
         onClose={() => setMobileMenuOpen(false)} 
       />
-
-      {/* Скрытый элемент для принудительного обновления */}
-      <div className="hidden">{timestamp}</div>
     </header>
   )
 }

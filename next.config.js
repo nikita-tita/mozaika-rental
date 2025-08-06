@@ -1,33 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Отключаем кэширование страниц
-  headers: async () => {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, must-revalidate',
-          },
-          {
-            key: 'Pragma',
-            value: 'no-cache',
-          },
-          {
-            key: 'Expires',
-            value: '0',
-          },
-        ],
-      },
-    ]
-  },
-
-  // Настройки для динамических маршрутов
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@headlessui/react'],
-  },
-
   // Отключаем ESLint и TypeScript проверки для деплоя
   eslint: {
     ignoreDuringBuilds: true,
@@ -47,10 +19,10 @@ const nextConfig = {
     ],
   },
 
-  // Принудительно отключаем кэширование
-  generateEtags: false,
-  poweredByHeader: false,
-  compress: true,
+  // Экспериментальные функции
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@headlessui/react'],
+  },
 }
 
 module.exports = nextConfig
