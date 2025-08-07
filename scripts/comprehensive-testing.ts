@@ -35,7 +35,7 @@ class ComprehensiveTester {
       await this.runUserExperienceTests()
       
       this.printResults()
-    } catch (error) {
+  } catch (error) {
       console.error('❌ Критическая ошибка тестирования:', error)
     } finally {
       await this.cleanup()
@@ -247,7 +247,7 @@ class ComprehensiveTester {
 
       // Поиск по цене
       const expensiveProperties = await prisma.property.findMany({
-        where: {
+      where: { 
           userId: user.id,
           price: {
             gte: 50000
@@ -689,7 +689,7 @@ class ComprehensiveTester {
       const user = this.testUsers[0]
       const startTime = Date.now()
       
-      const properties = await prisma.property.findMany({
+    const properties = await prisma.property.findMany({
         where: { userId: user.id },
         include: {
           deals: true
@@ -964,7 +964,7 @@ class ComprehensiveTester {
     
     // Удаляем все тестовые данные
     await prisma.payment.deleteMany({
-      where: {
+      where: { 
         user: {
           email: {
             contains: '@test.com'
@@ -984,7 +984,7 @@ class ComprehensiveTester {
     })
     
     await prisma.deal.deleteMany({
-      where: {
+      where: { 
         user: {
           email: {
             contains: '@test.com'
@@ -994,7 +994,7 @@ class ComprehensiveTester {
     })
     
     await prisma.client.deleteMany({
-      where: {
+      where: { 
         user: {
           email: {
             contains: '@test.com'
