@@ -84,7 +84,7 @@ export const TeamsSelect: React.FC<TeamsSelectProps> = ({
       >
         <span className={cn(
           'truncate',
-          !selectedOption && 'text-gray-500'
+          !selectedOption ? 'text-gray-500' : 'text-gray-900'
         )}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
@@ -108,10 +108,10 @@ export const TeamsSelect: React.FC<TeamsSelectProps> = ({
               key={option.value}
               type="button"
               className={cn(
-                'w-full px-4 py-2 text-left text-sm transition-colors text-gray-900',
+                'w-full px-4 py-2 text-left text-sm transition-colors',
                 option.disabled 
-                  ? 'text-gray-400 cursor-not-allowed' 
-                  : 'hover:bg-gray-100 cursor-pointer',
+                  ? 'text-gray-400 cursor-not-allowed bg-gray-50' 
+                  : 'text-gray-900 hover:bg-gray-100 cursor-pointer',
                 option.value === selectedOption?.value && 'bg-blue-50 text-blue-700 font-medium'
               )}
               onClick={() => handleSelect(option)}

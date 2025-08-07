@@ -87,8 +87,8 @@ export async function POST(request: NextRequest) {
           middleName: validatedData.middleName || null,
           email: validatedData.email || null,
           phone: validatedData.phone,
-          birthDate: validatedData.birthDate || null,
-          type: validatedData.type || 'TENANT',
+          birthDate: validatedData.birthDate ? new Date(validatedData.birthDate) : null,
+          type: validatedData.type,
           passport: validatedData.passport || null,
           snils: validatedData.snils || null,
           inn: validatedData.inn || null,
@@ -103,7 +103,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        data: client
+        data: client,
+        message: 'Клиент успешно создан'
       })
     } catch (error) {
       console.error('Validation error:', error)

@@ -28,6 +28,7 @@ import {
 } from './index'
 import { TeamsNotificationCenter } from './TeamsNotificationCenter'
 import { useApp } from '@/components/providers/AppProvider'
+import { useNavigationTranslations } from '@/lib/i18n/hooks'
 
 interface NavigationItem {
   label: string
@@ -47,6 +48,7 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
 }) => {
   const pathname = usePathname()
   const { user, logout } = useApp()
+  const t = useNavigationTranslations()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -54,43 +56,43 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
 
   const navigationItems: NavigationItem[] = [
     {
-      label: 'Панель управления',
+      label: t('dashboard'),
       href: '/dashboard',
       icon: <Home className="h-5 w-5" />,
       roles: ['TENANT', 'LANDLORD', 'REALTOR', 'ADMIN']
     },
     {
-      label: 'Недвижимость',
+      label: t('properties'),
       href: '/properties',
       icon: <Building2 className="h-5 w-5" />,
       roles: ['LANDLORD', 'REALTOR', 'ADMIN']
     },
     {
-      label: 'Бронирования',
+      label: t('bookings'),
       href: '/bookings',
       icon: <Calendar className="h-5 w-5" />,
       roles: ['TENANT', 'LANDLORD', 'REALTOR', 'ADMIN']
     },
     {
-      label: 'Договоры',
+      label: t('contracts'),
       href: '/contracts',
       icon: <FileText className="h-5 w-5" />,
       roles: ['TENANT', 'LANDLORD', 'REALTOR', 'ADMIN']
     },
     {
-      label: 'Платежи',
+      label: t('payments'),
       href: '/payments',
       icon: <CreditCard className="h-5 w-5" />,
       roles: ['TENANT', 'LANDLORD', 'REALTOR', 'ADMIN']
     },
     {
-      label: 'Клиенты',
+      label: t('clients'),
       href: '/clients',
       icon: <Users className="h-5 w-5" />,
       roles: ['REALTOR', 'ADMIN']
     },
     {
-      label: 'Настройки',
+      label: t('settings'),
       href: '/settings',
       icon: <Settings className="h-5 w-5" />,
       roles: ['TENANT', 'LANDLORD', 'REALTOR', 'ADMIN']
@@ -133,7 +135,7 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
           'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
           active
             ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+            : 'text-gray-900 hover:bg-gray-50 hover:text-gray-900'
         )}
         onClick={() => setShowMobileMenu(false)}
       >
@@ -178,7 +180,7 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
         </div>
 
         {/* Navigation Items */}
-        <div className="flex-1 overflow-y-auto py-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto py-4 bg-white">
           <div className="px-3 space-y-1">
             {filteredNavigation.map(renderNavigationItem)}
           </div>
@@ -243,9 +245,9 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
         {/* Mobile Menu */}
         {showMobileMenu && (
           <div className="bg-white border-b border-gray-200 shadow-sm">
-            <div className="px-3 py-2 space-y-1">
-              {filteredNavigation.map(renderNavigationItem)}
-            </div>
+                    <div className="px-3 py-2 space-y-1 bg-white">
+          {filteredNavigation.map(renderNavigationItem)}
+        </div>
           </div>
         )}
       </div>
@@ -254,7 +256,7 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
       <TeamsModal
         isOpen={showUserMenu}
         onClose={() => setShowUserMenu(false)}
-        title="Профиль пользователя"
+        title={t('profile')}
         size="sm"
       >
         <div className="space-y-4">
@@ -276,16 +278,16 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
           <div className="border-t border-gray-200 pt-4">
             <div className="space-y-2">
               <Link href="/profile">
-                <TeamsButton variant="ghost" className="w-full justify-start">
+                <TeamsButton variant="ghost" className="w-full justify-start text-gray-900 hover:text-gray-900">
                   <User className="h-4 w-4 mr-2" />
-                  Мой профиль
+                  {t('profile')}
                 </TeamsButton>
               </Link>
               
               <Link href="/settings">
-                <TeamsButton variant="ghost" className="w-full justify-start">
+                <TeamsButton variant="ghost" className="w-full justify-start text-gray-900 hover:text-gray-900">
                   <Settings className="h-4 w-4 mr-2" />
-                  Настройки
+                  {t('settings')}
                 </TeamsButton>
               </Link>
               
@@ -295,7 +297,7 @@ export const TeamsNavigation: React.FC<TeamsNavigationProps> = ({
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                Выйти
+                {t('logout')}
               </TeamsButton>
             </div>
           </div>

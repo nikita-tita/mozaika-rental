@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: false,
       message: 'Ошибка проверки токена',
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
       token: token.substring(0, 50) + '...'
     })
   }

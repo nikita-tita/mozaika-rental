@@ -120,13 +120,17 @@ export default function MultilistingPage() {
             Новое объявление
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <TeamsSelect
-              label="Объект недвижимости"
-              placeholder="Выберите объект из вашей базы"
-              value={selectedProperty}
-              onChange={e => setSelectedProperty(e.target.value)}
-              options={properties.map((p: any) => ({ value: p.id, label: p.title }))}
-            />
+            <div>
+              <label className="block text-sm font-medium text-[#323130] mb-2">
+                Объект недвижимости
+              </label>
+              <TeamsSelect
+                placeholder="Выберите объект из вашей базы"
+                value={selectedProperty}
+                onChange={value => setSelectedProperty(value)}
+                options={properties.map((p: any) => ({ value: p.id, label: p.title }))}
+              />
+            </div>
             <TeamsInput
               label="Заголовок объявления"
               placeholder="Привлекательный заголовок"

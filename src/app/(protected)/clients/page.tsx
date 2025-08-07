@@ -16,9 +16,13 @@ import {
   TeamsBadge,
   TeamsModal,
   TeamsNavigation,
-  TeamsSkeleton
+  TeamsSkeleton,
+  TeamsAlert,
+  TeamsMultiSelect
 } from '@/components/ui/teams'
-import { Plus, Users, Search, Filter, MapPin, Phone, Mail } from 'lucide-react'
+import { DatePicker } from '@/components/ui/DatePicker'
+import { ClientPropertyLink } from '@/components/clients/ClientPropertyLink'
+import { Plus, Users, Search, Filter, MapPin, Phone, Mail, AlertCircle, CheckCircle, Trash2, Edit, Link } from 'lucide-react'
 
 interface Client {
   id: string
@@ -46,6 +50,7 @@ export default function ClientsPage() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [showPropertyLink, setShowPropertyLink] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('ALL')
@@ -56,7 +61,7 @@ export default function ClientsPage() {
     email: '',
     phone: '',
     birthDate: '',
-    type: 'TENANT' as const,
+    types: [] as string[],
     passport: '',
     snils: '',
     inn: '',
@@ -65,6 +70,9 @@ export default function ClientsPage() {
     notes: '',
     source: ''
   })
+  const [errors, setErrors] = useState<string[]>([])
+  const [successMessage, setSuccessMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     fetchClients()
@@ -87,6 +95,18 @@ export default function ClientsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setErrors([])
+    setSuccessMessage('')
+    
+    // Преобразуем множественные типы в один тип
+    const clientType = formData.types.includes('TENANT') && formData.types.includes('LANDLORD') 
+      ? 'BOTH' 
+      : formData.types.includes('TENANT') 
+        ? 'TENANT' 
+        : formData.types.includes('LANDLORD') 
+          ? 'LANDLORD' 
+          : 'TENANT'
     
     try {
       const response = await fetch('/api/clients', {
@@ -94,12 +114,16 @@ export default function ClientsPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          type: clientType
+        })
       })
 
       const data = await response.json()
       
       if (data.success) {
+        setSuccessMessage(data.message || 'Клиент успешно создан')
         setShowAddForm(false)
         setFormData({
           firstName: '',
@@ -108,7 +132,7 @@ export default function ClientsPage() {
           email: '',
           phone: '',
           birthDate: '',
-          type: 'TENANT',
+          types: [],
           passport: '',
           snils: '',
           inn: '',
@@ -118,9 +142,16 @@ export default function ClientsPage() {
           source: ''
         })
         fetchClients()
+        
+        setTimeout(() => setSuccessMessage(''), 3000)
+      } else {
+        setErrors([data.error || 'Ошибка при создании клиента'])
       }
     } catch (error) {
       console.error('Error creating client:', error)
+      setErrors(['Ошибка при создании клиента'])
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -129,8 +160,23 @@ export default function ClientsPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const handleDateChange = (value: string) => {
+    setFormData(prev => ({ ...prev, birthDate: value }))
+  }
+
+  const handleTypesChange = (value: string[]) => {
+    setFormData(prev => ({ ...prev, types: value }))
+  }
+
   const handleEditClient = (client: Client) => {
     setSelectedClient(client)
+    // Преобразуем тип клиента в массив типов
+    const types = client.type === 'BOTH' 
+      ? ['TENANT', 'LANDLORD'] 
+      : client.type === 'TENANT' 
+        ? ['TENANT'] 
+        : ['LANDLORD']
+    
     setFormData({
       firstName: client.firstName,
       lastName: client.lastName,
@@ -138,7 +184,7 @@ export default function ClientsPage() {
       email: client.email || '',
       phone: client.phone,
       birthDate: client.birthDate || '',
-      type: client.type,
+      types,
       passport: client.passport || '',
       snils: client.snils || '',
       inn: client.inn || '',
@@ -155,10 +201,59 @@ export default function ClientsPage() {
     setShowPropertyLink(true)
   }
 
+  const handleDeleteClient = (client: Client) => {
+    setSelectedClient(client)
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDeleteClient = async () => {
+    if (!selectedClient) return
+
+    setIsSubmitting(true)
+    setErrors([])
+    setSuccessMessage('')
+
+    try {
+      const response = await fetch(`/api/clients/${selectedClient.id}`, {
+        method: 'DELETE'
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        setSuccessMessage('Клиент успешно удален')
+        setShowDeleteConfirm(false)
+        setSelectedClient(null)
+        fetchClients()
+        
+        setTimeout(() => setSuccessMessage(''), 3000)
+      } else {
+        setErrors([data.error || 'Ошибка при удалении клиента'])
+      }
+    } catch (error) {
+      console.error('Error deleting client:', error)
+      setErrors(['Ошибка при удалении клиента'])
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleUpdateClient = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setErrors([])
+    setSuccessMessage('')
     
     if (!selectedClient) return
+
+    // Преобразуем множественные типы в один тип
+    const clientType = formData.types.includes('TENANT') && formData.types.includes('LANDLORD') 
+      ? 'BOTH' 
+      : formData.types.includes('TENANT') 
+        ? 'TENANT' 
+        : formData.types.includes('LANDLORD') 
+          ? 'LANDLORD' 
+          : 'TENANT'
 
     try {
       const response = await fetch(`/api/clients/${selectedClient.id}`, {
@@ -166,12 +261,16 @@ export default function ClientsPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          type: clientType
+        })
       })
 
       const data = await response.json()
       
       if (data.success) {
+        setSuccessMessage('Клиент успешно обновлен')
         setShowEditForm(false)
         setSelectedClient(null)
         fetchClients()
@@ -182,7 +281,7 @@ export default function ClientsPage() {
           email: '',
           phone: '',
           birthDate: '',
-          type: 'TENANT',
+          types: [],
           passport: '',
           snils: '',
           inn: '',
@@ -191,9 +290,16 @@ export default function ClientsPage() {
           notes: '',
           source: ''
         })
+        
+        setTimeout(() => setSuccessMessage(''), 3000)
+      } else {
+        setErrors([data.error || 'Ошибка при обновлении клиента'])
       }
     } catch (error) {
       console.error('Error updating client:', error)
+      setErrors(['Ошибка при обновлении клиента'])
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -213,7 +319,7 @@ export default function ClientsPage() {
     switch (type) {
       case 'TENANT': return 'Арендатор'
       case 'LANDLORD': return 'Арендодатель'
-      case 'BOTH': return 'Оба'
+      case 'BOTH': return 'Оба типа'
       default: return type
     }
   }
@@ -253,6 +359,31 @@ export default function ClientsPage() {
           </p>
         </div>
 
+        {/* Сообщения об ошибках и успехе */}
+        {errors.length > 0 && (
+          <TeamsAlert
+            variant="error"
+            title="Ошибка"
+            className="mb-4"
+          >
+            <ul className="list-disc list-inside">
+              {errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </TeamsAlert>
+        )}
+
+        {successMessage && (
+          <TeamsAlert
+            variant="success"
+            title="Успешно"
+            className="mb-4"
+          >
+            {successMessage}
+          </TeamsAlert>
+        )}
+
         {/* Кнопка добавления */}
         <div className="flex justify-end mb-6">
           <TeamsButton
@@ -275,7 +406,7 @@ export default function ClientsPage() {
             />
             <TeamsSelect
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
+              onChange={(value) => setFilterType(value)}
               options={[
                 { value: 'ALL', label: 'Все клиенты' },
                 { value: 'TENANT', label: 'Арендаторы' },
@@ -360,6 +491,7 @@ export default function ClientsPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEditClient(client)}
+                            icon={<Edit className="w-3 h-3" />}
                           >
                             Редактировать
                           </TeamsButton>
@@ -367,8 +499,17 @@ export default function ClientsPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleLinkProperty(client)}
+                            icon={<Link className="w-3 h-3" />}
                           >
-                            Связать с объектом
+                            Связать
+                          </TeamsButton>
+                          <TeamsButton
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteClient(client)}
+                            icon={<Trash2 className="w-3 h-3" />}
+                          >
+                            Удалить
                           </TeamsButton>
                         </div>
                       </td>
@@ -430,7 +571,7 @@ export default function ClientsPage() {
               </label>
               <TeamsInput
                 name="phone"
-                placeholder="Телефон"
+                placeholder="+7 (999) 123-45-67"
                 value={formData.phone}
                 onChange={handleChange}
                 required
@@ -443,7 +584,7 @@ export default function ClientsPage() {
               <TeamsInput
                 name="email"
                 type="email"
-                placeholder="Email"
+                placeholder="email@example.com"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -452,27 +593,23 @@ export default function ClientsPage() {
               <label className="block text-sm font-medium text-[#323130] mb-1">
                 Дата рождения
               </label>
-              <TeamsInput
-                name="birthDate"
-                type="date"
-                placeholder="Дата рождения"
+              <DatePicker
                 value={formData.birthDate}
-                onChange={handleChange}
+                onChange={handleDateChange}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-[#323130] mb-1">
-                Тип клиента
+                Роли клиента <span className="text-red-500">*</span>
               </label>
-              <TeamsSelect
-                name="type"
-                value={formData.type}
-                onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'TENANT' | 'LANDLORD' | 'BOTH' }))}
+              <TeamsMultiSelect
+                value={formData.types}
+                onChange={handleTypesChange}
                 options={[
                   { value: 'TENANT', label: 'Арендатор' },
-                  { value: 'LANDLORD', label: 'Арендодатель' },
-                  { value: 'BOTH', label: 'Оба типа' }
+                  { value: 'LANDLORD', label: 'Арендодатель' }
                 ]}
+                placeholder="Выберите роли клиента"
               />
             </div>
             <div>
@@ -558,11 +695,12 @@ export default function ClientsPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setShowAddForm(false)}
+                disabled={isSubmitting}
               >
                 Отмена
               </TeamsButton>
-              <TeamsButton type="submit">
-                Добавить клиента
+              <TeamsButton type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Создание...' : 'Добавить клиента'}
               </TeamsButton>
             </div>
           </form>
@@ -640,27 +778,23 @@ export default function ClientsPage() {
               <label className="block text-sm font-medium text-[#323130] mb-1">
                 Дата рождения
               </label>
-              <TeamsInput
-                name="birthDate"
-                type="date"
+              <DatePicker
                 value={formData.birthDate}
-                onChange={handleChange}
+                onChange={handleDateChange}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-[#323130] mb-1">
-                Тип клиента <span className="text-red-500">*</span>
+                Роли клиента <span className="text-red-500">*</span>
               </label>
-              <TeamsSelect
-                name="type"
-                value={formData.type}
-                onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'TENANT' | 'LANDLORD' | 'BOTH' }))}
+              <TeamsMultiSelect
+                value={formData.types}
+                onChange={handleTypesChange}
                 options={[
                   { value: 'TENANT', label: 'Арендатор' },
-                  { value: 'LANDLORD', label: 'Арендодатель' },
-                  { value: 'BOTH', label: 'Оба типа' }
+                  { value: 'LANDLORD', label: 'Арендодатель' }
                 ]}
-                required
+                placeholder="Выберите роли клиента"
               />
             </div>
             <div>
@@ -746,84 +880,63 @@ export default function ClientsPage() {
                 type="button"
                 variant="outline"
                 onClick={() => setShowEditForm(false)}
+                disabled={isSubmitting}
               >
                 Отмена
               </TeamsButton>
-              <TeamsButton type="submit">
-                Сохранить изменения
+              <TeamsButton type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Сохранение...' : 'Сохранить изменения'}
               </TeamsButton>
             </div>
           </form>
         </TeamsModal>
 
-        {/* Модальное окно связывания с объектом */}
+        {/* Модальное окно подтверждения удаления */}
         <TeamsModal
-          isOpen={showPropertyLink}
-          onClose={() => setShowPropertyLink(false)}
-          title="Связать клиента с объектом"
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          title="Подтверждение удаления"
         >
           <div className="space-y-4">
             <div className="bg-[#faf9f8] p-4 rounded-lg">
               <h3 className="font-medium text-[#323130] mb-2">
-                Клиент: {selectedClient?.firstName} {selectedClient?.lastName}
+                Удалить клиента: {selectedClient?.firstName} {selectedClient?.lastName}?
               </h3>
               <p className="text-sm text-[#605e5c]">
-                Выберите объект недвижимости для связывания с этим клиентом
+                Это действие нельзя отменить. Все данные клиента будут удалены безвозвратно.
               </p>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-[#323130] mb-2">
-                Выберите объект
-              </label>
-              <TeamsSelect
-                placeholder="Выберите объект недвижимости"
-                options={[
-                  { value: '1', label: 'Объект 1 - ул. Ленина, 1' },
-                  { value: '2', label: 'Объект 2 - ул. Пушкина, 10' },
-                  { value: '3', label: 'Объект 3 - ул. Гагарина, 25' }
-                ]}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-[#323130] mb-2">
-                Тип связи
-              </label>
-              <TeamsSelect
-                placeholder="Выберите тип связи"
-                options={[
-                  { value: 'owner', label: 'Владелец объекта' },
-                  { value: 'tenant', label: 'Арендатор объекта' },
-                  { value: 'interested', label: 'Заинтересован в аренде' }
-                ]}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-[#323130] mb-2">
-                Комментарий
-              </label>
-              <TeamsTextarea
-                placeholder="Дополнительная информация о связи"
-                rows={3}
-              />
             </div>
             
             <div className="flex justify-end space-x-3 pt-4">
               <TeamsButton
                 type="button"
                 variant="outline"
-                onClick={() => setShowPropertyLink(false)}
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isSubmitting}
               >
                 Отмена
               </TeamsButton>
-              <TeamsButton>
-                Связать
+              <TeamsButton 
+                type="button"
+                variant="outline"
+                onClick={confirmDeleteClient}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Удаление...' : 'Удалить'}
               </TeamsButton>
             </div>
           </div>
         </TeamsModal>
+
+        {/* Компонент связывания с объектами */}
+        <ClientPropertyLink
+          isOpen={showPropertyLink}
+          onClose={() => setShowPropertyLink(false)}
+          client={selectedClient}
+          onLinkSuccess={() => {
+            // Можно добавить обновление данных если нужно
+          }}
+        />
       </div>
     </div>
   )

@@ -1,292 +1,265 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyJWTToken } from '@/lib/auth'
-import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs'
-import { join } from 'path'
-import { createReport } from 'docx-templates'
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import { ApiErrorHandler, generateRequestId } from '@/lib/api-error-handler'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
-  try {
-    // Простая реализация - возвращаем текстовый файл
-    const content = `ДОГОВОР АРЕНДЫ
-
-Тестовый договор аренды
-
-Содержание договора
-
-Дата: ${new Date().toLocaleDateString('ru-RU')}
-Подпись: _________________`
-
-    const fileBuffer = Buffer.from(content, 'utf-8')
-    const fileName = `Договор_аренды_${new Date().toISOString().split('T')[0]}.txt`
-
-    // Создаем ответ с файлом
-    const response = new NextResponse(fileBuffer)
-    response.headers.set('Content-Type', 'text/plain')
-    response.headers.set('Content-Disposition', `attachment; filename="${fileName}"`)
-
-    return response
-  } catch (error) {
-    console.error('Ошибка скачивания договора:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
-  }
-}
-
-function prepareTemplateData(data: any) {
-  const today = new Date().toLocaleDateString('ru-RU')
+  const requestId = generateRequestId()
   
-  return {
-    // Основная информация
-    contractDate: today,
-    contractCity: 'г. Москва',
+  return ApiErrorHandler.withErrorHandling(async () => {
+    // Получаем токен из заголовка Authorization или cookie
+    const authHeader = request.headers.get('authorization')
+    let token = null
     
-    // Наймодатель
-    landlordName: data.landlordName || 'Не указано',
-    landlordPassport: data.landlordPassport || 'Не указано',
-    landlordPassportIssuedBy: data.landlordPassportIssuedBy || 'Не указано',
-    landlordPassportIssuedDate: data.landlordPassportIssuedDate || 'Не указано',
-    landlordSnils: data.landlordSnils || 'Не указано',
-    landlordInn: data.landlordInn || 'Не указано',
-    landlordAddress: data.landlordAddress || 'Не указано',
-    landlordRegistrationAddress: data.landlordRegistrationAddress || 'Не указано',
-    
-    // Наниматель
-    tenantName: data.tenantName || 'Не указано',
-    tenantPassport: data.tenantPassport || 'Не указано',
-    tenantPassportIssuedBy: data.tenantPassportIssuedBy || 'Не указано',
-    tenantPassportIssuedDate: data.tenantPassportIssuedDate || 'Не указано',
-    tenantBirthDate: data.tenantBirthDate || 'Не указано',
-    tenantPhone: data.tenantPhone || 'Не указано',
-    tenantEmail: data.tenantEmail || 'Не указано',
-    tenantRegistrationAddress: data.tenantRegistrationAddress || 'Не указано',
-    
-    // Объект недвижимости
-    propertyAddress: data.propertyAddress || 'Не указано',
-    propertyType: data.propertyType || 'Квартира',
-    propertyArea: data.propertyArea || 'Не указано',
-    propertyRooms: data.propertyRooms || 'Не указано',
-    propertyFloor: data.propertyFloor || 'Не указано',
-    propertyTotalFloors: data.propertyTotalFloors || 'Не указано',
-    propertyCadastralNumber: data.propertyCadastralNumber || 'Не указано',
-    propertyOwnershipType: data.propertyOwnershipType || 'Частная собственность',
-    propertyFurnished: data.propertyFurnished ? 'С мебелью' : 'Без мебели',
-    
-    // Условия договора
-    startDate: data.startDate || 'Не указано',
-    endDate: data.endDate || 'Не указано',
-    monthlyRent: data.monthlyRent ? data.monthlyRent.toLocaleString() : 'Не указано',
-    paymentDay: data.paymentDay || '5',
-    paymentSchedule: data.paymentSchedule === 'monthly' ? 'Ежемесячно' : 
-                    data.paymentSchedule === 'quarterly' ? 'Ежеквартально' : 
-                    data.paymentSchedule === 'yearly' ? 'Ежегодно' : 'Ежемесячно',
-    
-    // Коммунальные услуги
-    utilities: data.utilities ? 'Включены в плату за наем' : 'Оплачиваются Нанимателем отдельно',
-    utilitiesIncluded: data.utilitiesIncluded ? 'Включены' : 'Не включены',
-    
-    // Залог
-    deposit: data.deposit ? data.deposit.toLocaleString() : 'Не указано',
-    depositReturnConditions: data.depositReturnConditions || 'Возвращается при расторжении договора при отсутствии претензий',
-    
-    // Штрафы
-    latePaymentPenalty: data.latePaymentPenalty ? (data.latePaymentPenalty * 100).toFixed(1) : '0.1',
-    
-    // Дополнительные условия
-    earlyTerminationConditions: data.earlyTerminationConditions || 'Согласно законодательству РФ',
-    additionalTerms: data.additionalTerms || 'Все споры решаются путем переговоров, а при невозможности достижения соглашения - в судебном порядке.',
-    
-    // Системная информация
-    generatedBy: 'Система М² для автоматизации документооборота',
-    generationDate: new Date().toLocaleString('ru-RU')
-  }
-}
-
-async function generateWordDocument(data: any): Promise<Buffer> {
-  try {
-    // Читаем шаблон
-    const templatePath = join(process.cwd(), 'Договор найма жилого помещения.docx')
-    
-    if (!existsSync(templatePath)) {
-      console.log('Шаблон не найден, создаем простой документ')
-      return generateSimpleWordDocument(data)
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    } else {
+      token = request.cookies.get('auth-token')?.value
     }
     
-    const template = readFileSync(templatePath)
-    
-    // Генерируем документ с данными
-    const buffer = await createReport({
-      template,
-      data,
-      cmdDelimiter: ['{', '}']
-    })
-    
-    return Buffer.from(buffer)
-  } catch (error) {
-    console.error('Ошибка генерации Word документа:', error)
-    // Если не удалось сгенерировать из шаблона, создаем простой текстовый документ
-    return generateSimpleWordDocument(data)
-  }
-}
+    if (!token) {
+      throw new Error('Unauthorized: No token provided')
+    }
 
-function generateSimpleWordDocument(data: any): Buffer {
-  // Создаем простой Word документ как fallback
-  const content = generateContractContent(data)
-  
-  // Простая реализация создания Word документа
-  // В реальном проекте здесь можно использовать библиотеку docx
-  const docxContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>
-    <w:p>
-      <w:r>
-        <w:t>${content.replace(/\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>')}</w:t>
-      </w:r>
-    </w:p>
-  </w:body>
-</w:document>`
-  
-  return Buffer.from(docxContent, 'utf-8')
-}
+    const user = verifyJWTToken(token)
+    if (!user) {
+      throw new Error('Unauthorized: Invalid token')
+    }
 
-async function generatePDFDocument(data: any): Promise<Buffer> {
-  try {
-    // Создаем PDF документ
-    const pdfDoc = await PDFDocument.create()
-    let page = pdfDoc.addPage([595.28, 841.89]) // A4 размер
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-    
-    const content = generateContractContent(data)
-    const lines = content.split('\n')
-    
-    let y = page.getHeight() - 50
-    const lineHeight = 14
-    const margin = 50
-    
-    for (const line of lines) {
-      if (y < margin) {
-        page = pdfDoc.addPage([595.28, 841.89])
-        y = page.getHeight() - 50
-      }
-      
-      page.drawText(line.trim(), {
-        x: margin,
-        y: y,
-        size: 10,
-        font: font,
-        color: rgb(0, 0, 0)
+    const body = await request.json()
+    const { contractData, fileType = 'pdf' } = body
+
+    logger.info('Generating contract download', { userId: user.userId, fileType }, user.userId, requestId)
+
+    if (!contractData) {
+      throw new Error('Данные договора обязательны')
+    }
+
+    // Генерируем HTML-содержимое договора
+    const htmlContent = generateContractHTML(contractData)
+
+    if (fileType === 'pdf') {
+      // Для PDF используем простой HTML-ответ (в реальном проекте здесь был бы PDF-генератор)
+      const response = new NextResponse(htmlContent, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+          'Content-Disposition': `attachment; filename="contract_${Date.now()}.html"`
+        }
       })
       
-      y -= lineHeight
+      return response
+    } else if (fileType === 'word') {
+      // Для Word используем простой текстовый формат
+      const textContent = generateContractText(contractData)
+      
+      const response = new NextResponse(textContent, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/plain',
+          'Content-Disposition': `attachment; filename="contract_${Date.now()}.txt"`
+        }
+      })
+      
+      return response
+    } else {
+      throw new Error('Неподдерживаемый формат файла')
     }
+  }, {
+    method: 'POST',
+    path: '/api/contracts/download',
+    userId: undefined,
+    requestId
+  })
+}
+
+function generateContractHTML(contractData: any) {
+  const startDate = new Date(contractData.startDate).toLocaleDateString('ru-RU')
+  const endDate = new Date(contractData.endDate).toLocaleDateString('ru-RU')
+  
+  return `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Договор аренды</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 2cm;
+            color: #000;
+        }
+        .header {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .date {
+            text-align: right;
+            margin-bottom: 30px;
+        }
+        .parties {
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .signatures {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-block {
+            width: 45%;
+        }
+        .signature-line {
+            border-bottom: 1px solid #000;
+            margin-top: 30px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        ДОГОВОР АРЕНДЫ НЕДВИЖИМОСТИ
+    </div>
     
-    const pdfBytes = await pdfDoc.save()
-    return Buffer.from(pdfBytes)
-  } catch (error) {
-    console.error('Ошибка генерации PDF документа:', error)
-    // Fallback - создаем простой PDF
-    return generateSimplePDFDocument(data)
-  }
+    <div class="date">
+        г. Москва                                                                  ${startDate}
+    </div>
+    
+    <div class="parties">
+        ${contractData.landlordName}, именуемый в дальнейшем "Арендодатель", 
+        в лице ${contractData.landlordName}, действующий на основании права собственности, 
+        с одной стороны, и ${contractData.tenantName}, именуемый в дальнейшем "Арендатор", 
+        с другой стороны, заключили настоящий договор о нижеследующем:
+    </div>
+    
+    <div class="section">
+        <div class="section-title">1. ПРЕДМЕТ ДОГОВОРА</div>
+        1.1. Арендодатель обязуется предоставить Арендатору во временное владение и пользование 
+        недвижимое имущество: ${contractData.propertyTitle}, расположенное по адресу: ${contractData.propertyAddress}.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">2. СРОК ДЕЙСТВИЯ ДОГОВОРА</div>
+        2.1. Договор вступает в силу с ${startDate} и действует до ${endDate}.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">3. АРЕНДНАЯ ПЛАТА</div>
+        3.1. Размер арендной платы составляет ${contractData.monthlyRent} рублей в месяц.
+        3.2. Арендная плата вносится Арендатором ежемесячно не позднее 5-го числа каждого месяца.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">4. ЗАЛОГ</div>
+        4.1. При заключении договора Арендатор вносит залог в размере ${contractData.deposit} рублей.
+    </div>
+    
+    <div class="section">
+        <div class="section-title">5. ПРАВА И ОБЯЗАННОСТИ СТОРОН</div>
+        5.1. Арендодатель обязуется:
+        - Передать Арендатору имущество в состоянии, соответствующем условиям договора
+        - Не вмешиваться в хозяйственную деятельность Арендатора
+        
+        5.2. Арендатор обязуется:
+        - Использовать имущество в соответствии с его назначением
+        - Поддерживать имущество в исправном состоянии
+        - Своевременно вносить арендную плату
+    </div>
+    
+    ${contractData.additionalTerms ? `
+    <div class="section">
+        <div class="section-title">6. ДОПОЛНИТЕЛЬНЫЕ УСЛОВИЯ</div>
+        ${contractData.additionalTerms}
+    </div>
+    ` : ''}
+    
+    <div class="section">
+        <div class="section-title">7. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ</div>
+        7.1. Договор составлен в двух экземплярах, имеющих равную юридическую силу.
+        7.2. Все изменения и дополнения к договору действительны при письменном согласии сторон.
+    </div>
+    
+    <div class="signatures">
+        <div class="signature-block">
+            <strong>Арендодатель:</strong><br>
+            ${contractData.landlordName}<br>
+            Паспорт: _________________<br>
+            <div class="signature-line"></div>
+            Подпись: _________________<br>
+            Дата: _________________
+        </div>
+        <div class="signature-block">
+            <strong>Арендатор:</strong><br>
+            ${contractData.tenantName}<br>
+            Паспорт: _________________<br>
+            <div class="signature-line"></div>
+            Подпись: _________________<br>
+            Дата: _________________
+        </div>
+    </div>
+</body>
+</html>`
 }
 
-function generateSimplePDFDocument(data: any): Buffer {
-  // Простая реализация PDF как fallback
-  const content = generateContractContent(data)
+function generateContractText(contractData: any) {
+  const startDate = new Date(contractData.startDate).toLocaleDateString('ru-RU')
+  const endDate = new Date(contractData.endDate).toLocaleDateString('ru-RU')
   
-  // Возвращаем простой текстовый файл как fallback
-  return Buffer.from(content, 'utf-8')
-}
+  return `ДОГОВОР АРЕНДЫ НЕДВИЖИМОСТИ
 
-function generateContractContent(data: any): string {
-  const today = new Date().toLocaleDateString('ru-RU')
-  
-  return `ДОГОВОР НАЙМА ЖИЛОГО ПОМЕЩЕНИЯ
+г. Москва                                                                  ${startDate}
 
-г. Москва                                                                  ${today}
-
-${data.landlordName}, именуемый в дальнейшем "Наймодатель", в лице ${data.landlordName}, действующий на основании права собственности, с одной стороны, и ${data.tenantName}, именуемый в дальнейшем "Наниматель", с другой стороны, заключили настоящий договор найма жилого помещения о нижеследующем:
+${contractData.landlordName}, именуемый в дальнейшем "Арендодатель", 
+в лице ${contractData.landlordName}, действующий на основании права собственности, 
+с одной стороны, и ${contractData.tenantName}, именуемый в дальнейшем "Арендатор", 
+с другой стороны, заключили настоящий договор о нижеследующем:
 
 1. ПРЕДМЕТ ДОГОВОРА
-1.1. Наймодатель обязуется предоставить Нанимателю во временное владение и пользование жилое помещение по адресу: ${data.propertyAddress}, а Наниматель обязуется принять это помещение и уплачивать за него плату за наем в размере ${data.monthlyRent} рублей в месяц.
-
-1.2. Характеристики объекта недвижимости:
-   - Тип: ${data.propertyType}
-   - Площадь: ${data.propertyArea} кв.м
-   - Количество комнат: ${data.propertyRooms}
-   - Этаж: ${data.propertyFloor} из ${data.propertyTotalFloors}
-   - Кадастровый номер: ${data.propertyCadastralNumber}
-   - Тип собственности: ${data.propertyOwnershipType}
-   - Меблировка: ${data.propertyFurnished}
+1.1. Арендодатель обязуется предоставить Арендатору во временное владение и пользование 
+недвижимое имущество: ${contractData.propertyTitle}, расположенное по адресу: ${contractData.propertyAddress}.
 
 2. СРОК ДЕЙСТВИЯ ДОГОВОРА
-2.1. Договор найма заключен на срок с ${data.startDate} по ${data.endDate}.
+2.1. Договор вступает в силу с ${startDate} и действует до ${endDate}.
 
-3. ПРАВА И ОБЯЗАННОСТИ СТОРОН
-3.1. Наймодатель обязуется:
-   - Предоставить помещение в состоянии, пригодном для проживания
-   - Обеспечить бесперебойное предоставление коммунальных услуг
-   - Своевременно производить капитальный ремонт помещения
-   - Не чинить препятствий в пользовании помещением
+3. АРЕНДНАЯ ПЛАТА
+3.1. Размер арендной платы составляет ${contractData.monthlyRent} рублей в месяц.
+3.2. Арендная плата вносится Арендатором ежемесячно не позднее 5-го числа каждого месяца.
 
-3.2. Наниматель обязуется:
-   - Использовать помещение только для проживания
-   - Своевременно вносить плату за наем
-   - Бережно относиться к имуществу
-   - Не производить переустройство и перепланировку помещения без согласия Наймодателя
-   - Поддерживать помещение в надлежащем состоянии
+4. ЗАЛОГ
+4.1. При заключении договора Арендатор вносит залог в размере ${contractData.deposit} рублей.
 
-4. ПЛАТА ЗА НАЕМ
-4.1. Размер платы за наем составляет ${data.monthlyRent} рублей в месяц.
-4.2. Плата за наем вносится ежемесячно не позднее ${data.paymentDay} числа каждого месяца.
-4.3. График платежей: ${data.paymentSchedule}
+5. ПРАВА И ОБЯЗАННОСТИ СТОРОН
+5.1. Арендодатель обязуется:
+- Передать Арендатору имущество в состоянии, соответствующем условиям договора
+- Не вмешиваться в хозяйственную деятельность Арендатора
 
-5. КОММУНАЛЬНЫЕ УСЛУГИ
-5.1. Коммунальные услуги: ${data.utilities}
-5.2. Дополнительные коммунальные услуги: ${data.utilitiesIncluded}
+5.2. Арендатор обязуется:
+- Использовать имущество в соответствии с его назначением
+- Поддерживать имущество в исправном состоянии
+- Своевременно вносить арендную плату
 
-6. ЗАЛОГ
-6.1. При заключении договора Наниматель вносит залог в размере ${data.deposit} рублей.
-6.2. Условия возврата залога: ${data.depositReturnConditions}
+${contractData.additionalTerms ? `
+6. ДОПОЛНИТЕЛЬНЫЕ УСЛОВИЯ
+${contractData.additionalTerms}
+` : ''}
 
-7. ОТВЕТСТВЕННОСТЬ СТОРОН
-7.1. За нарушение сроков внесения платы за наем Наниматель уплачивает пеню в размере ${data.latePaymentPenalty}% от суммы задолженности за каждый день просрочки.
-7.2. За нарушение условий договора виновная сторона возмещает убытки другой стороне.
+7. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ
+7.1. Договор составлен в двух экземплярах, имеющих равную юридическую силу.
+7.2. Все изменения и дополнения к договору действительны при письменном согласии сторон.
 
-8. РАСТОРЖЕНИЕ ДОГОВОРА
-8.1. Договор найма может быть расторгнут по соглашению сторон.
-8.2. Каждая из сторон вправе расторгнуть договор найма в одностороннем порядке, предупредив другую сторону за 30 дней.
-8.3. Условия досрочного расторжения: ${data.earlyTerminationConditions}
-
-9. ДОПОЛНИТЕЛЬНЫЕ УСЛОВИЯ
-9.1. ${data.additionalTerms}
-
-10. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ
-10.1. Договор найма составлен в двух экземплярах, имеющих равную юридическую силу.
-10.2. Все изменения и дополнения к договору найма действительны только в письменной форме.
-10.3. Договор найма вступает в силу с момента подписания.
-
-Наймодатель: ${data.landlordName}
-Паспорт: ${data.landlordPassport}
-Кем выдан: ${data.landlordPassportIssuedBy}
-Дата выдачи: ${data.landlordPassportIssuedDate}
-СНИЛС: ${data.landlordSnils}
-ИНН: ${data.landlordInn}
-Адрес: ${data.landlordAddress}
-Адрес регистрации: ${data.landlordRegistrationAddress}
-
-Наниматель: ${data.tenantName}
-Паспорт: ${data.tenantPassport}
-Кем выдан: ${data.tenantPassportIssuedBy}
-Дата выдачи: ${data.tenantPassportIssuedDate}
-Дата рождения: ${data.tenantBirthDate}
-Телефон: ${data.tenantPhone}
-Email: ${data.tenantEmail}
-Адрес регистрации: ${data.tenantRegistrationAddress}
-
-Подписи сторон:
-Наймодатель: _________________                               Наниматель: _________________
-Дата: ${today}                                                Дата: ${today}
-
-Договор найма составлен и подписан ${today} года в г. Москва.
-
-Договор составлен с использованием ${data.generatedBy}.`
+Арендодатель:                                    Арендатор:
+${contractData.landlordName}                    ${contractData.tenantName}
+Паспорт: _________________                      Паспорт: _________________
+Подпись: _________________                      Подпись: _________________
+Дата: _________________                         Дата: _________________`
 } 

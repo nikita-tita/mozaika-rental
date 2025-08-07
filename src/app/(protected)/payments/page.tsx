@@ -1,44 +1,66 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsButton, TeamsBadge, TeamsInput, TeamsSelect, TeamsModal } from '@/components/ui/teams'
-import { CreditCard, TrendingUp, Calendar, Calculator, DollarSign, AlertCircle } from 'lucide-react'
+import { CreditCard, TrendingUp, Calendar, Calculator, DollarSign, AlertCircle, FileText, Send, Plus, RefreshCw } from 'lucide-react'
+import PaymentCalculator, { PaymentCalculationData } from '@/components/payments/PaymentCalculator'
+import InvoiceCreator from '@/components/payments/InvoiceCreator'
+import GeneratePaymentsForm from '@/components/payments/GeneratePaymentsForm'
+import ReminderStatus from '@/components/payments/ReminderStatus'
 
 export default function PaymentsPage() {
-  const [calculatorData, setCalculatorData] = useState({
-    rent: '',
-    utilities: '',
-    deposit: ''
-  })
+  const [payments, setPayments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedPayment, setSelectedPayment] = useState<any>(null)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
-  const [showReportModal, setShowReportModal] = useState(false)
-  const [payments, setPayments] = useState([
-    {
-      id: '1',
-      property: '2-к квартира, ул. Ленина, 1',
-      tenant: 'Иванов И.И.',
-      amount: 45000,
-      date: '2024-01-01',
-      status: 'PAID',
-      type: 'RENT'
-    },
-    {
-      id: '2',
-      property: 'Офис, ул. Пушкина, 10',
-      tenant: 'ООО "Рога и копыта"',
-      amount: 120000,
-      date: '2024-02-01',
-      status: 'PENDING',
-      type: 'UTILITIES'
+  const [showGeneratePaymentsModal, setShowGeneratePaymentsModal] = useState(false)
+  const [calculationData, setCalculationData] = useState<PaymentCalculationData | null>(null)
+  const [filters, setFilters] = useState({
+    status: '',
+    type: '',
+    dateFrom: '',
+    dateTo: ''
+  })
+
+  // Загрузка платежей
+  const loadPayments = async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (filters.status) params.append('status', filters.status)
+      if (filters.type) params.append('type', filters.type)
+      if (filters.dateFrom) params.append('dateFrom', filters.dateFrom)
+      if (filters.dateTo) params.append('dateTo', filters.dateTo)
+
+      const response = await fetch(`/api/payments?${params}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setPayments(data.data)
+      }
+    } catch (error) {
+      console.error('Error loading payments:', error)
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
+
+  useEffect(() => {
+    loadPayments()
+  }, [filters])
 
   const paymentTypes = [
     { value: 'RENT', label: 'Арендная плата' },
     { value: 'UTILITIES', label: 'Коммунальные услуги' },
     { value: 'DEPOSIT', label: 'Депозит' },
-    { value: 'PENALTY', label: 'Штраф' }
+    { value: 'MAINTENANCE', label: 'Обслуживание' }
+  ]
+
+  const paymentStatuses = [
+    { value: 'PENDING', label: 'Ожидает оплаты' },
+    { value: 'PAID', label: 'Оплачен' },
+    { value: 'OVERDUE', label: 'Просрочен' },
+    { value: 'CANCELLED', label: 'Отменен' }
   ]
 
   const getStatusBadge = (status: string) => {
@@ -49,26 +71,46 @@ export default function PaymentsPage() {
         return <TeamsBadge variant="warning">Ожидает оплаты</TeamsBadge>
       case 'OVERDUE':
         return <TeamsBadge variant="error">Просрочен</TeamsBadge>
+      case 'CANCELLED':
+        return <TeamsBadge variant="default">Отменен</TeamsBadge>
       default:
         return <TeamsBadge variant="default">Неизвестно</TeamsBadge>
     }
+  }
+
+  const getPaymentTypeLabel = (type: string) => {
+    return paymentTypes.find(t => t.value === type)?.label || type
   }
 
   const totalIncome = payments.filter(p => p.status === 'PAID').reduce((sum, p) => sum + p.amount, 0)
   const pendingPayments = payments.filter(p => p.status === 'PENDING').reduce((sum, p) => sum + p.amount, 0)
   const overduePayments = payments.filter(p => p.status === 'OVERDUE').reduce((sum, p) => sum + p.amount, 0)
 
-  // Расчет итоговой суммы
-  const calculateTotal = () => {
-    const rent = parseFloat(calculatorData.rent) || 0
-    const utilities = parseFloat(calculatorData.utilities) || 0
-    const deposit = parseFloat(calculatorData.deposit) || 0
-    return rent + utilities + deposit
-  }
+  const handleReminder = async (paymentId: string, type: 'EMAIL' | 'SMS') => {
+    try {
+      const response = await fetch('/api/payments/send-reminder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          paymentId,
+          reminderType: type
+        })
+      })
 
-  const handleReminder = (payment: any) => {
-    // Имитация отправки напоминания
-    alert(`Напоминание отправлено арендатору: ${payment.tenant}\nСумма: ${payment.amount.toLocaleString()} ₽\nДата: ${payment.date}`)
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`Напоминание отправлено арендатору: ${data.data.recipient.name}`)
+        loadPayments() // Обновляем список для отображения статуса
+      } else {
+        alert('Ошибка при отправке напоминания: ' + data.error)
+      }
+    } catch (error) {
+      console.error('Error sending reminder:', error)
+      alert('Ошибка при отправке напоминания')
+    }
   }
 
   const handleCreateInvoice = (payment: any) => {
@@ -76,90 +118,49 @@ export default function PaymentsPage() {
     setShowInvoiceModal(true)
   }
 
-  const handleGenerateReport = (payment: any) => {
-    setSelectedPayment(payment)
-    setShowReportModal(true)
+  const handleInvoiceSuccess = () => {
+    loadPayments() // Обновляем список после создания счета
   }
 
-  const handleDownloadInvoice = () => {
-    if (!selectedPayment) return
-
-    const invoiceText = `
-СЧЕТ НА ОПЛАТУ
-
-Номер счета: INV-${selectedPayment.id}
-Дата: ${new Date().toLocaleDateString('ru-RU')}
-
-Арендодатель: Управляющая компания
-Арендатор: ${selectedPayment.tenant}
-Объект: ${selectedPayment.property}
-
-Детали платежа:
-- Тип: ${paymentTypes.find(t => t.value === selectedPayment.type)?.label}
-- Сумма: ${selectedPayment.amount.toLocaleString()} ₽
-- Дата оплаты: ${selectedPayment.date}
-
-Итого к оплате: ${selectedPayment.amount.toLocaleString()} ₽
-
-Реквизиты для оплаты:
-Банк: Сбербанк
-Счет: 40702810123456789012
-ИНН: 1234567890
-КПП: 123456789
-
-Спасибо за своевременную оплату!
-    `
-
-    const blob = new Blob([invoiceText], { type: 'text/plain' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `invoice-${selectedPayment.id}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+  const handleGeneratePaymentsSuccess = () => {
+    loadPayments() // Обновляем список после генерации платежей
   }
 
-  const handleDownloadReport = () => {
-    if (!selectedPayment) return
+  const handleCalculationChange = (data: PaymentCalculationData) => {
+    setCalculationData(data)
+  }
 
-    const reportText = `
-ОТЧЕТ ПО ПЛАТЕЖУ
+  const handleCalculationSave = async (data: PaymentCalculationData) => {
+    try {
+      const response = await fetch('/api/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'RENT',
+          amount: data.totalAmount,
+          dueDate: new Date().toISOString(),
+          rentAmount: data.rentAmount,
+          utilitiesAmount: data.utilitiesAmount,
+          depositAmount: data.depositAmount,
+          penaltyAmount: data.penaltyAmount,
+          description: 'Платеж, созданный через калькулятор'
+        })
+      })
 
-Номер платежа: ${selectedPayment.id}
-Дата отчета: ${new Date().toLocaleDateString('ru-RU')}
+      const result = await response.json()
 
-Детали платежа:
-- Объект: ${selectedPayment.property}
-- Арендатор: ${selectedPayment.tenant}
-- Тип: ${paymentTypes.find(t => t.value === selectedPayment.type)?.label}
-- Сумма: ${selectedPayment.amount.toLocaleString()} ₽
-- Дата: ${selectedPayment.date}
-- Статус: ${selectedPayment.status}
-
-Аналитика:
-- Средняя сумма платежей: ${(payments.reduce((sum, p) => sum + p.amount, 0) / payments.length).toLocaleString()} ₽
-- Всего платежей: ${payments.length}
-- Оплаченных: ${payments.filter(p => p.status === 'PAID').length}
-- Ожидающих: ${payments.filter(p => p.status === 'PENDING').length}
-- Просроченных: ${payments.filter(p => p.status === 'OVERDUE').length}
-
-Рекомендации:
-- Следите за своевременностью оплат
-- Отправляйте напоминания за 3 дня до срока
-- Анализируйте статистику ежемесячно
-    `
-
-    const blob = new Blob([reportText], { type: 'text/plain' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `report-${selectedPayment.id}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+      if (result.success) {
+        alert('Платеж успешно создан')
+        loadPayments()
+      } else {
+        alert('Ошибка при создании платежа: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error creating payment:', error)
+      alert('Ошибка при создании платежа')
+    }
   }
 
   return (
@@ -205,97 +206,138 @@ export default function PaymentsPage() {
         </div>
 
         {/* Калькулятор */}
+        <div className="mb-8">
+          <PaymentCalculator
+            onCalculate={handleCalculationChange}
+            onSave={handleCalculationSave}
+            editable={true}
+          />
+        </div>
+
+        {/* Фильтры */}
         <TeamsCard className="p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-            <Calculator className="w-5 h-5 mr-2" />
-            Калькулятор платежей
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <TeamsInput
-              label="Арендная плата (₽/мес)"
-              placeholder="45000"
-              value={calculatorData.rent}
-              onChange={(e) => setCalculatorData(prev => ({ ...prev, rent: e.target.value }))}
-            />
-            <TeamsInput
-              label="Коммунальные услуги (₽/мес)"
-              placeholder="5000"
-              value={calculatorData.utilities}
-              onChange={(e) => setCalculatorData(prev => ({ ...prev, utilities: e.target.value }))}
-            />
-            <TeamsInput
-              label="Депозит (₽)"
-              placeholder="45000"
-              value={calculatorData.deposit}
-              onChange={(e) => setCalculatorData(prev => ({ ...prev, deposit: e.target.value }))}
-            />
-          </div>
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <div className="text-lg font-semibold text-gray-900">
-              Итого к оплате: {calculateTotal().toLocaleString()} ₽
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Фильтры</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-[#323130] mb-2">
+                Статус
+              </label>
+              <TeamsSelect
+                options={paymentStatuses}
+                value={filters.status}
+                onChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                placeholder="Все статусы"
+              />
             </div>
-            <div className="text-sm text-gray-600">
-              Аренда: {(parseFloat(calculatorData.rent) || 0).toLocaleString()} ₽ + 
-              Коммунальные: {(parseFloat(calculatorData.utilities) || 0).toLocaleString()} ₽ + 
-              Депозит: {(parseFloat(calculatorData.deposit) || 0).toLocaleString()} ₽
+            <div>
+              <label className="block text-sm font-medium text-[#323130] mb-2">
+                Тип платежа
+              </label>
+              <TeamsSelect
+                options={paymentTypes}
+                value={filters.type}
+                onChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
+                placeholder="Все типы"
+              />
             </div>
+            <TeamsInput
+              label="Дата с"
+              type="date"
+              value={filters.dateFrom}
+              onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+            />
+            <TeamsInput
+              label="Дата по"
+              type="date"
+              value={filters.dateTo}
+              onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+            />
           </div>
         </TeamsCard>
 
         {/* Список платежей */}
         <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900">История платежей</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">История платежей</h2>
+            <div className="flex gap-2">
+              <TeamsButton onClick={loadPayments} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Обновить
+              </TeamsButton>
+              <TeamsButton onClick={() => setShowGeneratePaymentsModal(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Создать платежи
+              </TeamsButton>
+            </div>
+          </div>
           
-          {payments.map((payment) => (
-            <TeamsCard key={payment.id} className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">{payment.property}</h3>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <div>Арендатор: {payment.tenant}</div>
-                    <div>Тип: {paymentTypes.find(t => t.value === payment.type)?.label}</div>
-                    <div>Дата: {payment.date}</div>
-                  </div>
-                </div>
-                <div className="text-right ml-4">
-                  <div className="text-2xl font-bold text-gray-900 mb-2">
-                    {payment.amount.toLocaleString()} ₽
-                  </div>
-                  {getStatusBadge(payment.status)}
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <TeamsButton 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleReminder(payment)}
-                >
-                  <Calendar className="w-4 h-4 mr-1" />
-                  Напомнить
-                </TeamsButton>
-                <TeamsButton 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleCreateInvoice(payment)}
-                >
-                  <DollarSign className="w-4 h-4 mr-1" />
-                  Создать счет
-                </TeamsButton>
-                <TeamsButton 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleGenerateReport(payment)}
-                >
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  Отчет
-                </TeamsButton>
-              </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-gray-600 mt-2">Загрузка платежей...</p>
+            </div>
+          ) : payments.length === 0 ? (
+            <TeamsCard className="p-8 text-center">
+              <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-4">Платежи не найдены</p>
+              <TeamsButton onClick={() => setShowGeneratePaymentsModal(true)}>
+                Создать первый платеж
+              </TeamsButton>
             </TeamsCard>
-          ))}
+          ) : (
+            payments.map((payment) => (
+              <TeamsCard key={payment.id} className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {payment.deal?.property?.title || payment.property?.title || 'Объект не указан'}
+                    </h3>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <div>Арендатор: {(payment.deal?.tenant?.firstName && payment.deal?.tenant?.lastName) ? `${payment.deal.tenant.firstName} ${payment.deal.tenant.lastName}` : (payment.deal?.client?.firstName && payment.deal?.client?.lastName) ? `${payment.deal.client.firstName} ${payment.deal.client.lastName}` : 'Не указан'}</div>
+                      <div>Тип: {getPaymentTypeLabel(payment.type)}</div>
+                      <div>Дата: {payment.dueDate ? new Date(payment.dueDate).toLocaleDateString('ru-RU') : 'Не указана'}</div>
+                      {payment.invoiceNumber && (
+                        <div>Счет: {payment.invoiceNumber}</div>
+                      )}
+                      {payment.reminderSentAt && (
+                        <div className="text-yellow-600">
+                          Напоминание отправлено: {new Date(payment.reminderSentAt).toLocaleDateString('ru-RU')}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right ml-4">
+                    <div className="text-2xl font-bold text-gray-900 mb-2">
+                      {payment.amount.toLocaleString()} ₽
+                    </div>
+                    {getStatusBadge(payment.status)}
+                  </div>
+                </div>
+                
+                                 <div className="flex gap-2">
+                   <TeamsButton
+                     onClick={() => handleCreateInvoice(payment)}
+                     variant="outline"
+                     size="sm"
+                   >
+                     <FileText className="w-4 h-4 mr-2" />
+                     Создать счет
+                   </TeamsButton>
+                 </div>
+                 
+                 {/* Статус уведомлений */}
+                 <div className="mt-4 pt-4 border-t border-gray-200">
+                   <ReminderStatus
+                     payment={payment}
+                     onSendReminder={handleReminder}
+                   />
+                 </div>
+              </TeamsCard>
+            ))
+          )}
         </div>
 
-        {/* Автоматизация */}
+        {/* Информационные карточки */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <TeamsCard className="p-6 text-center">
             <Calculator className="w-12 h-12 text-blue-600 mx-auto mb-4" />
@@ -324,107 +366,26 @@ export default function PaymentsPage() {
       </div>
 
       {/* Модальное окно создания счета */}
-      <TeamsModal
-        isOpen={showInvoiceModal}
-        onClose={() => setShowInvoiceModal(false)}
-        title="Создание счета"
-        size="lg"
-      >
-        {selectedPayment && (
-          <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-lg mb-3">Детали счета</h3>
-              <div className="space-y-2 text-sm">
-                <div><strong>Объект:</strong> {selectedPayment.property}</div>
-                <div><strong>Арендатор:</strong> {selectedPayment.tenant}</div>
-                <div><strong>Тип платежа:</strong> {paymentTypes.find(t => t.value === selectedPayment.type)?.label}</div>
-                <div><strong>Сумма:</strong> {selectedPayment.amount.toLocaleString()} ₽</div>
-                <div><strong>Дата:</strong> {selectedPayment.date}</div>
-              </div>
-            </div>
-            
-            <div className="bg-white border p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Предварительный просмотр счета:</h4>
-              <div className="text-sm space-y-2">
-                <p><strong>СЧЕТ НА ОПЛАТУ</strong></p>
-                <p><strong>Номер:</strong> INV-{selectedPayment.id}</p>
-                <p><strong>Дата:</strong> {new Date().toLocaleDateString('ru-RU')}</p>
-                <p><strong>Арендатор:</strong> {selectedPayment.tenant}</p>
-                <p><strong>Объект:</strong> {selectedPayment.property}</p>
-                <p><strong>Сумма к оплате:</strong> {selectedPayment.amount.toLocaleString()} ₽</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-2 pt-4">
-              <TeamsButton
-                onClick={handleDownloadInvoice}
-                className="flex-1"
-              >
-                <DollarSign className="w-4 h-4 mr-2" />
-                Скачать счет
-              </TeamsButton>
-              <TeamsButton
-                variant="outline"
-                onClick={() => setShowInvoiceModal(false)}
-                className="flex-1"
-              >
-                Отмена
-              </TeamsButton>
-            </div>
-          </div>
-        )}
-      </TeamsModal>
+      {selectedPayment && (
+        <InvoiceCreator
+          isOpen={showInvoiceModal}
+          onClose={() => {
+            setShowInvoiceModal(false)
+            setSelectedPayment(null)
+          }}
+          payment={selectedPayment}
+          onSuccess={handleInvoiceSuccess}
+        />
+      )}
 
-      {/* Модальное окно отчета */}
-      <TeamsModal
-        isOpen={showReportModal}
-        onClose={() => setShowReportModal(false)}
-        title="Генерация отчета"
-        size="lg"
-      >
-        {selectedPayment && (
-          <div className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-lg mb-3">Детали платежа</h3>
-              <div className="space-y-2 text-sm">
-                <div><strong>Объект:</strong> {selectedPayment.property}</div>
-                <div><strong>Арендатор:</strong> {selectedPayment.tenant}</div>
-                <div><strong>Тип:</strong> {paymentTypes.find(t => t.value === selectedPayment.type)?.label}</div>
-                <div><strong>Сумма:</strong> {selectedPayment.amount.toLocaleString()} ₽</div>
-                <div><strong>Статус:</strong> {getStatusBadge(selectedPayment.status)}</div>
-              </div>
-            </div>
-            
-            <div className="bg-white border p-4 rounded-lg">
-              <h4 className="font-semibold mb-2">Статистика:</h4>
-              <div className="text-sm space-y-2">
-                <div><strong>Средняя сумма платежей:</strong> {(payments.reduce((sum, p) => sum + p.amount, 0) / payments.length).toLocaleString()} ₽</div>
-                <div><strong>Всего платежей:</strong> {payments.length}</div>
-                <div><strong>Оплаченных:</strong> {payments.filter(p => p.status === 'PAID').length}</div>
-                <div><strong>Ожидающих:</strong> {payments.filter(p => p.status === 'PENDING').length}</div>
-                <div><strong>Просроченных:</strong> {payments.filter(p => p.status === 'OVERDUE').length}</div>
-              </div>
-            </div>
-            
-            <div className="flex gap-2 pt-4">
-              <TeamsButton
-                onClick={handleDownloadReport}
-                className="flex-1"
-              >
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Скачать отчет
-              </TeamsButton>
-              <TeamsButton
-                variant="outline"
-                onClick={() => setShowReportModal(false)}
-                className="flex-1"
-              >
-                Отмена
-              </TeamsButton>
-            </div>
-          </div>
-        )}
-      </TeamsModal>
+      {/* Модальное окно генерации платежей */}
+      <GeneratePaymentsForm
+        isOpen={showGeneratePaymentsModal}
+        onClose={() => setShowGeneratePaymentsModal(false)}
+        onSuccess={handleGeneratePaymentsSuccess}
+        deals={[]} // Здесь должны быть загружены сделки
+        contracts={[]} // Здесь должны быть загружены договоры
+      />
     </div>
   )
 }

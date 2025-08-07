@@ -2,103 +2,86 @@
 
 import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsButton, TeamsBadge, TeamsInput, TeamsSelect, TeamsTextarea, TeamsModal } from '@/components/ui/teams'
-import { FileText, Download, Eye, Edit, Plus, Calendar, User, Home } from 'lucide-react'
+import { FileText, Download, Eye, Edit, Plus, Calendar, User, Home, Filter, Search } from 'lucide-react'
+import CreateContractForm from '@/components/contracts/CreateContractForm'
+
+const statusOptions = [
+  { value: 'ALL', label: 'Все статусы' },
+  { value: 'DRAFT', label: 'Черновик' },
+  { value: 'SIGNED', label: 'Подписан' },
+  { value: 'EXPIRED', label: 'Истек' },
+  { value: 'TERMINATED', label: 'Расторгнут' }
+]
 
 export default function ContractsPage() {
-  const [contractData, setContractData] = useState({
-    propertyType: '',
-    address: '',
-    landlordName: '',
-    landlordPassport: '',
-    tenantName: '',
-    tenantPassport: '',
-    startDate: '',
-    endDate: '',
-    rentAmount: '',
-    deposit: '',
-    utilities: false,
-    additionalTerms: ''
-  })
-  const [generating, setGenerating] = useState(false)
+  const [contracts, setContracts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const [selectedContract, setSelectedContract] = useState<any>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDownloadMenu, setShowDownloadMenu] = useState<string | null>(null)
-  const [contracts, setContracts] = useState([
-    {
-      id: '1',
-      title: 'Договор аренды квартиры',
-      property: '2-к квартира, ул. Ленина, 1',
-      tenant: 'Иванов Иван Иванович',
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-      status: 'ACTIVE',
-      amount: '45000'
-    },
-    {
-      id: '2',
-      title: 'Договор аренды офиса',
-      property: 'Офис, ул. Пушкина, 10',
-      tenant: 'ООО "Рога и копыта"',
-      startDate: '2024-02-01',
-      endDate: '2025-01-31',
-      status: 'DRAFT',
-      amount: '120000'
-    }
-  ])
+  const [filters, setFilters] = useState({
+    status: 'ALL',
+    search: ''
+  })
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards')
 
-  const propertyTypes = [
-    { value: 'APARTMENT', label: 'Квартира' },
-    { value: 'HOUSE', label: 'Дом' },
-    { value: 'OFFICE', label: 'Офис' },
-    { value: 'COMMERCIAL', label: 'Коммерческое помещение' },
-    { value: 'WAREHOUSE', label: 'Склад' }
-  ]
+  useEffect(() => {
+    fetchContracts()
+  }, [filters])
 
-  const handleGenerate = async () => {
-    setGenerating(true)
-    // Имитация генерации договора
-    setTimeout(() => {
-      const newContract = {
-        id: Date.now().toString(),
-        title: `Договор аренды ${contractData.propertyType.toLowerCase()}`,
-        property: contractData.address,
-        tenant: contractData.tenantName,
-        startDate: contractData.startDate,
-        endDate: contractData.endDate,
-        status: 'DRAFT',
-        amount: contractData.rentAmount
-      }
-      setContracts(prev => [newContract, ...prev])
-      setGenerating(false)
-      // Сброс формы
-      setContractData({
-        propertyType: '',
-        address: '',
-        landlordName: '',
-        landlordPassport: '',
-        tenantName: '',
-        tenantPassport: '',
-        startDate: '',
-        endDate: '',
-        rentAmount: '',
-        deposit: '',
-        utilities: false,
-        additionalTerms: ''
+  const fetchContracts = async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== 'ALL') {
+          params.append(key, value)
+        }
       })
-    }, 2000)
+
+      const response = await fetch(`/api/contracts?${params}`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setContracts(data.data)
+      }
+    } catch (error) {
+      console.error('Error fetching contracts:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'DRAFT':
         return <TeamsBadge variant="warning">Черновик</TeamsBadge>
-      case 'ACTIVE':
-        return <TeamsBadge variant="success">Активен</TeamsBadge>
+      case 'SIGNED':
+        return <TeamsBadge variant="success">Подписан</TeamsBadge>
       case 'EXPIRED':
         return <TeamsBadge variant="error">Истек</TeamsBadge>
+      case 'TERMINATED':
+        return <TeamsBadge variant="error">Расторгнут</TeamsBadge>
       default:
         return <TeamsBadge variant="default">Неизвестно</TeamsBadge>
+    }
+  }
+
+  const getStatusDescription = (status: string) => {
+    switch (status) {
+      case 'DRAFT':
+        return 'Договор создан, но не подписан'
+      case 'SIGNED':
+        return 'Договор подписан и активен'
+      case 'EXPIRED':
+        return 'Срок действия договора истек'
+      case 'TERMINATED':
+        return 'Договор расторгнут досрочно'
+      default:
+        return 'Статус не определен'
     }
   }
 
@@ -116,18 +99,16 @@ export default function ContractsPage() {
     try {
       // Подготавливаем данные для генерации договора
       const contractData = {
-        propertyTitle: contract.title,
-        propertyAddress: contract.property,
-        landlordName: contract.landlordName || 'Не указано',
-        landlordPassport: contract.landlordPassport || 'Не указано',
-        tenantName: contract.tenant,
-        tenantPassport: contract.tenantPassport || 'Не указано',
-        startDate: contract.startDate,
-        endDate: contract.endDate,
-        monthlyRent: parseInt(contract.amount) || 0,
-        deposit: parseInt(contract.amount) || 0,
-        utilities: contract.utilities || false,
-        additionalTerms: contract.additionalTerms || ''
+        propertyTitle: contract.deal?.property?.title || 'Не указано',
+        propertyAddress: contract.deal?.property?.address || 'Не указано',
+        landlordName: `${contract.deal?.landlord?.firstName || ''} ${contract.deal?.landlord?.lastName || ''}`.trim() || 'Не указано',
+        tenantName: `${contract.deal?.tenant?.firstName || ''} ${contract.deal?.tenant?.lastName || ''}`.trim() || 'Не указано',
+        startDate: contract.deal?.startDate || new Date().toISOString(),
+        endDate: contract.deal?.endDate || new Date().toISOString(),
+        monthlyRent: contract.deal?.monthlyRent || 0,
+        deposit: contract.deal?.deposit || 0,
+        utilities: false,
+        additionalTerms: ''
       }
 
       // Вызываем API для генерации и скачивания файла
@@ -152,7 +133,7 @@ export default function ContractsPage() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `Договор_аренды_${contract.title.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.${fileType === 'word' ? 'docx' : 'pdf'}`
+      a.download = `Договор_аренды_${contract.title.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.${fileType === 'word' ? 'txt' : 'html'}`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -165,6 +146,41 @@ export default function ContractsPage() {
     }
   }
 
+  const filteredContracts = contracts.filter(contract => {
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase()
+      return (
+        contract.title?.toLowerCase().includes(searchTerm) ||
+        contract.deal?.property?.title?.toLowerCase().includes(searchTerm) ||
+        contract.deal?.property?.address?.toLowerCase().includes(searchTerm) ||
+        `${contract.deal?.tenant?.firstName} ${contract.deal?.tenant?.lastName}`.toLowerCase().includes(searchTerm) ||
+        `${contract.deal?.landlord?.firstName} ${contract.deal?.landlord?.lastName}`.toLowerCase().includes(searchTerm)
+      )
+    }
+    return true
+  })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="h-96 bg-gray-200 rounded"></div>
+              <div className="space-y-4">
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -172,234 +188,266 @@ export default function ContractsPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center">
             <FileText className="w-8 h-8 mr-3 text-blue-600" />
-            Генерация договоров
+            Каталог договоров
           </h1>
           <p className="text-lg text-gray-600">
-            Создание юридически корректных договоров аренды с автоматическим заполнением данных
+            Управление договорами аренды с возможностью создания, редактирования и скачивания
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Форма создания договора */}
-          <TeamsCard className="p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Plus className="w-5 h-5 mr-2" />
-              Новый договор
-            </h2>
-            
-            <div className="space-y-4">
-              <TeamsSelect
-                label="Тип недвижимости"
-                value={contractData.propertyType}
-                onChange={(value) => setContractData(prev => ({ ...prev, propertyType: value }))}
-                options={propertyTypes}
-                placeholder="Выберите тип"
-              />
-              
-              <TeamsInput
-                label="Адрес объекта"
-                value={contractData.address}
-                onChange={(e) => setContractData(prev => ({ ...prev, address: e.target.value }))}
-                placeholder="ул. Ленина, 1, кв. 5"
-              />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Кнопка создания */}
+        <div className="mb-6 flex justify-end">
+          <TeamsButton
+            onClick={() => setShowCreateForm(true)}
+            icon={<Plus className="w-4 h-4" />}
+          >
+            Создать договор
+          </TeamsButton>
+        </div>
+
+        {/* Фильтры */}
+        <div className="mb-6 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <TeamsInput
-                  label="Имя арендодателя"
-                  value={contractData.landlordName}
-                  onChange={(e) => setContractData(prev => ({ ...prev, landlordName: e.target.value }))}
-                  placeholder="Иванов Иван Иванович"
-                />
-                <TeamsInput
-                  label="Паспорт арендодателя"
-                  value={contractData.landlordPassport}
-                  onChange={(e) => setContractData(prev => ({ ...prev, landlordPassport: e.target.value }))}
-                  placeholder="1234 567890"
+                  placeholder="Поиск по названию, объекту, арендатору..."
+                  value={filters.search}
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  className="pl-10"
                 />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TeamsInput
-                  label="Имя арендатора"
-                  value={contractData.tenantName}
-                  onChange={(e) => setContractData(prev => ({ ...prev, tenantName: e.target.value }))}
-                  placeholder="Петров Петр Петрович"
-                />
-                <TeamsInput
-                  label="Паспорт арендатора"
-                  value={contractData.tenantPassport}
-                  onChange={(e) => setContractData(prev => ({ ...prev, tenantPassport: e.target.value }))}
-                  placeholder="9876 543210"
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TeamsInput
-                  label="Дата начала"
-                  type="date"
-                  value={contractData.startDate}
-                  onChange={(e) => setContractData(prev => ({ ...prev, startDate: e.target.value }))}
-                />
-                <TeamsInput
-                  label="Дата окончания"
-                  type="date"
-                  value={contractData.endDate}
-                  onChange={(e) => setContractData(prev => ({ ...prev, endDate: e.target.value }))}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TeamsInput
-                  label="Арендная плата (₽/мес)"
-                  value={contractData.rentAmount}
-                  onChange={(e) => setContractData(prev => ({ ...prev, rentAmount: e.target.value }))}
-                  placeholder="45000"
-                />
-                <TeamsInput
-                  label="Депозит (₽)"
-                  value={contractData.deposit}
-                  onChange={(e) => setContractData(prev => ({ ...prev, deposit: e.target.value }))}
-                  placeholder="45000"
-                />
-              </div>
-              
-              <TeamsTextarea
-                label="Дополнительные условия"
-                value={contractData.additionalTerms}
-                onChange={(e) => setContractData(prev => ({ ...prev, additionalTerms: e.target.value }))}
-                placeholder="Дополнительные условия договора..."
-                rows={3}
-              />
-              
-              <TeamsButton 
-                onClick={handleGenerate} 
-                disabled={generating}
-                className="w-full"
+            </div>
+            <TeamsSelect
+              value={filters.status}
+              onChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+              options={statusOptions}
+              placeholder="Выберите статус"
+              className="w-full sm:w-48"
+            />
+            <div className="flex gap-2">
+              <TeamsButton
+                variant={viewMode === 'cards' ? 'primary' : 'outline'}
+                onClick={() => setViewMode('cards')}
+                size="sm"
               >
-                {generating ? (
-                  <>
-                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Генерация...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="w-4 h-4 mr-2" />
-                    Создать договор
-                  </>
-                )}
+                Карточки
+              </TeamsButton>
+              <TeamsButton
+                variant={viewMode === 'table' ? 'primary' : 'outline'}
+                onClick={() => setViewMode('table')}
+                size="sm"
+              >
+                Таблица
               </TeamsButton>
             </div>
-          </TeamsCard>
-
-          {/* Список договоров */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Мои договоры</h2>
-            
-            {contracts.map((contract) => (
-              <TeamsCard key={contract.id} className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">{contract.title}</h3>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div className="flex items-center">
-                        <Home className="w-4 h-4 mr-1" />
-                        {contract.property}
-                      </div>
-                      <div className="flex items-center">
-                        <User className="w-4 h-4 mr-1" />
-                        {contract.tenant}
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        {contract.startDate} - {contract.endDate}
-                      </div>
-                      <div className="font-medium text-gray-900">
-                        {parseInt(contract.amount).toLocaleString()} ₽/мес
-                      </div>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    {getStatusBadge(contract.status)}
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  <TeamsButton 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleViewContract(contract)}
-                  >
-                    <Eye className="w-4 h-4 mr-1" />
-                    Просмотр
-                  </TeamsButton>
-                  <TeamsButton 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleEditContract(contract)}
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Редактировать
-                  </TeamsButton>
-                  <div className="relative">
-                    <TeamsButton 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setShowDownloadMenu(contract.id)}
-                    >
-                      <Download className="w-4 h-4 mr-1" />
-                      Скачать
-                    </TeamsButton>
-                    {showDownloadMenu === contract.id && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
-                        <div className="py-1">
-                          <button
-                            onClick={() => {
-                              handleDownloadContract(contract, 'pdf')
-                              setShowDownloadMenu(null)
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            📄 Скачать PDF
-                          </button>
-                          <button
-                            onClick={() => {
-                              handleDownloadContract(contract, 'word')
-                              setShowDownloadMenu(null)
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            📝 Скачать Word
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </TeamsCard>
-            ))}
           </div>
         </div>
 
-        {/* Статистика */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-          <TeamsCard className="p-6 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">{contracts.length}</div>
-            <div className="text-gray-600">Всего договоров</div>
-          </TeamsCard>
-          <TeamsCard className="p-6 text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {contracts.filter(c => c.status === 'ACTIVE').length}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Список договоров */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Мои договоры ({filteredContracts.length})
+              </h2>
             </div>
-            <div className="text-gray-600">Активных договоров</div>
-          </TeamsCard>
-          <TeamsCard className="p-6 text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">2.5 мин</div>
-            <div className="text-gray-600">Среднее время создания</div>
-          </TeamsCard>
-          <TeamsCard className="p-6 text-center">
-            <div className="text-3xl font-bold text-yellow-600 mb-2">100%</div>
-            <div className="text-gray-600">Юридическая корректность</div>
-          </TeamsCard>
+            
+            {filteredContracts.length === 0 ? (
+              <TeamsCard className="p-8 text-center">
+                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {filters.search || filters.status !== 'ALL' ? 'Договоры не найдены' : 'Нет созданных договоров'}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  {filters.search || filters.status !== 'ALL' 
+                    ? 'Попробуйте изменить параметры поиска'
+                    : 'Создайте первый договор на основе существующей сделки'
+                  }
+                </p>
+                {!filters.search && filters.status === 'ALL' && (
+                  <TeamsButton
+                    onClick={() => setShowCreateForm(true)}
+                    icon={<Plus className="w-4 h-4" />}
+                  >
+                    Создать договор
+                  </TeamsButton>
+                )}
+              </TeamsCard>
+            ) : viewMode === 'cards' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredContracts.map((contract) => (
+                  <ContractCard
+                    key={contract.id}
+                    contract={contract}
+                    getStatusBadge={getStatusBadge}
+                    getStatusDescription={getStatusDescription}
+                    onView={handleViewContract}
+                    onEdit={handleEditContract}
+                    onDownload={handleDownloadContract}
+                    showDownloadMenu={showDownloadMenu}
+                    setShowDownloadMenu={setShowDownloadMenu}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Договор
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Объект
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Статус
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Дата создания
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Действия
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredContracts.map((contract) => (
+                      <tr key={contract.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{contract.title}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {contract.deal?.property?.title || 'Не указано'}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {contract.deal?.property?.address || 'Адрес не указан'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(contract.status)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(contract.createdAt).toLocaleDateString('ru-RU')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <TeamsButton
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleViewContract(contract)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </TeamsButton>
+                            <TeamsButton
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditContract(contract)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </TeamsButton>
+                            <div className="relative">
+                              <TeamsButton
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowDownloadMenu(contract.id)}
+                              >
+                                <Download className="w-4 h-4" />
+                              </TeamsButton>
+                              {showDownloadMenu === contract.id && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
+                                  <div className="py-1">
+                                    <button
+                                      onClick={() => {
+                                        handleDownloadContract(contract, 'pdf')
+                                        setShowDownloadMenu(null)
+                                      }}
+                                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                      📄 Скачать PDF
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleDownloadContract(contract, 'word')
+                                        setShowDownloadMenu(null)
+                                      }}
+                                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
+                                      📝 Скачать Word
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Информационная панель */}
+          <div className="space-y-6">
+            <TeamsCard className="p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Статистика договоров
+              </h2>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Всего договоров:</span>
+                  <span className="font-semibold">{contracts.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Активных:</span>
+                  <span className="font-semibold text-green-600">
+                    {contracts.filter(c => c.status === 'SIGNED').length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Черновиков:</span>
+                  <span className="font-semibold text-yellow-600">
+                    {contracts.filter(c => c.status === 'DRAFT').length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Истекших:</span>
+                  <span className="font-semibold text-red-600">
+                    {contracts.filter(c => c.status === 'EXPIRED').length}
+                  </span>
+                </div>
+              </div>
+            </TeamsCard>
+
+            <TeamsCard className="p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Статусы договоров
+              </h2>
+              <div className="space-y-3 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <TeamsBadge variant="warning" className="mr-2">Черновик</TeamsBadge>
+                  <span>Договор создан, но не подписан</span>
+                </div>
+                <div className="flex items-center">
+                  <TeamsBadge variant="success" className="mr-2">Подписан</TeamsBadge>
+                  <span>Договор подписан и активен</span>
+                </div>
+                <div className="flex items-center">
+                  <TeamsBadge variant="error" className="mr-2">Истек</TeamsBadge>
+                  <span>Срок действия договора истек</span>
+                </div>
+                <div className="flex items-center">
+                  <TeamsBadge variant="error" className="mr-2">Расторгнут</TeamsBadge>
+                  <span>Договор расторгнут досрочно</span>
+                </div>
+              </div>
+            </TeamsCard>
+          </div>
         </div>
       </div>
 
@@ -415,29 +463,29 @@ export default function ContractsPage() {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-semibold text-lg mb-3">{selectedContract.title}</h3>
               <div className="space-y-2 text-sm">
-                <div><strong>Объект:</strong> {selectedContract.property}</div>
-                <div><strong>Арендатор:</strong> {selectedContract.tenant}</div>
-                <div><strong>Период:</strong> {selectedContract.startDate} - {selectedContract.endDate}</div>
-                <div><strong>Сумма:</strong> {parseInt(selectedContract.amount).toLocaleString()} ₽/мес</div>
+                {selectedContract.deal?.property && (
+                  <div><strong>Объект:</strong> {selectedContract.deal.property.title} - {selectedContract.deal.property.address}</div>
+                )}
+                {selectedContract.deal?.tenant && (
+                  <div><strong>Арендатор:</strong> {selectedContract.deal.tenant.firstName} {selectedContract.deal.tenant.lastName}</div>
+                )}
+                {selectedContract.deal?.landlord && (
+                  <div><strong>Арендодатель:</strong> {selectedContract.deal.landlord.firstName} {selectedContract.deal.landlord.lastName}</div>
+                )}
+                {selectedContract.deal?.startDate && (
+                  <div><strong>Период:</strong> {new Date(selectedContract.deal.startDate).toLocaleDateString('ru-RU')} - {new Date(selectedContract.deal.endDate).toLocaleDateString('ru-RU')}</div>
+                )}
+                {selectedContract.deal?.monthlyRent && (
+                  <div><strong>Сумма:</strong> {selectedContract.deal.monthlyRent.toLocaleString()} ₽/мес</div>
+                )}
                 <div><strong>Статус:</strong> {getStatusBadge(selectedContract.status)}</div>
               </div>
             </div>
             
             <div className="bg-white border p-4 rounded-lg">
               <h4 className="font-semibold mb-2 text-gray-900">Текст договора:</h4>
-              <div className="text-sm space-y-2 text-gray-900">
-                <p><strong>ДОГОВОР АРЕНДЫ</strong></p>
-                <p>Настоящий договор заключен между арендодателем и арендатором о предоставлении в аренду указанного помещения.</p>
-                <p><strong>Объект аренды:</strong> {selectedContract.property}</p>
-                <p><strong>Арендатор:</strong> {selectedContract.tenant}</p>
-                <p><strong>Срок аренды:</strong> с {selectedContract.startDate} по {selectedContract.endDate}</p>
-                <p><strong>Арендная плата:</strong> {parseInt(selectedContract.amount).toLocaleString()} ₽/мес</p>
-                <p><strong>Условия:</strong></p>
-                <ul className="list-disc list-inside ml-4">
-                  <li>Арендодатель обязуется предоставить помещение в надлежащем состоянии</li>
-                  <li>Арендатор обязуется своевременно вносить арендную плату</li>
-                  <li>Арендатор обязуется бережно относиться к имуществу</li>
-                </ul>
+              <div className="text-sm space-y-2 text-gray-900 max-h-96 overflow-y-auto">
+                <pre className="whitespace-pre-wrap font-sans">{selectedContract.content}</pre>
               </div>
             </div>
           </div>
@@ -458,43 +506,20 @@ export default function ContractsPage() {
               value={selectedContract.title}
               onChange={(e) => setSelectedContract({...selectedContract, title: e.target.value})}
             />
-            <TeamsInput
-              label="Объект"
-              value={selectedContract.property}
-              onChange={(e) => setSelectedContract({...selectedContract, property: e.target.value})}
-            />
-            <TeamsInput
-              label="Арендатор"
-              value={selectedContract.tenant}
-              onChange={(e) => setSelectedContract({...selectedContract, tenant: e.target.value})}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <TeamsInput
-                label="Дата начала"
-                type="date"
-                value={selectedContract.startDate}
-                onChange={(e) => setSelectedContract({...selectedContract, startDate: e.target.value})}
-              />
-              <TeamsInput
-                label="Дата окончания"
-                type="date"
-                value={selectedContract.endDate}
-                onChange={(e) => setSelectedContract({...selectedContract, endDate: e.target.value})}
-              />
-            </div>
-            <TeamsInput
-              label="Арендная плата"
-              value={selectedContract.amount}
-              onChange={(e) => setSelectedContract({...selectedContract, amount: e.target.value})}
+            <TeamsTextarea
+              label="Содержание договора"
+              value={selectedContract.content}
+              onChange={(e) => setSelectedContract({...selectedContract, content: e.target.value})}
+              rows={10}
             />
             <TeamsSelect
-              label="Статус"
               value={selectedContract.status}
               onChange={(value) => setSelectedContract({...selectedContract, status: value})}
               options={[
                 { value: 'DRAFT', label: 'Черновик' },
-                { value: 'ACTIVE', label: 'Активен' },
-                { value: 'EXPIRED', label: 'Истек' }
+                { value: 'SIGNED', label: 'Подписан' },
+                { value: 'EXPIRED', label: 'Истек' },
+                { value: 'TERMINATED', label: 'Расторгнут' }
               ]}
             />
             
@@ -502,7 +527,7 @@ export default function ContractsPage() {
               <TeamsButton
                 onClick={() => {
                   // Обновляем договор в списке
-                  setContracts(prev => prev.map(c => 
+                  setContracts(prev => prev.map((c: any) => 
                     c.id === selectedContract.id ? selectedContract : c
                   ))
                   setShowEditModal(false)
@@ -522,6 +547,130 @@ export default function ContractsPage() {
           </div>
         )}
       </TeamsModal>
+
+      {/* Форма создания договора */}
+      <CreateContractForm
+        isOpen={showCreateForm}
+        onClose={() => setShowCreateForm(false)}
+        onSuccess={fetchContracts}
+      />
     </div>
+  )
+}
+
+interface ContractCardProps {
+  contract: any
+  getStatusBadge: (status: string) => React.ReactNode
+  getStatusDescription: (status: string) => string
+  onView: (contract: any) => void
+  onEdit: (contract: any) => void
+  onDownload: (contract: any, fileType: 'word' | 'pdf') => void
+  showDownloadMenu: string | null
+  setShowDownloadMenu: (id: string | null) => void
+}
+
+function ContractCard({
+  contract,
+  getStatusBadge,
+  getStatusDescription,
+  onView,
+  onEdit,
+  onDownload,
+  showDownloadMenu,
+  setShowDownloadMenu
+}: ContractCardProps) {
+  return (
+    <TeamsCard className="p-4">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-900 mb-1">{contract.title}</h3>
+          <div className="text-sm text-gray-600 space-y-1">
+            {contract.deal?.property && (
+              <div className="flex items-center">
+                <Home className="w-4 h-4 mr-1" />
+                {contract.deal.property.title} - {contract.deal.property.address}
+              </div>
+            )}
+            {contract.deal?.tenant && (
+              <div className="flex items-center">
+                <User className="w-4 h-4 mr-1" />
+                {contract.deal.tenant.firstName} {contract.deal.tenant.lastName}
+              </div>
+            )}
+            {contract.deal?.startDate && (
+              <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-1" />
+                {new Date(contract.deal.startDate).toLocaleDateString('ru-RU')} - {new Date(contract.deal.endDate).toLocaleDateString('ru-RU')}
+              </div>
+            )}
+            {contract.deal?.monthlyRent && (
+              <div className="font-medium text-gray-900">
+                {contract.deal.monthlyRent.toLocaleString()} ₽/мес
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="ml-4">
+          {getStatusBadge(contract.status)}
+        </div>
+      </div>
+      
+      <div className="text-xs text-gray-500 mb-3">
+        {getStatusDescription(contract.status)}
+      </div>
+      
+      <div className="flex gap-2">
+        <TeamsButton 
+          variant="outline" 
+          size="sm"
+          onClick={() => onView(contract)}
+        >
+          <Eye className="w-4 h-4 mr-1" />
+          Просмотр
+        </TeamsButton>
+        <TeamsButton 
+          variant="outline" 
+          size="sm"
+          onClick={() => onEdit(contract)}
+        >
+          <Edit className="w-4 h-4 mr-1" />
+          Редактировать
+        </TeamsButton>
+        <div className="relative">
+          <TeamsButton 
+            variant="outline" 
+            size="sm"
+            onClick={() => setShowDownloadMenu(contract.id)}
+          >
+            <Download className="w-4 h-4 mr-1" />
+            Скачать
+          </TeamsButton>
+          {showDownloadMenu === contract.id && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
+              <div className="py-1">
+                <button
+                  onClick={() => {
+                    onDownload(contract, 'pdf')
+                    setShowDownloadMenu(null)
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  📄 Скачать PDF
+                </button>
+                <button
+                  onClick={() => {
+                    onDownload(contract, 'word')
+                    setShowDownloadMenu(null)
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  📝 Скачать Word
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </TeamsCard>
   )
 }

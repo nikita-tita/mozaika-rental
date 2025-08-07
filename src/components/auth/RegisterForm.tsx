@@ -2,9 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { TeamsButton } from '@/components/ui/teams/TeamsButton'
-import { TeamsInput } from '@/components/ui/teams/TeamsInput'
-import { TeamsCard } from '@/components/ui/teams/TeamsCard'
+import { TeamsButton, TeamsInput, TeamsCard, TeamsPasswordInput, TeamsInputWithTooltip } from '@/components/ui/teams'
 
 interface RegisterFormData {
   email: string
@@ -207,37 +205,26 @@ export function RegisterForm() {
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Пароль
-              </label>
-              <TeamsInput
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Минимум 6 символов"
-              />
-            </div>
+            <TeamsPasswordInput
+              label="Пароль"
+              value={formData.password}
+              onChange={(value) => handleInputChange({ target: { name: 'password', value } } as any)}
+              placeholder="Минимум 6 символов"
+              required
+              name="password"
+              autoComplete="new-password"
+              helperText="Пароль должен содержать минимум 6 символов"
+            />
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Подтвердите пароль
-              </label>
-              <TeamsInput
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                placeholder="Повторите пароль"
-              />
-            </div>
+            <TeamsPasswordInput
+              label="Подтвердите пароль"
+              value={formData.confirmPassword}
+              onChange={(value) => handleInputChange({ target: { name: 'confirmPassword', value } } as any)}
+              placeholder="Повторите пароль"
+              required
+              name="confirmPassword"
+              autoComplete="new-password"
+            />
 
             <div>
               <TeamsButton

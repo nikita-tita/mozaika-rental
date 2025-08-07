@@ -62,7 +62,7 @@ export class TeamsErrorBoundary extends Component<Props, State> {
                 Что-то пошло не так
               </h2>
               
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-700 mb-6">
                 Произошла неожиданная ошибка. Мы уже работаем над её устранением.
               </p>
 

@@ -118,3 +118,4 @@ Thumbs.db
 /generated/prisma
 .vercel
 .env*.local
+scripts/test-relations.ts

@@ -1,38 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { TeamsButton } from '@/components/ui/teams/TeamsButton'
-import { TeamsInput } from '@/components/ui/teams/TeamsInput'
-import { TeamsCard } from '@/components/ui/teams/TeamsCard'
+import { useRouter } from 'next/navigation'
+import { TeamsCard, TeamsButton, TeamsInput } from '@/components/ui/teams'
 import { useApp } from '@/components/providers/AppProvider'
-
-interface LoginFormData {
-  email: string
-  password: string
-}
+import { useAuthTranslations } from '@/lib/i18n/hooks'
 
 export function LoginForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/dashboard'
-  const { login, checkAuth } = useApp()
-
-  const [formData, setFormData] = useState<LoginFormData>({
+  const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-    setError('') // Очищаем ошибку при изменении поля
-  }
+  
+  const router = useRouter()
+  const { login } = useApp()
+  const t = useAuthTranslations()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,87 +25,69 @@ export function LoginForm() {
     setError('')
 
     try {
-      console.log('🔐 Попытка входа для:', formData.email)
-      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        credentials: 'include',
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+        credentials: 'include'
       })
 
       const data = await response.json()
 
-      if (data.success) {
-        console.log('✅ Авторизация успешна, обновляем состояние')
-        
-        // Обновляем состояние приложения
-        login(data.data)
-        
-        console.log('🔄 Перенаправление на home')
-        
-        // Принудительное перенаправление на home
-        window.location.href = '/home'
+      if (response.ok && data.success) {
+        login(data.user)
+        console.log('✅ Вход выполнен успешно:', data.user.email)
+        router.push('/home')
       } else {
-        console.log('❌ Ошибка авторизации:', data.message)
-        setError(data.message || 'Ошибка авторизации')
+        setError(data.message || t('loginError'))
       }
     } catch (error) {
       console.error('Ошибка входа:', error)
-      setError('Ошибка соединения с сервером')
+      setError(t('loginError'))
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="flex justify-center">
-            <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </div>
+          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-xl">M²</span>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Войти в аккаунт
+            {t('signIn')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Или{' '}
-            <a
-              href="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
-            >
-              зарегистрироваться
-            </a>
+            {t('signIn')}
           </p>
         </div>
 
-        <TeamsCard>
+        <TeamsCard className="p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                {t('email')}
               </label>
               <TeamsInput
                 id="email"
@@ -129,14 +96,15 @@ export function LoginForm() {
                 autoComplete="email"
                 required
                 value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Введите ваш email"
+                onChange={handleChange}
+                placeholder="Введите email"
+                className="w-full"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Пароль
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                {t('password')}
               </label>
               <TeamsInput
                 id="password"
@@ -145,8 +113,9 @@ export function LoginForm() {
                 autoComplete="current-password"
                 required
                 value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Введите ваш пароль"
+                onChange={handleChange}
+                placeholder="Введите пароль"
+                className="w-full"
               />
             </div>
 
@@ -154,18 +123,20 @@ export function LoginForm() {
               <div className="flex items-center">
                 <input
                   id="remember-me"
-                  name="remember-me"
+                  name="rememberMe"
                   type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Запомнить меня
+                  {t('rememberMe')}
                 </label>
               </div>
 
               <div className="text-sm">
                 <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
-                  Забыли пароль?
+                  {t('forgotPassword')}
                 </a>
               </div>
             </div>
@@ -176,7 +147,7 @@ export function LoginForm() {
                 disabled={isLoading}
                 className="w-full"
               >
-                {isLoading ? 'Вход...' : 'Войти'}
+                {isLoading ? t('loading') : t('login')}
               </TeamsButton>
             </div>
           </form>

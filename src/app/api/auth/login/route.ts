@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { loginUser } from '@/lib/auth'
 
+export async function OPTIONS() {
+  const response = new NextResponse(null, {
+    status: 200,
+  })
+
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  response.headers.set('Access-Control-Max-Age', '86400')
+
+  return response
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -37,6 +50,11 @@ export async function POST(request: NextRequest) {
         data: result.user,
         message: result.message
       })
+
+      // Добавляем CORS заголовки
+      response.headers.set('Access-Control-Allow-Origin', '*')
+      response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
       // Устанавливаем cookie с токеном
       const isProduction = process.env.NODE_ENV === 'production'

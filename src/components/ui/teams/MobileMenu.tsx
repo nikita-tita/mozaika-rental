@@ -88,7 +88,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                       isActive
                         ? 'bg-primary-100 text-primary-700'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        : 'text-gray-900 hover:bg-gray-100'
                     }`}
                   >
                     {item.icon}

@@ -44,7 +44,7 @@ export const TeamsTabs: React.FC<TeamsTabsProps> = ({
     tabButtonClasses(isActive, isDisabled),
     isActive 
       ? 'border-b-2 border-blue-500 text-blue-600' 
-      : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300'
+      : 'text-gray-600 hover:text-gray-800 hover:border-b-2 hover:border-gray-300'
   )
 
   const pillsTabClasses = (isActive: boolean, isDisabled: boolean) => cn(
@@ -52,7 +52,7 @@ export const TeamsTabs: React.FC<TeamsTabsProps> = ({
     'rounded-md',
     isActive 
       ? 'bg-blue-100 text-blue-700' 
-      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
   )
 
   return (
@@ -71,8 +71,8 @@ export const TeamsTabs: React.FC<TeamsTabsProps> = ({
               key={tab.id}
               onClick={() => !tab.disabled && handleTabChange(tab.id)}
               className={variant === 'pills' 
-                ? pillsTabClasses(activeTab === tab.id, tab.disabled)
-                : defaultTabClasses(activeTab === tab.id, tab.disabled)
+                ? pillsTabClasses(activeTab === tab.id, tab.disabled || false)
+                : defaultTabClasses(activeTab === tab.id, tab.disabled || false)
               }
               disabled={tab.disabled}
             >

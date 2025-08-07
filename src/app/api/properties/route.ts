@@ -5,9 +5,13 @@ import { CreatePropertySchema } from '@/lib/validations'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { ApiErrorHandler, withApiErrorHandling, generateRequestId } from '@/lib/api-error-handler'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
-  try {
+  const requestId = generateRequestId()
+  
+  return ApiErrorHandler.withErrorHandling(async () => {
     // Получаем токен из заголовка Authorization или cookie
     const authHeader = request.headers.get('authorization')
     let token = null
@@ -19,19 +23,15 @@ export async function GET(request: NextRequest) {
     }
     
     if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Не авторизован' },
-        { status: 401 }
-      )
+      throw new Error('Unauthorized: No token provided')
     }
 
     const user = verifyJWTToken(token)
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Недействительный токен' },
-        { status: 401 }
-      )
+      throw new Error('Unauthorized: Invalid token')
     }
+
+    logger.info('Fetching properties for user', { userId: user.userId }, user.userId, requestId)
 
     const properties = await prisma.property.findMany({
       where: {
@@ -42,22 +42,24 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    logger.info('Properties fetched successfully', { count: properties.length }, user.userId, requestId)
+
     return NextResponse.json({
       success: true,
       data: properties
     })
-
-  } catch (error) {
-    console.error('Error fetching properties:', error)
-    return NextResponse.json(
-      { success: false, error: 'Внутренняя ошибка сервера' },
-      { status: 500 }
-    )
-  }
+  }, {
+    method: 'GET',
+    path: '/api/properties',
+    userId: undefined,
+    requestId
+  })
 }
 
 export async function POST(request: NextRequest) {
-  try {
+  const requestId = generateRequestId()
+  
+  return ApiErrorHandler.withErrorHandling(async () => {
     // Получаем токен из заголовка Authorization или cookie
     const authHeader = request.headers.get('authorization')
     let token = null
@@ -69,19 +71,15 @@ export async function POST(request: NextRequest) {
     }
     
     if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Не авторизован' },
-        { status: 401 }
-      )
+      throw new Error('Unauthorized: No token provided')
     }
 
     const user = verifyJWTToken(token)
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Недействительный токен' },
-        { status: 401 }
-      )
+      throw new Error('Unauthorized: Invalid token')
     }
+
+    logger.info('Creating property for user', { userId: user.userId }, user.userId, requestId)
 
     // Проверяем, что пользователь существует в базе данных
     const existingUser = await prisma.user.findUnique({
@@ -89,10 +87,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (!existingUser) {
-      return NextResponse.json(
-        { success: false, error: 'Пользователь не найден' },
-        { status: 404 }
-      )
+      throw new Error(`User not found: ${user.userId}`)
     }
 
     // Проверяем Content-Type для определения типа данных
@@ -132,16 +127,13 @@ export async function POST(request: NextRequest) {
       const validationResult = CreatePropertySchema.safeParse(formData)
 
       if (!validationResult.success) {
-        console.log('Ошибки валидации:', validationResult.error)
         const errors = validationResult.error.errors?.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') || 'Неизвестная ошибка валидации'
-        return NextResponse.json(
-          { success: false, error: `Ошибка валидации: ${errors}` },
-          { status: 400 }
-        )
+        logger.warn('Property validation failed', { errors: validationResult.error.errors }, user.userId, requestId)
+        throw new Error(`Validation error: ${errors}`)
       }
 
       const validatedData = validationResult.data
-      console.log('Валидированные данные:', validatedData)
+      logger.info('Property data validated successfully', { propertyData: validatedData }, user.userId, requestId)
 
       // Создаем объект недвижимости
       const property = await prisma.property.create({
@@ -164,7 +156,7 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log('Объект создан:', property)
+      logger.info('Property created successfully', { propertyId: property.id }, user.userId, requestId)
 
       // Обрабатываем загрузку изображений
       const imageUrls: string[] = []
@@ -220,8 +212,11 @@ export async function POST(request: NextRequest) {
             where: { id: property.id },
             data: { images: imageUrls }
           })
+          logger.info('Property images updated', { imageCount: imageUrls.length }, user.userId, requestId)
         }
       }
+
+      logger.info('Property creation completed successfully', { propertyId: property.id, imageCount: imageUrls.length }, user.userId, requestId)
 
       return NextResponse.json({
         success: true,
@@ -232,18 +227,13 @@ export async function POST(request: NextRequest) {
       })
 
     } catch (error) {
-      console.error('Ошибка валидации или создания:', error)
-      return NextResponse.json(
-        { success: false, error: error instanceof Error ? error.message : 'Ошибка валидации данных' },
-        { status: 400 }
-      )
+      logger.error('Property creation failed', { error: error instanceof Error ? error.message : error }, user.userId, requestId)
+      throw error
     }
-
-  } catch (error) {
-    console.error('Error creating property:', error)
-    return NextResponse.json(
-      { success: false, error: 'Внутренняя ошибка сервера' },
-      { status: 500 }
-    )
-  }
+  }, {
+    method: 'POST',
+    path: '/api/properties',
+    userId: undefined,
+    requestId
+  })
 }

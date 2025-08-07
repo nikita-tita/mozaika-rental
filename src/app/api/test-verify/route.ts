@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
       tokenPreview: token.substring(0, 50) + '...',
       tokenLength: token.length
     })

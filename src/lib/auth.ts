@@ -102,9 +102,6 @@ export async function verifySession(token: string): Promise<Session | null> {
       expiresAt: {
         gt: new Date()
       }
-    },
-    include: {
-      user: true
     }
   })
 
@@ -116,13 +113,20 @@ export async function getUserFromToken(token: string): Promise<AuthUser | null> 
   const session = await verifySession(token)
   if (!session) return null
 
+  // Получаем пользователя отдельно
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId }
+  })
+
+  if (!user) return null
+
   return {
-    id: session.user.id,
-    email: session.user.email,
-    firstName: session.user.firstName,
-    lastName: session.user.lastName,
-    role: session.user.role,
-    verified: session.user.verified
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+    verified: user.verified
   }
 }
 
@@ -265,9 +269,9 @@ export async function loginUser(
   } catch (error) {
     console.error('Ошибка авторизации:', error)
     console.error('Детали ошибки:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
     })
     return {
       success: false,

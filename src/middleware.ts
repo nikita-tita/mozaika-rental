@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyJWTToken } from '@/lib/auth'
+import { verifyJWTToken, getCurrentUser } from '@/lib/auth'
 
 // Защищенные маршруты
 const protectedPaths = [
@@ -32,6 +32,11 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
+  // Пропускаем API маршруты
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
+  }
+
   // Проверяем, является ли путь защищенным
   const isProtectedPath = protectedPaths.some(path =>
     pathname.startsWith(path) || pathname === path
@@ -39,11 +44,6 @@ export async function middleware(request: NextRequest) {
 
   // Проверяем, является ли путь страницей авторизации
   const isAuthPath = authPaths.some(path =>
-    pathname.startsWith(path) || pathname === path
-  )
-
-  // Проверяем, является ли путь публичным
-  const isPublicPath = publicPaths.some(path =>
     pathname.startsWith(path) || pathname === path
   )
 
@@ -62,14 +62,17 @@ export async function middleware(request: NextRequest) {
 
   // Если это страница авторизации и пользователь уже авторизован
   if (isAuthPath && token) {
-    const decoded = verifyJWTToken(token)
-    if (decoded) {
-      // Перенаправляем на home
-      return NextResponse.redirect(new URL('/home', request.url))
+    try {
+      const user = await getCurrentUser(token)
+      if (user) {
+        // Перенаправляем на home
+        return NextResponse.redirect(new URL('/home', request.url))
+      }
+    } catch (error) {
+      // Если ошибка при проверке токена, просто продолжаем
+      console.log('Ошибка проверки токена в middleware:', error)
     }
   }
-
-
 
   return NextResponse.next()
 }
@@ -83,6 +86,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|health|test).*)',
   ],
 }

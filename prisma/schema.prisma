@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -23,9 +26,11 @@ model User {
   contracts     Contract[]
   deals         Deal[]
   notifications Notification[]
+  yandexLeads  YandexRentalLead[]
   payments      Payment[]
   properties    Property[]
   sessions      Session[]
+  propertyLinks ClientPropertyLink[]
 
   @@map("users")
 }
@@ -61,7 +66,9 @@ model Property {
   price       Float
   userId      String
   deals       Deal[]
+  payments    Payment[]
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyLinks ClientPropertyLink[]
 
   @@map("properties")
 }
@@ -87,27 +94,56 @@ model Client {
   source     String?
   type       ClientType @default(TENANT)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deals      Deal[]
+  deals      Deal[]     @relation("DealClient")
+  tenantDeals Deal[]    @relation("DealTenant")
+  landlordDeals Deal[]  @relation("DealLandlord")
+  propertyLinks ClientPropertyLink[]
 
   @@map("clients")
+}
+
+model ClientPropertyLink {
+  id         String   @id @default(cuid())
+  clientId   String
+  propertyId String
+  linkType   PropertyLinkType
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, propertyId, linkType])
+  @@map("client_property_links")
 }
 
 model Deal {
   id          String     @id @default(cuid())
   title       String
   description String?
-  status      DealStatus @default(NEW)
+  status      DealStatus @default(DRAFT)
   amount      Float?
   startDate   DateTime?
   endDate     DateTime?
   userId      String
   clientId    String?
   propertyId  String?
+  tenantId    String?    // ID арендатора
+  landlordId  String?    // ID арендодателя
+  monthlyRent Float?     // Ежемесячная арендная плата
+  deposit     Float?     // Залог
+  commission  Float?     // Комиссия
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  client      Client?    @relation(fields: [clientId], references: [id])
-  property    Property?  @relation(fields: [propertyId], references: [id])
+  client      Client?    @relation("DealClient", fields: [clientId], references: [id], onDelete: SetNull)
+  property    Property?  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  tenant      Client?    @relation("DealTenant", fields: [tenantId], references: [id], onDelete: SetNull)
+  landlord    Client?    @relation("DealLandlord", fields: [landlordId], references: [id], onDelete: SetNull)
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contracts   Contract[]
+  payments    Payment[]
 
   @@map("deals")
 }
@@ -124,22 +160,50 @@ model Contract {
   title     String
   userId    String
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deal      Deal?          @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  payments  Payment[]
 
   @@map("contracts")
 }
 
 model Payment {
-  id        String        @id @default(cuid())
-  type      PaymentType
-  status    PaymentStatus @default(PENDING)
-  amount    Float
-  userId    String
-  dueDate   DateTime?
-  paidAt    DateTime?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  dealId    String?
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String        @id @default(cuid())
+  type        PaymentType
+  status      PaymentStatus @default(PENDING)
+  amount      Float
+  userId      String
+  dueDate     DateTime?
+  paidAt      DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  dealId      String?
+  contractId  String?
+  propertyId  String?
+  
+  // Новые поля для счетов
+  invoiceNumber String?     @unique
+  invoicePdf    String?     // Путь к PDF файлу счета
+  invoiceSentAt DateTime?
+  
+  // Поля для калькулятора
+  rentAmount    Float?      // Арендная плата
+  utilitiesAmount Float?    // Коммунальные услуги
+  depositAmount Float?      // Депозит
+  penaltyAmount Float?      // Штрафы
+  
+  // Поля для уведомлений
+  reminderSentAt DateTime?
+  reminderCount  Int        @default(0)
+  lastReminderType String?  // EMAIL, SMS
+  
+  // Описание и детали
+  description   String?
+  notes         String?
+  
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deal          Deal?       @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  contract      Contract?   @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  property      Property?   @relation(fields: [propertyId], references: [id], onDelete: SetNull)
 
   @@map("payments")
 }
@@ -191,6 +255,7 @@ enum ClientType {
 }
 
 enum DealStatus {
+  DRAFT
   NEW
   IN_PROGRESS
   COMPLETED
@@ -223,4 +288,58 @@ enum NotificationType {
   WARNING
   ERROR
   SUCCESS
+}
+
+enum PropertyLinkType {
+  OWNER
+  TENANT
+  INTERESTED
+}
+
+// Модели для интеграции с Яндекс.Аренда
+model YandexRentalLead {
+  id          String              @id @default(cuid())
+  ownerName   String              // ФИО собственника
+  phone       String              // Телефон
+  email       String?             // Email
+  address     String              // Адрес объекта
+  comment     String?             // Комментарий о предупреждении собственника
+  rentAmount  Float?              // Стоимость аренды
+  rentPeriod  Int                 @default(11) // Срок аренды в месяцах (по умолчанию 11)
+  commission  Float?              // Комиссионное вознаграждение (72.5% от первого платежа)
+  status      YandexLeadStatus    @default(SUBMITTED)
+  submittedAt DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  
+  // Связи
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // История статусов
+  statusHistory YandexLeadStatusHistory[]
+  
+  @@map("yandex_rental_leads")
+}
+
+model YandexLeadStatusHistory {
+  id        String           @id @default(cuid())
+  leadId    String
+  status    YandexLeadStatus
+  comment   String?
+  createdAt DateTime         @default(now())
+  
+  lead      YandexRentalLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  @@map("yandex_lead_status_history")
+}
+
+enum YandexLeadStatus {
+  SUBMITTED           // Принят
+  CALLED_OWNER        // Созвон с собственником
+  PHOTO_SCHEDULED     // Запланирована фотосессия
+  PUBLISHED           // Объявление опубликовано
+  FIRST_SHOWING       // Первый показ
+  CONTRACT_SIGNED     // Договор подписан
+  OCCUPIED            // Заселён
+  FAILED              // Сделка не состоялась
 }

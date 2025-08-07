@@ -28,7 +28,7 @@ export default function TeamsHeader() {
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
             {/* Notifications */}
             {isAuthenticated && (
-              <button className="relative p-2 sm:p-2.5 text-[#605e5c] hover:text-[#323130] transition-colors rounded-md hover:bg-[#f3f2f1]">
+              <button className="relative p-2 sm:p-2.5 text-[#323130] hover:text-[#323130] transition-colors rounded-md hover:bg-[#f3f2f1]">
                 <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             )}
@@ -51,7 +51,7 @@ export default function TeamsHeader() {
                   variant="ghost" 
                   size="sm" 
                   onClick={handleLogout}
-                  className="hidden lg:flex text-[#605e5c] hover:text-[#323130] hover:bg-[#f3f2f1]"
+                  className="hidden lg:flex text-[#323130] hover:text-[#323130] hover:bg-[#f3f2f1]"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Выйти
@@ -61,7 +61,7 @@ export default function TeamsHeader() {
                   variant="ghost" 
                   size="sm" 
                   onClick={handleLogout}
-                  className="lg:hidden p-2 text-[#605e5c] hover:text-[#323130] hover:bg-[#f3f2f1]"
+                  className="lg:hidden p-2 text-[#323130] hover:text-[#323130] hover:bg-[#f3f2f1]"
                 >
                   <LogOut className="w-4 h-4" />
                 </TeamsButton>

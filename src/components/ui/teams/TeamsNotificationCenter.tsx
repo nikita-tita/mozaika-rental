@@ -71,7 +71,7 @@ export const TeamsNotificationCenter: React.FC<TeamsNotificationCenterProps> = (
       content: (
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-600">
               <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>Нет уведомлений</p>
             </div>
@@ -128,7 +128,7 @@ export const TeamsNotificationCenter: React.FC<TeamsNotificationCenterProps> = (
       content: (
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {notifications.filter(n => !n.read).length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-600">
               <Check className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>Все уведомления прочитаны</p>
             </div>

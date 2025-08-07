@@ -132,7 +132,7 @@ export function TeamsSidebar() {
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive
                     ? 'bg-[#deecf9] text-[#0078d4]'
-                    : 'text-[#605e5c] hover:bg-[#f3f2f1] hover:text-[#323130]'
+                    : 'text-[#323130] hover:bg-[#f3f2f1] hover:text-[#323130]'
                 }`}
               >
                 <Icon className="w-5 h-5 mr-3" />
@@ -169,7 +169,7 @@ export function TeamsSidebar() {
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-[#605e5c] rounded-md hover:bg-[#f3f2f1] hover:text-[#323130] transition-colors"
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-[#323130] rounded-md hover:bg-[#f3f2f1] hover:text-[#323130] transition-colors"
             >
               <LogOut className="w-4 h-4 mr-3" />
               Выйти

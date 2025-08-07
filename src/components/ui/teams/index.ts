@@ -1,5 +1,11 @@
 // Theme
 export { teamsTheme } from './TeamsTheme'
+export { TeamsErrorDisplay, useApiError, TeamsLoadingError } from './TeamsErrorDisplay'
+export { TeamsDatePicker } from './TeamsDatePicker'
+export { TeamsPasswordInput } from './TeamsPasswordInput'
+export { TeamsTooltip, TeamsInputWithTooltip } from './TeamsTooltip'
+export { TeamsSearch, useSearch } from './TeamsSearch'
+export { TeamsActionCard, PropertyCard, ClientCard, DealCard } from './TeamsActionCard'
 
 // Basic Components
 export { TeamsButton } from './TeamsButton'
@@ -15,11 +21,16 @@ export { TeamsTable, TeamsTableHeader, TeamsTableBody, TeamsTableRow, TeamsTable
 export { TeamsBadge } from './TeamsBadge'
 export { TeamsTabs } from './TeamsTabs'
 export { TeamsAlert } from './TeamsAlert'
-export { TeamsTooltip } from './TeamsTooltip'
+export { TeamsMultiSelect } from './TeamsMultiSelect'
+
 
 // UX Components
 export { TeamsNotificationCenter } from './TeamsNotificationCenter'
 export { TeamsLoadingOverlay, TeamsSkeleton } from './TeamsLoadingOverlay'
-export { TeamsErrorBoundary, TeamsErrorDisplay, useErrorHandler } from './TeamsErrorBoundary'
+export { TeamsErrorBoundary, useErrorHandler } from './TeamsErrorBoundary'
 export { TeamsNavigation } from './TeamsNavigation'
-export { TeamsSidebar } from './TeamsSidebar' 
+export { TeamsSidebar } from './TeamsSidebar'
+
+// Form Components
+export { TeamsAutocomplete } from './TeamsAutocomplete'
+export { TeamsAddressInput } from './TeamsAddressInput' 

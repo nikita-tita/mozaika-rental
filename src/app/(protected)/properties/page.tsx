@@ -63,6 +63,8 @@ export default function PropertiesPage() {
     area: ''
   })
   const [showFilters, setShowFilters] = useState(false)
+  const [sortBy, setSortBy] = useState('createdAt')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
     fetchProperties()
@@ -70,7 +72,7 @@ export default function PropertiesPage() {
 
   useEffect(() => {
     applyFilters()
-  }, [properties, filters])
+  }, [properties, filters, sortBy, sortOrder])
 
   const fetchProperties = async () => {
     try {
@@ -109,21 +111,25 @@ export default function PropertiesPage() {
 
     // Фильтр по городу
     if (filters.city) {
-      filtered = filtered.filter(property => property.city === filters.city)
+      filtered = filtered.filter(property => {
+        const propertyCity = property.address.split(',')[0]?.trim()
+        return propertyCity === filters.city
+      })
     }
 
     // Фильтр по цене
     if (filters.priceRange) {
       const [min, max] = filters.priceRange.split('-').map(Number)
       filtered = filtered.filter(property => {
+        const price = property.pricePerMonth || 0
         if (filters.priceRange === '100000+') {
-          return property.pricePerMonth >= 100000
+          return price >= 100000
         }
-        return property.pricePerMonth >= min && property.pricePerMonth <= max
+        return price >= min && price <= max
       })
     } else if (filters.minPrice || filters.maxPrice) {
       filtered = filtered.filter(property => {
-        const price = property.pricePerMonth
+        const price = property.pricePerMonth || 0
         const min = filters.minPrice ? Number(filters.minPrice) : 0
         const max = filters.maxPrice ? Number(filters.maxPrice) : Infinity
         return price >= min && price <= max
@@ -132,13 +138,56 @@ export default function PropertiesPage() {
 
     // Фильтр по количеству комнат
     if (filters.rooms) {
-      filtered = filtered.filter(property => property.rooms === Number(filters.rooms))
+      filtered = filtered.filter(property => {
+        const rooms = property.bedrooms || 0
+        if (filters.rooms === '4+') {
+          return rooms >= 4
+        }
+        return rooms === Number(filters.rooms)
+      })
     }
 
     // Фильтр по площади
     if (filters.area) {
-      filtered = filtered.filter(property => property.area >= Number(filters.area))
+      filtered = filtered.filter(property => {
+        const area = property.area || 0
+        return area >= Number(filters.area)
+      })
     }
+
+    // Сортировка
+    filtered.sort((a, b) => {
+      let aValue: any
+      let bValue: any
+
+      switch (sortBy) {
+        case 'price':
+          aValue = a.pricePerMonth || 0
+          bValue = b.pricePerMonth || 0
+          break
+        case 'area':
+          aValue = a.area || 0
+          bValue = b.area || 0
+          break
+        case 'createdAt':
+          aValue = new Date(a.createdAt).getTime()
+          bValue = new Date(b.createdAt).getTime()
+          break
+        case 'title':
+          aValue = a.title.toLowerCase()
+          bValue = b.title.toLowerCase()
+          break
+        default:
+          aValue = new Date(a.createdAt).getTime()
+          bValue = new Date(b.createdAt).getTime()
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1
+      } else {
+        return aValue < bValue ? 1 : -1
+      }
+    })
 
     setFilteredProperties(filtered)
   }
@@ -163,7 +212,10 @@ export default function PropertiesPage() {
     })
   }
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | null | undefined) => {
+    if (price === null || price === undefined || isNaN(price)) {
+      return 'Цена не указана'
+    }
     return new Intl.NumberFormat('ru-RU').format(price)
   }
 
@@ -245,6 +297,24 @@ export default function PropertiesPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  <TeamsSelect
+                    value={`${sortBy}-${sortOrder}`}
+                    onChange={(value) => {
+                      const [field, order] = value.split('-')
+                      setSortBy(field)
+                      setSortOrder(order as 'asc' | 'desc')
+                    }}
+                    options={[
+                      { value: 'createdAt-desc', label: 'Сначала новые' },
+                      { value: 'createdAt-asc', label: 'Сначала старые' },
+                      { value: 'price-asc', label: 'Цена: по возрастанию' },
+                      { value: 'price-desc', label: 'Цена: по убыванию' },
+                      { value: 'area-desc', label: 'Площадь: по убыванию' },
+                      { value: 'area-asc', label: 'Площадь: по возрастанию' },
+                      { value: 'title-asc', label: 'Название: А-Я' },
+                      { value: 'title-desc', label: 'Название: Я-А' }
+                    ]}
+                  />
                   <TeamsButton
                     variant="outline"
                     onClick={() => setShowFilters(!showFilters)}
@@ -375,9 +445,15 @@ export default function PropertiesPage() {
                       
                       <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
                         <div className="flex items-center space-x-4">
-                          <span>{property.area} м²</span>
-                          <span>{property.rooms} комн.</span>
-                          <span>{property.bedrooms} спальн.</span>
+                          {property.area && (
+                            <span>{property.area} м²</span>
+                          )}
+                          {property.bedrooms && (
+                            <span>{property.bedrooms} комн.</span>
+                          )}
+                          {property.bathrooms && (
+                            <span>{property.bathrooms} ванн.</span>
+                          )}
                         </div>
                       </div>
                       
@@ -386,7 +462,7 @@ export default function PropertiesPage() {
                           <div className="text-lg font-bold text-gray-900">
                             {formatPrice(property.pricePerMonth)} ₽/мес
                           </div>
-                          {property.deposit > 0 && (
+                          {property.deposit && property.deposit > 0 && (
                             <div className="text-sm text-gray-500">
                               Залог: {formatPrice(property.deposit)} ₽
                             </div>

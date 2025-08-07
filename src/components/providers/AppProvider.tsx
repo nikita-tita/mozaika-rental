@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { I18nProvider } from '@/lib/i18n'
 
 interface User {
   id: string
@@ -115,9 +116,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
+    <I18nProvider locale="ru">
+      <AppContext.Provider value={value}>
+        {children}
+      </AppContext.Provider>
+    </I18nProvider>
   )
 }
 
