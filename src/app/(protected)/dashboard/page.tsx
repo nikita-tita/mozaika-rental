@@ -115,19 +115,19 @@ const dealMechanisms = [
 const getColorClasses = (color: string) => {
   switch (color) {
     case 'blue':
-      return 'bg-[#deecf9] border-[#0078d4] text-[#0078d4]'
+      return 'bg-blue-50 border-blue-200 text-blue-700'
     case 'green':
-      return 'bg-[#dff6dd] border-[#107c10] text-[#107c10]'
+      return 'bg-green-50 border-green-200 text-green-700'
     case 'purple':
-      return 'bg-[#f3e5f5] border-[#5c2d91] text-[#5c2d91]'
+      return 'bg-purple-50 border-purple-200 text-purple-700'
     case 'orange':
-      return 'bg-[#fce4ec] border-[#ca5010] text-[#ca5010]'
+      return 'bg-orange-50 border-orange-200 text-orange-700'
     case 'red':
-      return 'bg-[#fde7e9] border-[#d13438] text-[#d13438]'
+      return 'bg-red-50 border-red-200 text-red-700'
     case 'yellow':
-      return 'bg-[#fff4ce] border-[#ca5010] text-[#ca5010]'
+      return 'bg-yellow-50 border-yellow-200 text-yellow-700'
     default:
-      return 'bg-[#f3f2f1] border-[#605e5c] text-[#605e5c]'
+      return 'bg-gray-50 border-gray-200 text-gray-700'
   }
 }
 
@@ -213,13 +213,13 @@ export default function DashboardPage() {
   const getActivityColor = (status: string) => {
     switch (status) {
       case 'success':
-        return 'text-[#107c10]'
+        return 'text-green-500'
       case 'warning':
-        return 'text-[#ca5010]'
+        return 'text-yellow-500'
       case 'info':
-        return 'text-[#0078d4]'
+        return 'text-blue-500'
       default:
-        return 'text-[#605e5c]'
+        return 'text-gray-500'
     }
   }
 
@@ -240,83 +240,83 @@ export default function DashboardPage() {
   }
 
   return (
-    <div>
+    <div className="px-responsive-sm sm:px-responsive-md lg:px-responsive-lg">
         {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#323130]">
+        <div className="mb-responsive-lg sm:mb-responsive-xl">
+          <h1 className="text-responsive-h2 font-bold text-gray-900">
             Панель управления
           </h1>
-          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-[#605e5c]">
+          <p className="mt-responsive-sm text-sm sm:text-base text-gray-500">
             Добро пожаловать, {user?.firstName} {user?.lastName}
           </p>
         </div>
 
         {/* Main Content */}
           {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <TeamsCard>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-responsive-md sm:gap-responsive-lg mb-responsive-lg sm:mb-responsive-xl">
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <Building2 className="h-8 w-8 text-[#0078d4]" />
+                  <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-[#605e5c]">Объекты</p>
-                  <p className="text-2xl font-semibold text-[#323130]">{stats.properties}</p>
+                <div className="ml-responsive-sm sm:ml-responsive-md">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500">Объекты</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.properties}</p>
                 </div>
               </div>
             </TeamsCard>
 
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <Users className="h-8 w-8 text-[#107c10]" />
+                  <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-[#605e5c]">Клиенты</p>
-                  <p className="text-2xl font-semibold text-[#323130]">{stats.clients}</p>
+                <div className="ml-responsive-sm sm:ml-responsive-md">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500">Клиенты</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.clients}</p>
                 </div>
               </div>
             </TeamsCard>
 
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <TrendingUp className="h-8 w-8 text-[#5c2d91]" />
+                  <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-[#605e5c]">Сделки</p>
-                  <p className="text-2xl font-semibold text-[#323130]">{stats.deals}</p>
+                <div className="ml-responsive-sm sm:ml-responsive-md">
+                  <p className="text-sm font-medium text-gray-500">Сделки</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.deals}</p>
                 </div>
               </div>
             </TeamsCard>
 
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <DollarSign className="h-8 w-8 text-[#ca5010]" />
+                  <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-[#605e5c]">Доход</p>
-                  <p className="text-2xl font-semibold text-[#323130]">{formatCurrency(stats.totalRevenue)}</p>
+                <div className="ml-responsive-sm sm:ml-responsive-md">
+                  <p className="text-xs sm:text-sm font-medium text-gray-500">Доход</p>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900">{formatCurrency(stats.totalRevenue)}</p>
                 </div>
               </div>
             </TeamsCard>
           </div>
 
           {/* Quick Actions */}
-          <div className="mb-6 sm:mb-8">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-[#323130] mb-3 sm:mb-4">
+          <div className="mb-responsive-lg sm:mb-responsive-xl">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-responsive-md">
               Быстрые действия
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <Link href="/properties/new">
-                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center p-4">
-                    <div className="bg-[#0078d4] p-3 rounded-lg">
-                      <Building2 className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-[#323130]">Добавить объект</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-responsive-md sm:gap-responsive-lg">
+                              <Link href="/properties/new">
+                  <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer p-responsive-md sm:p-responsive-lg">
+                    <div className="flex items-center">
+                      <div className="bg-blue-500 p-2 sm:p-3 rounded-lg">
+                        <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                      </div>
+                      <div className="ml-responsive-sm sm:ml-responsive-md">
+                        <h3 className="text-base sm:text-lg font-medium text-gray-900">Добавить объект</h3>
                       <p className="text-gray-600">Создать новое объявление</p>
                     </div>
                   </div>
@@ -324,28 +324,28 @@ export default function DashboardPage() {
               </Link>
 
               <Link href="/clients/new">
-                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center p-4">
-                    <div className="bg-[#107c10] p-3 rounded-lg">
-                      <Users className="w-6 h-6 text-white" />
+                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer p-responsive-md sm:p-responsive-lg">
+                  <div className="flex items-center">
+                    <div className="bg-green-500 p-2 sm:p-3 rounded-lg">
+                      <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-[#323130]">Добавить клиента</h3>
-                      <p className="text-[#605e5c]">Новый клиент в базе</p>
+                    <div className="ml-responsive-sm sm:ml-responsive-md">
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900">Добавить клиента</h3>
+                      <p className="text-gray-600">Новый клиент в базе</p>
                     </div>
                   </div>
                 </TeamsCard>
               </Link>
 
               <Link href="/contracts/new">
-                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="flex items-center p-4">
-                    <div className="bg-[#5c2d91] p-3 rounded-lg">
-                      <FileText className="w-6 h-6 text-white" />
+                <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer p-responsive-md sm:p-responsive-lg">
+                  <div className="flex items-center">
+                    <div className="bg-purple-500 p-2 sm:p-3 rounded-lg">
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-[#323130]">Создать договор</h3>
-                      <p className="text-[#605e5c]">Новый договор аренды</p>
+                    <div className="ml-responsive-sm sm:ml-responsive-md">
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900">Создать договор</h3>
+                      <p className="text-gray-600">Новый договор аренды</p>
                     </div>
                   </div>
                 </TeamsCard>
@@ -354,11 +354,11 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="mb-6 sm:mb-8">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-[#323130] mb-3 sm:mb-4">
+          <div className="mb-responsive-lg sm:mb-responsive-xl">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-responsive-md">
               Последняя активность
             </h2>
-            <TeamsCard>
+            <TeamsCard className="p-responsive-md sm:p-responsive-lg">
               {recentActivity.length > 0 ? (
                 <div className="space-y-4">
                   {recentActivity.map((activity) => (
@@ -367,12 +367,12 @@ export default function DashboardPage() {
                         {getActivityIcon(activity.type)}
                       </div>
                       <div className="ml-3 flex-1">
-                        <p className="text-sm font-medium text-[#323130]">
+                        <p className="text-sm font-medium text-gray-900">
                           {activity.title}
                         </p>
-                        <p className="text-sm text-[#605e5c]">{activity.description}</p>
+                        <p className="text-sm text-gray-500">{activity.description}</p>
                       </div>
-                      <div className="text-sm text-[#605e5c]">
+                      <div className="text-sm text-gray-500">
                         {formatDate(activity.timestamp)}
                       </div>
                     </div>
@@ -380,35 +380,35 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Clock className="h-12 w-12 text-[#605e5c] mx-auto mb-4" />
-                  <p className="text-[#605e5c]">Пока нет активности</p>
+                  <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">Пока нет активности</p>
                 </div>
               )}
             </TeamsCard>
           </div>
 
           {/* Deal Mechanisms */}
-          <div className="mb-6 sm:mb-8">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-[#323130] mb-3 sm:mb-4">
+          <div className="mb-responsive-lg sm:mb-responsive-xl">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-responsive-md">
               Сделочные механизмы
             </h2>
-            <p className="text-[#605e5c] mb-4 sm:mb-6">
+            <p className="text-gray-600 mb-responsive-md sm:mb-responsive-lg">
               Инструменты для эффективной работы с арендой недвижимости
             </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-responsive-md sm:gap-responsive-lg">
               {dealMechanisms.map((mechanism) => {
                 const Icon = mechanism.icon
                 return (
                   <Link key={mechanism.id} href={mechanism.href}>
-                    <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                      <div className="p-6">
-                        <div className="flex items-center mb-4">
-                          <div className={`w-12 h-12 ${getColorClasses(mechanism.color)} rounded-lg flex items-center justify-center`}>
-                            <Icon className="w-6 h-6" />
+                    <TeamsCard className="hover:shadow-lg transition-shadow cursor-pointer h-full p-responsive-md sm:p-responsive-lg">
+                      <div>
+                        <div className="flex items-center mb-responsive-md">
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 ${getColorClasses(mechanism.color)} rounded-lg flex items-center justify-center`}>
+                            <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                           </div>
-                          <div className="ml-4">
-                            <h3 className="text-lg font-semibold text-[#323130]">
+                          <div className="ml-responsive-sm sm:ml-responsive-md">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                               {mechanism.title}
                             </h3>
                             {mechanism.status === 'beta' && (
@@ -417,22 +417,22 @@ export default function DashboardPage() {
                           </div>
                         </div>
                         
-                        <p className="text-[#605e5c] mb-4 leading-relaxed">
+                        <p className="text-sm sm:text-base text-gray-600 mb-responsive-md leading-relaxed">
                           {mechanism.description}
                         </p>
                         
-                        <div className="space-y-2 mb-4">
+                        <div className="space-y-responsive-xs sm:space-y-responsive-sm mb-responsive-md">
                           {mechanism.features.map((feature, index) => (
-                            <div key={index} className="flex items-center text-sm text-[#605e5c]">
-                              <CheckCircle className="w-4 h-4 text-[#107c10] mr-2" />
+                            <div key={index} className="flex items-center text-xs sm:text-sm text-gray-500">
+                              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mr-responsive-xs sm:mr-responsive-sm" />
                               {feature}
                             </div>
                           ))}
                         </div>
                         
-                        <div className="flex items-center text-[#0078d4] text-sm font-medium">
+                        <div className="flex items-center text-primary-600 text-xs sm:text-sm font-medium">
                           Открыть
-                          <ArrowRight className="w-4 h-4 ml-1" />
+                          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-responsive-xs sm:ml-responsive-sm" />
                         </div>
                       </div>
                     </TeamsCard>

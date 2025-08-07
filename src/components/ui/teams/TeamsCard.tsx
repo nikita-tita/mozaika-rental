@@ -18,9 +18,9 @@ export const TeamsCard: React.FC<TeamsCardProps> = ({
   const baseClasses = 'rounded-lg transition-all duration-200'
   
   const variantClasses = {
-    default: 'bg-white border border-gray-200 shadow-sm',
-    elevated: 'bg-white shadow-md border border-gray-200',
-    outlined: 'bg-transparent border border-gray-300',
+    default: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+    elevated: 'bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-200',
+    outlined: 'bg-transparent border-2 border-gray-200 hover:border-gray-300 transition-all duration-200',
   }
   
   const paddingClasses = {
@@ -29,7 +29,7 @@ export const TeamsCard: React.FC<TeamsCardProps> = ({
     lg: 'p-6',
   }
   
-  const interactiveClasses = interactive ? 'hover:shadow-lg hover:border-blue-300 cursor-pointer' : ''
+  const interactiveClasses = interactive ? 'hover:shadow-lg hover:border-primary-300 cursor-pointer transform hover:-translate-y-1' : ''
   
   return (
     <div

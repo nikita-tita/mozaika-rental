@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { TeamsButton } from '@/components/ui/teams/TeamsButton'
 import { TeamsInput } from '@/components/ui/teams/TeamsInput'
 import { TeamsCard } from '@/components/ui/teams/TeamsCard'
+import { M2Logo } from '@/components/ui/M2Logo'
 import { useApp } from '@/components/providers/AppProvider'
 
 interface LoginFormData {
@@ -76,52 +77,38 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-responsive-lg sm:py-responsive-xl px-responsive-sm sm:px-responsive-md lg:px-responsive-lg">
+      <div className="max-w-md w-full space-y-responsive-lg sm:space-y-responsive-xl">
         <div>
-          <div className="flex justify-center">
-            <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </div>
+          <div className="flex justify-center mb-responsive-md sm:mb-responsive-lg">
+            <M2Logo size="lg" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="text-center text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-responsive-sm sm:mb-responsive-md">
             Войти в аккаунт
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="text-center text-sm sm:text-base text-gray-600">
             Или{' '}
             <a
               href="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
+              className="font-semibold text-primary-600 hover:text-primary-500 transition-colors"
             >
               зарегистрироваться
             </a>
           </p>
         </div>
 
-        <TeamsCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        <TeamsCard className="p-responsive-lg sm:p-responsive-xl shadow-xl">
+          <form className="space-y-responsive-md sm:space-y-responsive-lg" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              <div className="bg-error-50 border border-error-200 text-error-700 px-responsive-sm py-responsive-sm rounded-lg flex items-center">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
               <TeamsInput
                 id="email"
                 name="email"
@@ -131,13 +118,11 @@ export function LoginForm() {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Введите ваш email"
+                label="Email"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Пароль
-              </label>
               <TeamsInput
                 id="password"
                 name="password"
@@ -147,6 +132,7 @@ export function LoginForm() {
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Введите ваш пароль"
+                label="Пароль"
               />
             </div>
 
@@ -158,13 +144,13 @@ export function LoginForm() {
                   type="checkbox"
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Запомнить меня
                 </label>
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+                <a href="#" className="font-medium text-primary-600 hover:text-primary-500 transition-colors">
                   Забыли пароль?
                 </a>
               </div>
@@ -175,6 +161,7 @@ export function LoginForm() {
                 type="submit"
                 disabled={isLoading}
                 className="w-full"
+                size="lg"
               >
                 {isLoading ? 'Вход...' : 'Войти'}
               </TeamsButton>
