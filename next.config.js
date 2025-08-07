@@ -19,8 +19,23 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.vercel.app',
       },
+      {
+        protocol: 'https',
+        hostname: '**.reg.ru',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
     ],
-  }
+  },
+  // Настройки для продакшена
+  output: 'standalone',
+  generateEtags: false,
+  poweredByHeader: false,
+  // Оптимизация для VPS деплоя
+  distDir: '.next',
+  cleanDistDir: true,
 }
 
 module.exports = nextConfig
