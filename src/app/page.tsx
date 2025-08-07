@@ -20,7 +20,6 @@ import { PublicLayout } from '@/components/layout/PublicLayout'
 
 // Отключаем статическую генерацию
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 console.log('🏠 HomePage: Рендер, isAuthenticated:', false)
 
