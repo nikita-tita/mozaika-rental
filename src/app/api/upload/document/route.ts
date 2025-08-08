@@ -32,23 +32,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Проверяем тип файла - поддерживаем изображения и документы
-    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-    const allowedDocumentTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-    const allowedTypes = [...allowedImageTypes, ...allowedDocumentTypes]
+    // Проверяем тип файла - только документы
+    const allowedDocumentTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ]
     
-    if (!allowedTypes.includes(file.type)) {
+    if (!allowedDocumentTypes.includes(file.type)) {
       return NextResponse.json(
-        { success: false, error: 'Недопустимый тип файла. Разрешены: JPEG, PNG, WebP, PDF, DOC, DOCX' },
+        { success: false, error: 'Недопустимый тип файла. Разрешены: PDF, DOC, DOCX, XLS, XLSX' },
         { status: 400 }
       )
     }
 
-    // Проверяем размер файла (20MB для документов)
-    const maxSize = 20 * 1024 * 1024 // 20MB
+    // Проверяем размер файла (50MB для документов)
+    const maxSize = 50 * 1024 * 1024 // 50MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { success: false, error: 'Файл слишком большой. Максимальный размер: 20MB' },
+        { success: false, error: 'Файл слишком большой. Максимальный размер: 50MB' },
         { status: 400 }
       )
     }
@@ -60,15 +64,26 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now()
     const random = Math.random().toString(36).substring(2, 15)
     const extension = file.name.split('.').pop()
-    const filename = `${timestamp}-${random}.${extension}`
+    const filename = `doc_${timestamp}-${random}.${extension}`
 
-    // Сохраняем файл
-    const uploadDir = join(process.cwd(), 'public', 'uploads')
+    // Создаем папку для документов, если её нет
+    const uploadDir = join(process.cwd(), 'public', 'uploads', 'documents')
     const filePath = join(uploadDir, filename)
     
-    await writeFile(filePath, buffer)
+    try {
+      await writeFile(filePath, buffer)
+    } catch (error) {
+      // Если папка не существует, создаем её
+      const fs = require('fs')
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true })
+        await writeFile(filePath, buffer)
+      } else {
+        throw error
+      }
+    }
 
-    const fileUrl = `/uploads/${filename}`
+    const fileUrl = `/uploads/documents/${filename}`
 
     return NextResponse.json({
       success: true,
@@ -79,14 +94,14 @@ export async function POST(request: NextRequest) {
         size: file.size,
         type: file.type
       },
-      message: 'Файл успешно загружен'
+      message: 'Документ успешно загружен'
     })
 
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('Document upload error:', error)
     return NextResponse.json(
-      { success: false, error: 'Ошибка при загрузке файла' },
+      { success: false, error: 'Ошибка при загрузке документа' },
       { status: 500 }
     )
   }
-}
+} 

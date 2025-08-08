@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FileText, User, CheckCircle, Clock, AlertCircle, Download, Send, Eye, Lock } from 'lucide-react';
+import { FileText, User, CheckCircle, Clock, AlertCircle, Download, Send, Eye, Lock, Plus } from 'lucide-react';
 
 interface Document {
   id: string;
@@ -91,9 +91,28 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
   };
 
   // Загрузка файла
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Проверяем тип файла
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        alert('Недопустимый тип файла. Разрешены: PDF, DOC, DOCX');
+        return;
+      }
+      
+      // Проверяем размер файла (50MB)
+      const maxSize = 50 * 1024 * 1024;
+      if (file.size > maxSize) {
+        alert('Файл слишком большой. Максимальный размер: 50MB');
+        return;
+      }
+      
       setUploadedFile(file);
     }
   };
@@ -303,7 +322,19 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
 
               {/* Выбор подписантов */}
               <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4">2. Выберите подписантов</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium">2. Выберите подписантов</h3>
+                  <button
+                    onClick={() => {
+                      // Здесь можно открыть модальное окно для добавления нового подписанта
+                      alert('Для добавления нового подписанта используйте страницу "Клиенты" или выберите из существующих ниже');
+                    }}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Добавить нового
+                  </button>
+                </div>
                 
                 {/* Список выбранных подписантов */}
                 {selectedSigners.length > 0 && (
@@ -311,13 +342,13 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                     <h4 className="text-md font-medium mb-3">Выбранные подписанты:</h4>
                     <div className="space-y-2">
                       {selectedSigners.map((signer) => (
-                        <div key={signer.id} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                        <div key={signer.id} className="flex items-center justify-between bg-blue-900 border border-blue-700 rounded-lg p-3">
                           <div className="flex items-center gap-3">
-                            <User className="w-5 h-5 text-gray-400" />
+                            <User className="w-5 h-5 text-blue-300" />
                             <div>
-                              <p className="font-medium">{signer.name}</p>
-                              <p className="text-sm text-gray-400">{signer.phone}</p>
-                              <span className="inline-block px-2 py-1 bg-blue-500 text-xs rounded">
+                              <p className="font-medium text-white">{signer.name}</p>
+                              <p className="text-sm text-blue-200">{signer.phone}</p>
+                              <span className="inline-block px-2 py-1 bg-blue-600 text-white text-xs rounded">
                                 {signer.role === 'landlord' ? 'Арендодатель' :
                                  signer.role === 'tenant' ? 'Арендатор' :
                                  signer.role === 'realtor' ? 'Риелтор' : 'Свидетель'}
@@ -326,7 +357,7 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                           </div>
                           <button
                             onClick={() => removeSigner(signer.id)}
-                            className="text-red-400 hover:text-red-300"
+                            className="text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-red-900/20"
                           >
                             Удалить
                           </button>
@@ -339,17 +370,20 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                 {/* Добавление новых подписантов */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {availableClients.map((client) => (
-                    <div key={client.id} className="bg-gray-700 rounded-lg p-4">
+                    <div key={client.id} className="bg-gray-700 border border-gray-600 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div>
-                          <p className="font-medium">{client.firstName} {client.lastName}</p>
-                          <p className="text-sm text-gray-400">{client.phone}</p>
+                          <p className="font-medium text-white">{client.firstName} {client.lastName}</p>
+                          <p className="text-sm text-gray-300">{client.phone}</p>
+                          {client.email && (
+                            <p className="text-xs text-gray-400">{client.email}</p>
+                          )}
                         </div>
                         <div className="flex gap-2">
                           {client.type === 'LANDLORD' || client.type === 'BOTH' ? (
                             <button
                               onClick={() => addSigner(client, 'landlord')}
-                              className="px-3 py-1 bg-green-500 hover:bg-green-600 rounded text-xs"
+                              className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
                             >
                               Арендодатель
                             </button>
@@ -357,11 +391,23 @@ export default function DigitalSignature({ documents, onComplete, onBack }: Digi
                           {client.type === 'TENANT' || client.type === 'BOTH' ? (
                             <button
                               onClick={() => addSigner(client, 'tenant')}
-                              className="px-3 py-1 bg-blue-500 hover:bg-blue-600 rounded text-xs"
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
                             >
                               Арендатор
                             </button>
                           ) : null}
+                          <button
+                            onClick={() => addSigner(client, 'realtor')}
+                            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs transition-colors"
+                          >
+                            Риелтор
+                          </button>
+                          <button
+                            onClick={() => addSigner(client, 'witness')}
+                            className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs transition-colors"
+                          >
+                            Свидетель
+                          </button>
                         </div>
                       </div>
                     </div>

@@ -18,6 +18,18 @@ interface DashboardStats {
   completedDeals: number
   totalEarnings: number
   conversionRate: number
+  avgTimeToRent: number
+  statusDistribution: Array<{
+    status: string
+    count: number
+    percentage: number
+  }>
+  monthlyStats: Array<{
+    month: string
+    leads: number
+    deals: number
+    earnings: number
+  }>
 }
 
 export default function YandexRentalPage() {
@@ -26,7 +38,10 @@ export default function YandexRentalPage() {
     totalLeads: 0,
     completedDeals: 0,
     totalEarnings: 0,
-    conversionRate: 0
+    conversionRate: 0,
+    avgTimeToRent: 0,
+    statusDistribution: [],
+    monthlyStats: []
   })
 
   useEffect(() => {
@@ -38,12 +53,17 @@ export default function YandexRentalPage() {
       const response = await fetch('/api/yandex-rental/analytics?period=365')
       if (response.ok) {
         const data = await response.json()
-        setStats({
-          totalLeads: data.totalLeads || 0,
-          completedDeals: data.completedDeals || 0,
-          totalEarnings: data.totalEarnings || 0,
-          conversionRate: data.conversionRate || 0
-        })
+        if (data.success) {
+          setStats({
+            totalLeads: data.totalLeads || 0,
+            completedDeals: data.completedDeals || 0,
+            totalEarnings: data.totalEarnings || 0,
+            conversionRate: data.conversionRate || 0,
+            avgTimeToRent: data.avgTimeToRent || 0,
+            statusDistribution: data.statusDistribution || [],
+            monthlyStats: data.monthlyStats || []
+          })
+        }
       }
     } catch (error) {
       console.error('Ошибка при загрузке статистики:', error)
@@ -127,6 +147,41 @@ export default function YandexRentalPage() {
                 <p className="text-sm font-medium text-gray-500">Конверсия</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {stats.conversionRate.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+          </TeamsCard>
+        </div>
+
+        {/* Дополнительная статистика */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <TeamsCard className="p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-indigo-600" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Среднее время до сдачи</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.avgTimeToRent > 0 ? `${stats.avgTimeToRent} дн.` : 'Нет данных'}
+                </p>
+              </div>
+            </div>
+          </TeamsCard>
+
+          <TeamsCard className="p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-orange-600" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Активных лидов</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.statusDistribution.find(s => s.status === 'PUBLISHED')?.count || 0}
                 </p>
               </div>
             </div>

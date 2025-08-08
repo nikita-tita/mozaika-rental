@@ -8,8 +8,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Отключаем статическую генерацию для избежания проблем с роутером
-  output: 'standalone',
+  // Настройка для API маршрутов
+  // output: 'standalone',
   
   // Отключаем статическую генерацию страниц
   trailingSlash: false,

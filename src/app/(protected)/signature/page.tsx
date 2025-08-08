@@ -94,7 +94,7 @@ export default function SignaturePage() {
       const formData = new FormData()
       formData.append('file', selectedFile)
       
-      const uploadResponse = await fetch('/api/upload', {
+      const uploadResponse = await fetch('/api/upload/document', {
         method: 'POST',
         body: formData
       })

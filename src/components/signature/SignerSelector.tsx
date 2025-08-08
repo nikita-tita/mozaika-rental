@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsButton, TeamsBadge, TeamsInput, TeamsSelect, TeamsModal } from '@/components/ui/teams'
-import { User, Plus, X, Search } from 'lucide-react'
+import { User, Plus, X, Search, UserPlus } from 'lucide-react'
 
 interface Client {
   id: string
@@ -34,6 +34,14 @@ export default function SignerSelector({ isOpen, onClose, onConfirm, selectedSig
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedClients, setSelectedClients] = useState<SelectedSigner[]>(selectedSigners)
+  const [showNewSignerForm, setShowNewSignerForm] = useState(false)
+  const [newSigner, setNewSigner] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    role: 'tenant'
+  })
 
   const roleOptions = [
     { value: 'landlord', label: 'Арендодатель' },
@@ -89,6 +97,64 @@ export default function SignerSelector({ isOpen, onClose, onConfirm, selectedSig
     ))
   }
 
+  const handleAddNewSigner = async () => {
+    if (!newSigner.firstName || !newSigner.lastName || !newSigner.phone) {
+      alert('Пожалуйста, заполните обязательные поля: имя, фамилия и телефон')
+      return
+    }
+
+    try {
+      // Создаем нового клиента
+      const response = await fetch('/api/clients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          firstName: newSigner.firstName,
+          lastName: newSigner.lastName,
+          email: newSigner.email || undefined,
+          phone: newSigner.phone,
+          type: newSigner.role === 'landlord' ? 'LANDLORD' : 'TENANT'
+        })
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        // Добавляем нового подписанта
+        const newSignerData: SelectedSigner = {
+          id: data.data.id,
+          firstName: newSigner.firstName,
+          lastName: newSigner.lastName,
+          email: newSigner.email,
+          phone: newSigner.phone,
+          role: newSigner.role as 'landlord' | 'tenant' | 'realtor' | 'witness'
+        }
+        
+        setSelectedClients(prev => [...prev, newSignerData])
+        
+        // Обновляем список клиентов
+        await fetchClients()
+        
+        // Сбрасываем форму
+        setNewSigner({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          role: 'tenant'
+        })
+        setShowNewSignerForm(false)
+      } else {
+        alert('Ошибка при создании подписанта: ' + data.error)
+      }
+    } catch (error) {
+      console.error('Error creating new signer:', error)
+      alert('Ошибка при создании подписанта')
+    }
+  }
+
   const handleConfirm = () => {
     onConfirm(selectedClients)
     onClose()
@@ -137,6 +203,95 @@ export default function SignerSelector({ isOpen, onClose, onConfirm, selectedSig
             />
           </div>
         </div>
+
+        {/* Кнопка добавления нового подписанта */}
+        <div>
+          <TeamsButton
+            variant="outline"
+            onClick={() => setShowNewSignerForm(true)}
+            className="w-full"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Добавить нового подписанта
+          </TeamsButton>
+        </div>
+
+        {/* Форма добавления нового подписанта */}
+        {showNewSignerForm && (
+          <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+            <h4 className="font-medium text-gray-900">Новый подписант</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Имя *
+                </label>
+                <TeamsInput
+                  value={newSigner.firstName}
+                  onChange={(e) => setNewSigner(prev => ({ ...prev, firstName: e.target.value }))}
+                  placeholder="Имя"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Фамилия *
+                </label>
+                <TeamsInput
+                  value={newSigner.lastName}
+                  onChange={(e) => setNewSigner(prev => ({ ...prev, lastName: e.target.value }))}
+                  placeholder="Фамилия"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <TeamsInput
+                  type="email"
+                  value={newSigner.email}
+                  onChange={(e) => setNewSigner(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Телефон *
+                </label>
+                <TeamsInput
+                  value={newSigner.phone}
+                  onChange={(e) => setNewSigner(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+7 (999) 123-45-67"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Роль
+              </label>
+              <TeamsSelect
+                options={roleOptions}
+                value={newSigner.role}
+                onChange={(role) => {
+                  if (role) {
+                    setNewSigner(prev => ({ ...prev, role }))
+                  }
+                }}
+              />
+            </div>
+            <div className="flex gap-2">
+              <TeamsButton onClick={handleAddNewSigner}>
+                Добавить
+              </TeamsButton>
+              <TeamsButton
+                variant="outline"
+                onClick={() => setShowNewSignerForm(false)}
+              >
+                Отмена
+              </TeamsButton>
+            </div>
+          </div>
+        )}
 
         {/* Список клиентов */}
         <div>
@@ -188,13 +343,16 @@ export default function SignerSelector({ isOpen, onClose, onConfirm, selectedSig
           </h3>
           <div className="space-y-2">
             {selectedClients.map((signer) => (
-              <div key={signer.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div key={signer.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex-1">
-                  <div className="font-medium">
+                  <div className="font-medium text-gray-900">
                     {signer.firstName} {signer.lastName}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-600">
                     {signer.email && `${signer.email} • `}{signer.phone}
+                  </div>
+                  <div className="text-xs text-blue-600 font-medium">
+                    {getRoleText(signer.role)}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
