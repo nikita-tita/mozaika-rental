@@ -244,29 +244,29 @@ export default function PaymentsPage() {
 
         {/* Список платежей */}
         <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900">История платежей</h2>
+            <h2 className="text-xl font-semibold text-gray-900">История платежей</h2>
           
           {payments.map((payment) => (
-            <TeamsCard key={payment.id} className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
+              <TeamsCard key={payment.id} className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-1">{payment.property}</h3>
-                  <div className="text-sm text-gray-600 space-y-1">
+                    <div className="text-sm text-gray-600 space-y-1">
                     <div>Арендатор: {payment.tenant}</div>
                     <div>Тип: {paymentTypes.find(t => t.value === payment.type)?.label}</div>
                     <div>Дата: {payment.date}</div>
                   </div>
-                </div>
-                <div className="text-right ml-4">
-                  <div className="text-2xl font-bold text-gray-900 mb-2">
-                    {payment.amount.toLocaleString()} ₽
                   </div>
-                  {getStatusBadge(payment.status)}
+                  <div className="text-right ml-4">
+                    <div className="text-2xl font-bold text-gray-900 mb-2">
+                      {payment.amount.toLocaleString()} ₽
+                    </div>
+                    {getStatusBadge(payment.status)}
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <TeamsButton 
+                
+                                 <div className="flex gap-2">
+                   <TeamsButton
                   variant="outline" 
                   size="sm"
                   onClick={() => handleReminder(payment)}
@@ -275,23 +275,23 @@ export default function PaymentsPage() {
                   Напомнить
                 </TeamsButton>
                 <TeamsButton 
-                  variant="outline" 
-                  size="sm"
+                     variant="outline"
+                     size="sm"
                   onClick={() => handleCreateInvoice(payment)}
-                >
+                   >
                   <DollarSign className="w-4 h-4 mr-1" />
-                  Создать счет
-                </TeamsButton>
-                <TeamsButton 
-                  variant="outline" 
-                  size="sm"
+                     Создать счет
+                   </TeamsButton>
+                   <TeamsButton
+                     variant="outline"
+                     size="sm"
                   onClick={() => handleGenerateReport(payment)}
-                >
+                   >
                   <TrendingUp className="w-4 h-4 mr-1" />
                   Отчет
-                </TeamsButton>
-              </div>
-            </TeamsCard>
+                   </TeamsButton>
+                 </div>
+              </TeamsCard>
           ))}
         </div>
 
@@ -330,7 +330,7 @@ export default function PaymentsPage() {
         title="Создание счета"
         size="lg"
       >
-        {selectedPayment && (
+      {selectedPayment && (
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-semibold text-lg mb-3">Детали счета</h3>
