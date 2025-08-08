@@ -29,6 +29,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
+  const isAuthPath = pathname === '/login' || pathname === '/register'
+
   const checkAuth = async () => {
     try {
       const response = await fetch('/api/auth/me', {
@@ -79,31 +81,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Проверяем авторизацию при загрузке
+  // Проверяем авторизацию при загрузке (кроме страниц логина/регистрации)
   useEffect(() => {
-    checkAuth()
+    if (!isAuthPath) {
+      checkAuth()
+    } else {
+      // На auth-страницах не блокируем загрузку UI
+      setLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Проверяем авторизацию при изменении маршрута
   useEffect(() => {
     if (!loading) {
-      // Если пользователь авторизован и находится на страницах авторизации
-      if (user && (pathname === '/login' || pathname === '/register')) {
+      if (user && isAuthPath) {
         console.log('🔄 Авторизованный пользователь на странице входа, перенаправляем на home')
         window.location.href = '/home'
-      }
-      // Если пользователь авторизован и находится на главной странице
-      else if (user && pathname === '/') {
+      } else if (user && pathname === '/') {
         console.log('🔄 Авторизованный пользователь на главной странице, перенаправляем на home')
         window.location.href = '/home'
-      }
-      // Если пользователь не авторизован и находится на защищенной странице
-      else if (!user && pathname !== '/login' && pathname !== '/register' && pathname !== '/') {
+      } else if (!user && !isAuthPath && pathname !== '/') {
         console.log('🛡️ Попытка доступа к защищенной странице без авторизации')
         router.push('/login')
       }
     }
-  }, [user, loading, pathname, router])
+  }, [user, loading, pathname, router, isAuthPath])
 
   const value = {
     user,
