@@ -361,7 +361,7 @@ ${deal.landlord.firstName} ${deal.landlord.lastName}                    ${deal.t
                 <TeamsButton
                   type="button"
                   variant="outline"
-                  size="small"
+                  size="sm"
                   onClick={() => setShowCreateDealForm(true)}
                   className="flex items-center"
                 >

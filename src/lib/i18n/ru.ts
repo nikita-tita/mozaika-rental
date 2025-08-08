@@ -297,7 +297,7 @@ export default {
     cancel: 'Отменить',
     save: 'Сохранить',
     contractText: 'Текст договора...',
-    contractTitle: 'Содержание договора',
+    contractContent: 'Содержание договора',
   },
 
   // Бронирования
