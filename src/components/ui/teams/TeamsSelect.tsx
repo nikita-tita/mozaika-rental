@@ -108,11 +108,11 @@ export const TeamsSelect: React.FC<TeamsSelectProps> = ({
               key={option.value}
               type="button"
               className={cn(
-                'w-full px-4 py-2 text-left text-sm transition-colors text-[#323130]',
+                'w-full px-4 py-2 text-left text-sm transition-colors text-gray-900',
                 option.disabled 
-                  ? 'text-[#605e5c] cursor-not-allowed' 
-                  : 'hover:bg-[#f3f2f1] cursor-pointer',
-                option.value === selectedOption?.value && 'bg-[#deecf9] text-[#0078d4] font-medium'
+                  ? 'text-gray-400 cursor-not-allowed' 
+                  : 'hover:bg-gray-100 cursor-pointer',
+                option.value === selectedOption?.value && 'bg-blue-50 text-blue-700 font-medium'
               )}
               onClick={() => handleSelect(option)}
               disabled={option.disabled}

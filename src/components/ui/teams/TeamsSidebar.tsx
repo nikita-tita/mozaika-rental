@@ -131,8 +131,8 @@ export function TeamsSidebar() {
                 href={item.href}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-[#deecf9] text-[#0078d4]'
-                    : 'text-[#605e5c] hover:bg-[#f3f2f1] hover:text-[#323130]'
+                    ? 'bg-primary-100 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
                 <Icon className="w-5 h-5 mr-3" />
@@ -155,21 +155,21 @@ export function TeamsSidebar() {
         {!isCollapsed && user && (
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center space-x-3 mb-3">
-              <div className="w-8 h-8 bg-[#0078d4] rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-medium text-sm">
                   {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#323130] truncate">
+                <p className="text-sm font-medium text-gray-900 truncate">
                   {user.firstName} {user.lastName}
                 </p>
-                <p className="text-xs text-[#605e5c] truncate">{user.email}</p>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-[#605e5c] rounded-md hover:bg-[#f3f2f1] hover:text-[#323130] transition-colors"
+              className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors"
             >
               <LogOut className="w-4 h-4 mr-3" />
               Выйти
