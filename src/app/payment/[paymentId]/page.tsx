@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsButton, TeamsInput, TeamsBadge } from '@/components/ui/teams'
-import { CreditCard, QrCode, CheckCircle, AlertCircle, Home, Calendar, DollarSign } from 'lucide-react'
+import { CreditCard, QrCode, CheckCircle, AlertCircle, Home, Calendar, Banknote } from 'lucide-react'
 
 interface PaymentPageProps {
   params: {
@@ -334,7 +334,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                   </>
                 ) : (
                   <>
-                    <DollarSign className="w-4 h-4 mr-2" />
+                    <Banknote className="w-4 h-4 mr-2" />
                     {payment.status === 'PAID' ? 'Уже оплачен' : `Оплатить ${payment.amount.toLocaleString()} ₽`}
                   </>
                 )}

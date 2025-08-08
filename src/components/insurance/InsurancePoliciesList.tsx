@@ -8,7 +8,7 @@ import {
   FileText, 
   CreditCard,
   Calendar,
-  DollarSign,
+  Banknote,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -275,7 +275,7 @@ export default function InsurancePoliciesList({
 
         <TeamsCard className="p-4">
           <div className="flex items-center">
-            <DollarSign className="w-8 h-8 text-purple-600 mr-3" />
+            <Banknote className="w-8 h-8 text-purple-600 mr-3" />
             <div>
               <div className="text-2xl font-bold text-gray-900">
                 {formatCurrency(policies.reduce((sum, p) => sum + p.premium, 0))}

@@ -12,7 +12,7 @@ import {
   ArrowRight,
   Star,
   Clock,
-  DollarSign,
+  Banknote,
   Phone,
   Calculator,
   Plus,
@@ -103,7 +103,7 @@ const benefits = [
     description: 'Оформление полиса за 15 минут онлайн'
   },
   {
-    icon: DollarSign,
+    icon: Banknote,
     title: 'Доступные цены',
     description: 'Конкурентные тарифы от ведущих страховщиков'
   },
@@ -247,7 +247,7 @@ export default function InsurancePage() {
                         </p>
                         <div className="flex items-center space-x-4 text-sm">
                           <div className="flex items-center text-green-600">
-                            <DollarSign className="w-4 h-4 mr-1" />
+                            <Banknote className="w-4 h-4 mr-1" />
                             {type.price}
                           </div>
                           <div className="flex items-center text-blue-600">

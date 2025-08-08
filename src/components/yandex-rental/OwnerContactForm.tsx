@@ -6,7 +6,7 @@ import {
   Phone, 
   Mail, 
   MapPin, 
-  DollarSign, 
+  Banknote, 
   Calendar,
   Send,
   CheckCircle
@@ -175,7 +175,7 @@ export default function OwnerContactForm({ onSuccess }: OwnerContactFormProps) {
             placeholder="50000"
             value={formData.rentAmount}
             onChange={(e) => handleChange('rentAmount', e.target.value)}
-            icon={<DollarSign className="w-4 h-4" />}
+            icon={<Banknote className="w-4 h-4" />}
             required
           />
         </div>

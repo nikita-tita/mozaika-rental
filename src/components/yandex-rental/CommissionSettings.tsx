@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { 
-  DollarSign, 
+  Banknote, 
   Calculator, 
   Settings, 
   Save,

@@ -44,6 +44,7 @@ export class PaymentUtils {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,
+      currencyDisplay: 'symbol'
     }).format(amount)
   }
 

@@ -11,7 +11,7 @@ import {
   TeamsAlert
 } from '@/components/ui/teams'
 import { DatePicker } from '@/components/ui/DatePicker'
-import { FileText, Building, Users, Calendar, DollarSign, CheckCircle, Plus } from 'lucide-react'
+import { FileText, Building, Users, Calendar, Banknote, CheckCircle, Plus } from 'lucide-react'
 import CreateDealForm from '@/components/deals/CreateDealForm'
 
 interface Deal {
@@ -426,7 +426,7 @@ ${deal.landlord.firstName} ${deal.landlord.lastName}                    ${deal.t
           {/* Финансовые условия */}
           <div>
             <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
-              <DollarSign className="w-5 h-5 mr-2" />
+              <Banknote className="w-5 h-5 mr-2" />
               Финансовые условия
             </h3>
             

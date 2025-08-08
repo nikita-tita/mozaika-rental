@@ -5,13 +5,10 @@ import { CreatePropertySchema } from '@/lib/validations'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import { ApiErrorHandler, withApiErrorHandling, generateRequestId } from '@/lib/api-error-handler'
 import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
-  const requestId = generateRequestId()
-  
-  return ApiErrorHandler.withErrorHandling(async () => {
+  try {
     // Получаем токен из заголовка Authorization или cookie
     const authHeader = request.headers.get('authorization')
     let token = null
@@ -23,15 +20,23 @@ export async function GET(request: NextRequest) {
     }
     
     if (!token) {
-      throw new Error('Unauthorized: No token provided')
+      return NextResponse.json({ 
+        success: false, 
+        error: "Не авторизован",
+        code: "UNAUTHORIZED"
+      }, { status: 401 })
     }
 
     const user = verifyJWTToken(token)
     if (!user) {
-      throw new Error('Unauthorized: Invalid token')
+      return NextResponse.json({ 
+        success: false, 
+        error: "Недействительный токен",
+        code: "UNAUTHORIZED"
+      }, { status: 401 })
     }
 
-    logger.info('Fetching properties for user', { userId: user.userId }, user.userId, requestId)
+    logger.info('Fetching properties for user', { userId: user.userId })
 
     const properties = await prisma.property.findMany({
       where: {
@@ -42,24 +47,24 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    logger.info('Properties fetched successfully', { count: properties.length }, user.userId, requestId)
+    logger.info('Properties fetched successfully', { count: properties.length })
 
     return NextResponse.json({
       success: true,
       data: properties
     })
-  }, {
-    method: 'GET',
-    path: '/api/properties',
-    userId: undefined,
-    requestId
-  })
+  } catch (error) {
+    console.error('Error fetching properties:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: "Внутренняя ошибка сервера",
+      code: "INTERNAL_ERROR"
+    }, { status: 500 })
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const requestId = generateRequestId()
-  
-  return ApiErrorHandler.withErrorHandling(async () => {
+  try {
     // Получаем токен из заголовка Authorization или cookie
     const authHeader = request.headers.get('authorization')
     let token = null
@@ -71,15 +76,23 @@ export async function POST(request: NextRequest) {
     }
     
     if (!token) {
-      throw new Error('Unauthorized: No token provided')
+      return NextResponse.json({ 
+        success: false, 
+        error: "Не авторизован",
+        code: "UNAUTHORIZED"
+      }, { status: 401 })
     }
 
     const user = verifyJWTToken(token)
     if (!user) {
-      throw new Error('Unauthorized: Invalid token')
+      return NextResponse.json({ 
+        success: false, 
+        error: "Недействительный токен",
+        code: "UNAUTHORIZED"
+      }, { status: 401 })
     }
 
-    logger.info('Creating property for user', { userId: user.userId }, user.userId, requestId)
+    logger.info('Creating property for user', { userId: user.userId })
 
     // Проверяем, что пользователь существует в базе данных
     const existingUser = await prisma.user.findUnique({
@@ -87,7 +100,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!existingUser) {
-      throw new Error(`User not found: ${user.userId}`)
+      return NextResponse.json({ 
+        success: false, 
+        error: `Пользователь не найден: ${user.userId}`,
+        code: "USER_NOT_FOUND"
+      }, { status: 404 })
     }
 
     // Проверяем Content-Type для определения типа данных
@@ -123,117 +140,118 @@ export async function POST(request: NextRequest) {
 
     console.log('Полученные данные формы:', formData)
     
-    try {
-      const validationResult = CreatePropertySchema.safeParse(formData)
+    const validationResult = CreatePropertySchema.safeParse(formData)
 
-      if (!validationResult.success) {
-        const errors = validationResult.error.errors?.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') || 'Неизвестная ошибка валидации'
-        logger.warn('Property validation failed', { errors: validationResult.error.errors }, user.userId, requestId)
-        throw new Error(`Validation error: ${errors}`)
-      }
-
-      const validatedData = validationResult.data
-      logger.info('Property data validated successfully', { propertyData: validatedData }, user.userId, requestId)
-
-      // Создаем объект недвижимости
-      const property = await prisma.property.create({
-        data: {
-          title: validatedData.title,
-          description: validatedData.description || '',
-          type: validatedData.type,
-          address: validatedData.address,
-          price: validatedData.pricePerMonth, // Используем pricePerMonth как price
-          bedrooms: validatedData.bedrooms || null,
-          bathrooms: validatedData.bathrooms || null,
-          area: validatedData.area || null,
-          features: validatedData.features || [],
-          images: [], // Пока оставляем пустым, добавим после обработки изображений
-          user: {
-            connect: {
-              id: existingUser.id
-            }
-          }
-        }
-      })
-
-      logger.info('Property created successfully', { propertyId: property.id }, user.userId, requestId)
-
-      // Обрабатываем загрузку изображений
-      const imageUrls: string[] = []
-      if (images.length > 0) {
-        // Создаем директорию для загрузок, если её нет
-        const uploadDir = join(process.cwd(), 'public', 'uploads')
-        if (!existsSync(uploadDir)) {
-          await mkdir(uploadDir, { recursive: true })
-        }
-
-        const imagePromises = images.map(async (image, index) => {
-          try {
-            // Проверяем тип файла
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-            if (!allowedTypes.includes(image.type)) {
-              throw new Error(`Недопустимый тип файла: ${image.type}`)
-            }
-
-            // Проверяем размер файла (10MB)
-            const maxSize = 10 * 1024 * 1024 // 10MB
-            if (image.size > maxSize) {
-              throw new Error('Файл слишком большой. Максимальный размер: 10MB')
-            }
-
-            const bytes = await image.arrayBuffer()
-            const buffer = Buffer.from(bytes)
-
-            // Генерируем уникальное имя файла
-            const timestamp = Date.now()
-            const random = Math.random().toString(36).substring(2, 15)
-            const extension = image.name.split('.').pop()
-            const filename = `${timestamp}-${random}.${extension}`
-
-            // Сохраняем файл
-            const filePath = join(uploadDir, filename)
-            await writeFile(filePath, buffer)
-
-            const fileUrl = `/uploads/${filename}`
-            imageUrls.push(fileUrl)
-
-            console.log(`Изображение ${index + 1} сохранено:`, fileUrl)
-          } catch (error) {
-            console.error(`Ошибка сохранения изображения ${image.name}:`, error)
-            throw error
-          }
-        })
-
-        await Promise.all(imagePromises)
-
-        // Обновляем объект с URL изображений
-        if (imageUrls.length > 0) {
-          await prisma.property.update({
-            where: { id: property.id },
-            data: { images: imageUrls }
-          })
-          logger.info('Property images updated', { imageCount: imageUrls.length }, user.userId, requestId)
-        }
-      }
-
-      logger.info('Property creation completed successfully', { propertyId: property.id, imageCount: imageUrls.length }, user.userId, requestId)
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...property,
-          images: imageUrls
-        }
-      })
-
-    } catch (error) {
-      logger.error('Property creation failed', { error: error instanceof Error ? error.message : error }, user.userId, requestId)
-      throw error
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors?.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') || 'Неизвестная ошибка валидации'
+      logger.warn('Property validation failed', { errors: validationResult.error.errors })
+      return NextResponse.json({ 
+        success: false, 
+        error: `Ошибка валидации: ${errors}`,
+        code: "VALIDATION_ERROR"
+      }, { status: 400 })
     }
-  }, {
-    method: 'POST',
-    path: '/api/properties',
-    userId: undefined,
-    requestId
-  })
+
+    const validatedData = validationResult.data
+    logger.info('Property data validated successfully', { propertyData: validatedData })
+
+    // Создаем объект недвижимости
+    const property = await prisma.property.create({
+      data: {
+        title: validatedData.title,
+        description: validatedData.description || '',
+        type: validatedData.type,
+        address: validatedData.address,
+        price: validatedData.pricePerMonth, // Используем pricePerMonth как price
+        bedrooms: validatedData.bedrooms || null,
+        bathrooms: validatedData.bathrooms || null,
+        area: validatedData.area || null,
+        features: validatedData.features || [],
+        images: [], // Пока оставляем пустым, добавим после обработки изображений
+        user: {
+          connect: {
+            id: existingUser.id
+          }
+        }
+      }
+    })
+
+    logger.info('Property created successfully', { propertyId: property.id })
+
+    // Обрабатываем загрузку изображений
+    const imageUrls: string[] = []
+    if (images.length > 0) {
+      // Создаем директорию для загрузок, если её нет
+      const uploadDir = join(process.cwd(), 'public', 'uploads')
+      if (!existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const imagePromises = images.map(async (image, index) => {
+        try {
+          // Проверяем тип файла
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+          if (!allowedTypes.includes(image.type)) {
+            throw new Error(`Недопустимый тип файла: ${image.type}`)
+          }
+
+          // Проверяем размер файла (10MB)
+          const maxSize = 10 * 1024 * 1024 // 10MB
+          if (image.size > maxSize) {
+            throw new Error('Файл слишком большой. Максимальный размер: 10MB')
+          }
+
+          const bytes = await image.arrayBuffer()
+          const buffer = Buffer.from(bytes)
+
+          // Генерируем уникальное имя файла
+          const timestamp = Date.now()
+          const random = Math.random().toString(36).substring(2, 15)
+          const extension = image.name.split('.').pop()
+          const filename = `${timestamp}-${random}.${extension}`
+
+          // Сохраняем файл
+          const filePath = join(uploadDir, filename)
+          await writeFile(filePath, buffer)
+
+          const fileUrl = `/uploads/${filename}`
+          imageUrls.push(fileUrl)
+
+          console.log(`Изображение ${index + 1} сохранено:`, fileUrl)
+        } catch (error) {
+          console.error(`Ошибка сохранения изображения ${image.name}:`, error)
+          throw error
+        }
+      })
+
+      await Promise.all(imagePromises)
+
+      // Обновляем объект с URL изображений
+      if (imageUrls.length > 0) {
+        await prisma.property.update({
+          where: { id: property.id },
+          data: { images: imageUrls }
+        })
+        logger.info('Property images updated', { imageCount: imageUrls.length })
+      }
+    }
+
+    logger.info('Property creation completed successfully', { propertyId: property.id, imageCount: imageUrls.length })
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...property,
+        images: imageUrls
+      }
+    })
+
+  } catch (error) {
+    console.error('Error creating property:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: "Внутренняя ошибка сервера",
+      code: "INTERNAL_ERROR"
+    }, { status: 500 })
+  }
 }

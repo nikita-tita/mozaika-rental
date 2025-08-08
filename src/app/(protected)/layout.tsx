@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import { TeamsHeader, TeamsSidebar } from '@/components/ui/teams'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
@@ -6,12 +9,25 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const handleMobileMenuOpen = () => {
+    setMobileMenuOpen(true)
+  }
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuOpen(false)
+  }
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen flex flex-col bg-[#faf9f8]">
-        <TeamsHeader />
+        <TeamsHeader onMobileMenuOpen={handleMobileMenuOpen} />
         <div className="flex flex-1">
-          <TeamsSidebar />
+          <TeamsSidebar 
+            isMobileOpen={mobileMenuOpen}
+            onMobileClose={handleMobileMenuClose}
+          />
           <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-[#faf9f8]">
             {children}
           </main>

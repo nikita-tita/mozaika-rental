@@ -3,7 +3,7 @@
 import { 
   TrendingUp, 
   Clock, 
-  DollarSign, 
+  Banknote, 
   Users, 
   Shield, 
   Zap, 

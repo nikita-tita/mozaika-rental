@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { TeamsCard, TeamsButton, TeamsBadge, TeamsSelect } from '@/components/ui/teams'
-import { TrendingUp, BarChart3, PieChart, Calendar, DollarSign, Home, Users } from 'lucide-react'
+import { TrendingUp, BarChart3, PieChart, Calendar, Banknote, Home, Users } from 'lucide-react'
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState('month')
@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
                   {mockData.totalIncome.toLocaleString()} ₽
                 </p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-600" />
+              <Banknote className="w-8 h-8 text-green-600" />
             </div>
             <div className="mt-2 flex items-center text-sm">
               <TrendingUp className="w-4 h-4 text-green-600 mr-1" />
@@ -223,7 +223,7 @@ export default function AnalyticsPage() {
           </TeamsCard>
 
           <TeamsCard className="p-6 text-center">
-            <DollarSign className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
+            <Banknote className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Налоговая отчетность</h3>
             <p className="text-gray-600 mb-4">Отчеты для налоговой инспекции</p>
             <TeamsButton variant="outline" size="sm">

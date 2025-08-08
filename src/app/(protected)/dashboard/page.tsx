@@ -23,7 +23,7 @@ import {
   Target,
   BarChart3,
   Clock,
-  DollarSign
+  Banknote
 } from 'lucide-react'
 import { TeamsCard, TeamsButton, TeamsBadge } from '@/components/ui/teams'
 import { useApp } from '@/components/providers/AppProvider'
@@ -293,7 +293,7 @@ export default function DashboardPage() {
             <TeamsCard>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <DollarSign className="h-8 w-8 text-[#ca5010]" />
+                  <Banknote className="h-8 w-8 text-[#ca5010]" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-[#605e5c]">Доход</p>

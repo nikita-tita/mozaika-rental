@@ -5,7 +5,7 @@ import {
   BarChart3, 
   TrendingUp, 
   Users, 
-  DollarSign, 
+  Banknote, 
   Clock, 
   Calendar,
   Filter,
@@ -163,7 +163,7 @@ export default function Analytics() {
 
         <TeamsCard className="p-6 text-center">
           <div className="flex justify-center mb-3">
-            <DollarSign className="w-8 h-8 text-yellow-600" />
+            <Banknote className="w-8 h-8 text-yellow-600" />
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-1">
             {data.totalEarnings.toLocaleString()} ₽

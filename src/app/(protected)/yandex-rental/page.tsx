@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { 
   Plus,
   Users,
-  DollarSign,
+  Banknote,
   CheckCircle,
   TrendingUp,
   RefreshCw
@@ -124,7 +124,7 @@ export default function YandexRentalPage() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-yellow-600" />
+                  <Banknote className="h-5 w-5 text-yellow-600" />
                 </div>
               </div>
               <div className="ml-4">

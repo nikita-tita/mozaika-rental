@@ -6,12 +6,14 @@ import { useRouter } from 'next/navigation'
 import { TeamsButton, TeamsBadge } from '@/components/ui/teams'
 import { Building2, Bell, User, Menu, LogOut } from 'lucide-react'
 import { useApp } from '@/components/providers/AppProvider'
-import { MobileMenu } from './MobileMenu'
 
-export default function TeamsHeader() {
+interface TeamsHeaderProps {
+  onMobileMenuOpen?: () => void
+}
+
+export default function TeamsHeader({ onMobileMenuOpen }: TeamsHeaderProps) {
   const { isAuthenticated, user, logout } = useApp()
   const router = useRouter()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -21,8 +23,13 @@ export default function TeamsHeader() {
     <header className="bg-white border-b border-[#e1dfdd] shadow-sm">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex justify-between items-center h-14 sm:h-16">
-          {/* Left side - пустое место для баланса */}
-          <div className="flex-1"></div>
+          {/* Left side - название */}
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-[#0078d4] rounded-lg flex items-center justify-center mr-3">
+              <span className="text-white font-bold text-lg">M²</span>
+            </div>
+            <span className="hidden sm:block text-lg sm:text-xl font-bold text-[#323130]">Метр квадратный</span>
+          </div>
 
           {/* Right side */}
           <div className="flex items-center space-x-3 sm:space-x-4 lg:space-x-6">
@@ -56,15 +63,6 @@ export default function TeamsHeader() {
                   <LogOut className="w-4 h-4 mr-2" />
                   Выйти
                 </TeamsButton>
-                {/* Мобильная кнопка выхода */}
-                <TeamsButton 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleLogout}
-                  className="lg:hidden p-2 text-[#323130] hover:text-[#323130] hover:bg-[#f3f2f1]"
-                >
-                  <LogOut className="w-4 h-4" />
-                </TeamsButton>
               </div>
             ) : (
               <div className="flex items-center space-x-2 sm:space-x-3">
@@ -83,20 +81,14 @@ export default function TeamsHeader() {
 
             {/* Mobile menu button */}
             <button 
-              className="md:hidden p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 transition-colors"
-              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              onClick={onMobileMenuOpen}
             >
               <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      <MobileMenu 
-        isOpen={mobileMenuOpen} 
-        onClose={() => setMobileMenuOpen(false)} 
-      />
     </header>
   )
 } 

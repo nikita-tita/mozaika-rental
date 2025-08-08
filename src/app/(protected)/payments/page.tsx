@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsButton, TeamsBadge, TeamsInput, TeamsSelect, TeamsModal } from '@/components/ui/teams'
-import { CreditCard, TrendingUp, Calendar, Calculator, DollarSign, AlertCircle, FileText, Send, Plus, RefreshCw, Bell } from 'lucide-react'
+import { CreditCard, TrendingUp, Calendar, Calculator, Banknote, AlertCircle, FileText, Send, Plus, RefreshCw, Bell } from 'lucide-react'
 import PaymentControl from '@/components/payments/PaymentControl'
 import InvoiceCreator from '@/components/payments/InvoiceCreator'
 import GeneratePaymentsForm from '@/components/payments/GeneratePaymentsForm'
 import ReminderStatus from '@/components/payments/ReminderStatus'
+import { formatPriceWithSymbol } from '@/lib/utils'
 
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<any[]>([])
@@ -152,19 +153,19 @@ export default function PaymentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <TeamsCard className="p-6 text-center">
             <div className="text-3xl font-bold text-green-600 mb-2">
-              {totalIncome.toLocaleString()} ₽
+              {formatPriceWithSymbol(totalIncome)}
             </div>
             <div className="text-gray-600">Общий доход</div>
           </TeamsCard>
           <TeamsCard className="p-6 text-center">
             <div className="text-3xl font-bold text-yellow-600 mb-2">
-              {pendingPayments.toLocaleString()} ₽
+              {formatPriceWithSymbol(pendingPayments)}
             </div>
             <div className="text-gray-600">Ожидает оплаты</div>
           </TeamsCard>
           <TeamsCard className="p-6 text-center">
             <div className="text-3xl font-bold text-red-600 mb-2">
-              {overduePayments.toLocaleString()} ₽
+              {formatPriceWithSymbol(overduePayments)}
             </div>
             <div className="text-gray-600">Просроченные платежи</div>
           </TeamsCard>
@@ -285,7 +286,7 @@ export default function PaymentsPage() {
                   </div>
                   <div className="text-right ml-4">
                     <div className="text-2xl font-bold text-gray-900 mb-2">
-                      {payment.amount.toLocaleString()} ₽
+                      {formatPriceWithSymbol(payment.amount)}
                     </div>
                     {getStatusBadge(payment.status)}
                   </div>

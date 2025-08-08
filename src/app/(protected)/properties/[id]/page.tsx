@@ -18,7 +18,7 @@ import {
   Phone,
   Mail,
   FileText,
-  DollarSign,
+  Banknote,
   TrendingUp,
   History,
   Copy,
@@ -357,7 +357,7 @@ export default function PropertyDetailsPage() {
                     <span className="text-gray-600">{property.address}</span>
                   </div>
                   <div className="flex items-center">
-                    <DollarSign className="h-5 w-5 text-gray-400 mr-3" />
+                    <Banknote className="h-5 w-5 text-gray-400 mr-3" />
                     <span className="text-gray-600">{formatPrice(property.pricePerMonth)}/мес</span>
                   </div>
                   <div className="flex items-center">

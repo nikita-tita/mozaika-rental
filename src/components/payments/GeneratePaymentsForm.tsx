@@ -7,7 +7,7 @@ import {
   TeamsModal,
   TeamsAlert
 } from '@/components/ui/teams'
-import { DollarSign, Calendar, FileText } from 'lucide-react'
+import { Banknote, Calendar, FileText } from 'lucide-react'
 
 interface Deal {
   id: string
@@ -223,7 +223,7 @@ export default function GeneratePaymentsForm({
         {selectedDeal && (
           <div>
             <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
-              <DollarSign className="w-5 h-5 mr-2" />
+              <Banknote className="w-5 h-5 mr-2" />
               Информация для генерации
             </h3>
             

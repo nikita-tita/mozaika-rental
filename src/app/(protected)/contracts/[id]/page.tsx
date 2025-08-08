@@ -21,7 +21,7 @@ import {
   Download,
   User,
   MapPin,
-  DollarSign
+  Banknote
 } from 'lucide-react'
 import { ContractWithDetails } from '@/types'
 import { formatPrice, formatDate } from '@/lib/utils'
@@ -316,7 +316,7 @@ export default function ContractDetailPage() {
 
               <div>
                 <div className="flex items-center mb-2">
-                  <DollarSign className="h-4 w-4 text-gray-400 mr-2" />
+                  <Banknote className="h-4 w-4 text-gray-400 mr-2" />
                   <h3 className="font-medium text-gray-900">Арендная плата</h3>
                 </div>
                 {editing ? (
@@ -335,7 +335,7 @@ export default function ContractDetailPage() {
 
               <div>
                 <div className="flex items-center mb-2">
-                  <DollarSign className="h-4 w-4 text-gray-400 mr-2" />
+                  <Banknote className="h-4 w-4 text-gray-400 mr-2" />
                   <h3 className="font-medium text-gray-900">Залог</h3>
                 </div>
                 {editing ? (

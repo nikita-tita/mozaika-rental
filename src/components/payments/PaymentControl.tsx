@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsButton, TeamsInput, TeamsSelect, TeamsModal, TeamsBadge } from '@/components/ui/teams'
-import { Bell, CreditCard, QrCode, Link, Settings, Calendar, DollarSign, Send, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { Bell, CreditCard, QrCode, Link, Settings, Calendar, Banknote, Send, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 
 interface PaymentReminder {
   id: string

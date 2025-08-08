@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsInput, TeamsButton, TeamsBadge } from '@/components/ui/teams'
-import { Calculator, DollarSign, Home, Zap, Shield, AlertCircle } from 'lucide-react'
+import { Calculator, Banknote, Home, Zap, Shield, AlertCircle } from 'lucide-react'
+import { formatPriceWithSymbol } from '@/lib/utils'
 
 interface PaymentCalculatorProps {
   initialData?: {
@@ -257,27 +258,27 @@ export default function PaymentCalculator({
         <div className="flex items-center justify-between mb-2">
           <span className="text-lg font-semibold text-gray-900">Итого к оплате:</span>
           <span className="text-2xl font-bold text-blue-600">
-            {totalAmount.toLocaleString()} ₽
+            {formatPriceWithSymbol(totalAmount)}
           </span>
         </div>
         
         <div className="text-sm text-gray-600 space-y-1">
           <div className="flex justify-between">
             <span>Аренда:</span>
-            <span>{(parseFloat(calculatorData.rentAmount) || 0).toLocaleString()} ₽</span>
+            <span>{formatPriceWithSymbol(parseFloat(calculatorData.rentAmount) || 0)}</span>
           </div>
           <div className="flex justify-between">
             <span>Коммунальные:</span>
-            <span>{(parseFloat(calculatorData.utilitiesAmount) || 0).toLocaleString()} ₽</span>
+            <span>{formatPriceWithSymbol(parseFloat(calculatorData.utilitiesAmount) || 0)}</span>
           </div>
           <div className="flex justify-between">
             <span>Депозит:</span>
-            <span>{(parseFloat(calculatorData.depositAmount) || 0).toLocaleString()} ₽</span>
+            <span>{formatPriceWithSymbol(parseFloat(calculatorData.depositAmount) || 0)}</span>
           </div>
           {(parseFloat(calculatorData.penaltyAmount) || 0) > 0 && (
             <div className="flex justify-between">
               <span>Штрафы:</span>
-              <span>{(parseFloat(calculatorData.penaltyAmount) || 0).toLocaleString()} ₽</span>
+              <span>{formatPriceWithSymbol(parseFloat(calculatorData.penaltyAmount) || 0)}</span>
             </div>
           )}
         </div>
@@ -287,7 +288,7 @@ export default function PaymentCalculator({
       {isEditing && (
         <div className="mt-6 flex gap-3">
           <TeamsButton onClick={handleSave} className="flex-1">
-            <DollarSign className="w-4 h-4 mr-2" />
+            <Banknote className="w-4 h-4 mr-2" />
             Сохранить расчет
           </TeamsButton>
           <TeamsButton onClick={handleCancel} variant="outline">

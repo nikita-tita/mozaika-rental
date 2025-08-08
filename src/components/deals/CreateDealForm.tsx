@@ -11,7 +11,7 @@ import {
   TeamsAlert
 } from '@/components/ui/teams'
 import { DatePicker } from '@/components/ui/DatePicker'
-import { Plus, Building, Users, Calendar, DollarSign, Clock, Lock } from 'lucide-react'
+import { Plus, Building, Users, Calendar, Banknote, Clock, Lock } from 'lucide-react'
 
 interface Property {
   id: string
@@ -396,7 +396,7 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
         {/* Финансовые условия */}
         <div>
           <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
-            <DollarSign className="w-5 h-5 mr-2" />
+            <Banknote className="w-5 h-5 mr-2" />
             Финансовые условия
           </h3>
           

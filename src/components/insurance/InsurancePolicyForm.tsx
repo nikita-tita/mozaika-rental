@@ -9,7 +9,7 @@ import {
   CreditCard,
   Calculator,
   Calendar,
-  DollarSign,
+  Banknote,
   AlertCircle
 } from 'lucide-react'
 import { 

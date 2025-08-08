@@ -13,7 +13,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Calendar,
-  DollarSign,
+  Banknote,
   Filter,
   Search,
   RefreshCw
