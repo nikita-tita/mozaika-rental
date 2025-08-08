@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyJWTToken } from '@/lib/auth'
 
 // Защищенные маршруты
 const protectedPaths = [
@@ -48,41 +47,22 @@ export async function middleware(request: NextRequest) {
   )
 
   // Если это защищенный маршрут
-  if (isProtectedPath) {
-    // Если нет токена, перенаправляем на логин
-    if (!token) {
-      const loginUrl = new URL('/login', request.url)
-      loginUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-
-    // Просто проверяем наличие токена, без валидации
-    // Валидация будет происходить на уровне API
+  if (isProtectedPath && !token) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
-  // Если это страница авторизации и пользователь уже авторизован
+  // Если это страница авторизации и уже есть признак входа — просто редиректим на home
   if (isAuthPath && token) {
-    const decoded = verifyJWTToken(token)
-    if (decoded) {
-      // Перенаправляем на home
-      return NextResponse.redirect(new URL('/home', request.url))
-    }
+    return NextResponse.redirect(new URL('/home', request.url))
   }
-
-
 
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
