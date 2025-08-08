@@ -1,26 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 
-// GET /api/insurance/notifications/expiring - получить полисы, которые скоро истекают
+// GET /api/insurance/notifications/expiring - получить уведомления об истекающих полисах
 export async function GET(request: NextRequest) {
   try {
-    const user = await auth(request)
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Получаем полисы, которые истекают в течение следующих 30 дней
+    // Получаем полисы, которые истекают в течение 30 дней
     const thirtyDaysFromNow = new Date()
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
 
     const expiringPolicies = await prisma.insurancePolicy.findMany({
       where: {
-        userId: user.id,
+        userId: user.userId,
         status: 'ACTIVE',
         endDate: {
           lte: thirtyDaysFromNow,
-          gt: new Date() // Только те, которые еще не истекли
+          gte: new Date()
         }
       },
       include: {
@@ -31,7 +37,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(expiringPolicies)
+    return NextResponse.json({
+      success: true,
+      expiringPolicies,
+      count: expiringPolicies.length
+    })
   } catch (error) {
     console.error('Error fetching expiring policies:', error)
     return NextResponse.json(

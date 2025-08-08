@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 
 // POST /api/insurance/policies/[id]/pay - оплатить полис
 export async function POST(
@@ -8,19 +8,25 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await auth(request)
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    const { paymentMethod, transactionId } = body
+    const { paymentMethod, amount } = body
 
     // Проверяем, что полис существует и принадлежит пользователю
     const policy = await prisma.insurancePolicy.findFirst({
       where: {
         id: params.id,
-        userId: user.id
+        userId: user.userId
       }
     })
 
@@ -28,53 +34,26 @@ export async function POST(
       return NextResponse.json({ error: 'Policy not found' }, { status: 404 })
     }
 
-    if (policy.status === 'ACTIVE') {
-      return NextResponse.json(
-        { error: 'Policy is already active' },
-        { status: 400 }
-      )
-    }
-
     // Создаем запись об оплате
     const payment = await prisma.insurancePayment.create({
       data: {
-        amount: policy.premium,
-        status: 'PAID',
+        policyId: params.id,
+        amount: parseFloat(amount),
         paymentMethod,
-        transactionId: transactionId || `TXN-${Date.now()}`,
-        paidAt: new Date(),
-        policyId: params.id
+        status: 'PENDING'
       }
     })
 
-    // Обновляем статус полиса на активный
-    const updatedPolicy = await prisma.insurancePolicy.update({
-      where: {
-        id: params.id
-      },
-      data: {
-        status: 'ACTIVE'
-      },
-      include: {
-        property: true,
-        payments: true
-      }
-    })
-
-    // Создаем уведомление об успешной оплате
-    await prisma.notification.create({
-      data: {
-        title: 'Полис страхования оплачен',
-        message: `Полис ${policy.policyNumber} успешно оплачен и активирован`,
-        type: 'SUCCESS',
-        userId: user.id,
-        policyId: params.id
-      }
+    // Обновляем статус полиса
+    await prisma.insurancePolicy.update({
+      where: { id: params.id },
+      data: { status: 'ACTIVE' }
     })
 
     return NextResponse.json({
-      policy: updatedPolicy,
-      payment
+      success: true,
+      payment,
+      message: 'Payment processed successfully'
     })
   } catch (error) {
     console.error('Error processing insurance payment:', error)

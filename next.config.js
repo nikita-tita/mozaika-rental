@@ -20,11 +20,7 @@ const nextConfig = {
   // Отключаем статическую генерацию
   distDir: '.next',
   
-  // Отключаем статическую генерацию
-  staticPageGenerationTimeout: 0,
-  
-  // Отключаем статическую генерацию
-  generateStaticParams: false,
+
   
   // Экспериментальные функции
   experimental: {

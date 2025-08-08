@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 
 // GET /api/insurance/policies - получить все полисы пользователя
 export async function GET(request: NextRequest) {
   try {
-    const user = await auth(request)
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const policies = await prisma.insurancePolicy.findMany({
       where: {
-        userId: user.id
+        userId: user.userId
       },
       include: {
         property: true,
@@ -37,7 +43,13 @@ export async function GET(request: NextRequest) {
 // POST /api/insurance/policies - создать новый полис
 export async function POST(request: NextRequest) {
   try {
-    const user = await auth(request)
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -69,7 +81,7 @@ export async function POST(request: NextRequest) {
         endDate: new Date(endDate),
         insuranceCompany,
         propertyId: propertyId || null,
-        userId: user.id
+        userId: user.userId
       },
       include: {
         property: true

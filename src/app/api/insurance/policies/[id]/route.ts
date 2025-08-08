@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { verifyJWTToken } from '@/lib/auth'
 
 // GET /api/insurance/policies/[id] - получить конкретный полис
 export async function GET(
@@ -8,7 +8,13 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await auth(request)
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -16,7 +22,7 @@ export async function GET(
     const policy = await prisma.insurancePolicy.findFirst({
       where: {
         id: params.id,
-        userId: user.id
+        userId: user.userId
       },
       include: {
         property: true,
@@ -45,7 +51,13 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await auth(request)
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -66,7 +78,7 @@ export async function PUT(
     const policy = await prisma.insurancePolicy.findFirst({
       where: {
         id: params.id,
-        userId: user.id
+        userId: user.userId
       }
     })
 
@@ -110,7 +122,13 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await auth(request)
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const user = verifyJWTToken(token)
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -118,7 +136,7 @@ export async function DELETE(
     const policy = await prisma.insurancePolicy.findFirst({
       where: {
         id: params.id,
-        userId: user.id
+        userId: user.userId
       }
     })
 
