@@ -1,41 +1,61 @@
 import { PrismaClient } from '@prisma/client'
-import { hashPassword } from '../src/lib/auth'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-async function createSimpleUser() {
+async function createTestUser() {
   try {
-    // Создаем пользователя с простыми данными
-    const hashedPassword = await hashPassword('123456')
+    console.log('🚀 Создаем тестового пользователя...')
     
-    const user = await prisma.user.create({
-      data: {
-        email: 'user@test.com',
-        password: hashedPassword,
-        firstName: 'Простой',
-        lastName: 'Пользователь',
-        phone: '+7 (999) 000-00-00',
-        role: 'REALTOR',
-        verified: true
+    // Проверяем, существует ли уже пользователь
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: 'test@example.com'
       }
     })
     
-    console.log('✅ Простой пользователь создан:')
+    if (existingUser) {
+      console.log('✅ Пользователь уже существует:', existingUser.email)
+      return existingUser
+    }
+    
+    // Хешируем пароль
+    const hashedPassword = await bcrypt.hash('password123', 10)
+    
+    // Создаем пользователя
+    const user = await prisma.user.create({
+      data: {
+        email: 'test@example.com',
+        firstName: 'Тестовый',
+        lastName: 'Пользователь',
+        password: hashedPassword,
+        role: 'REALTOR',
+        verified: true,
+        phone: '+7 (999) 123-45-67'
+      }
+    })
+    
+    console.log('✅ Пользователь создан успешно!')
     console.log('📧 Email:', user.email)
-    console.log('🔑 Пароль: 123456')
-    console.log('👤 Имя:', user.firstName, user.lastName)
-    console.log('🎯 Роль:', user.role)
-    console.log('✅ Verified:', user.verified)
+    console.log('🔑 Пароль: password123')
+    console.log('🆔 ID:', user.id)
+    
+    return user
     
   } catch (error) {
-    if (error.code === 'P2002') {
-      console.log('⚠️ Пользователь уже существует')
-    } else {
-      console.error('❌ Ошибка создания пользователя:', error)
-    }
+    console.error('❌ Ошибка:', error)
+    throw error
   } finally {
     await prisma.$disconnect()
   }
 }
 
-createSimpleUser() 
+createTestUser()
+  .then(() => {
+    console.log('🎉 Скрипт завершен успешно!')
+    process.exit(0)
+  })
+  .catch((error) => {
+    console.error('💥 Ошибка выполнения скрипта:', error)
+    process.exit(1)
+  }) 

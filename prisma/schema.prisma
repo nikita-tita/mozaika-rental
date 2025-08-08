@@ -280,6 +280,10 @@ enum PaymentType {
   DEPOSIT
   UTILITIES
   MAINTENANCE
+  INSURANCE_PREMIUM
+  CARD
+  BANK_TRANSFER
+  CASH
 }
 
 enum PaymentStatus {
