@@ -111,7 +111,11 @@ const statusOptions = [
   }))
 ]
 
-export default function LeadsFeed() {
+interface LeadsFeedProps {
+  onUpdate?: () => void
+}
+
+export default function LeadsFeed({ onUpdate }: LeadsFeedProps) {
   const [leads, setLeads] = useState<YandexLead[]>([])
   const [filteredLeads, setFilteredLeads] = useState<YandexLead[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -184,6 +188,7 @@ export default function LeadsFeed() {
       
       if (response.ok) {
         await fetchLeads() // Обновляем данные
+        onUpdate?.() // Уведомляем родительский компонент
       }
     } catch (error) {
       console.error('Ошибка при обновлении статуса:', error)

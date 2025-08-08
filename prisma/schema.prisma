@@ -31,6 +31,8 @@ model User {
   properties    Property[]
   sessions      Session[]
   propertyLinks ClientPropertyLink[]
+  insurancePolicies InsurancePolicy[]
+  digitalSignatures DigitalSignature[]
 
   @@map("users")
 }
@@ -69,6 +71,7 @@ model Property {
   payments    Payment[]
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   propertyLinks ClientPropertyLink[]
+  insurancePolicies InsurancePolicy[]
 
   @@map("properties")
 }
@@ -98,6 +101,7 @@ model Client {
   tenantDeals Deal[]    @relation("DealTenant")
   landlordDeals Deal[]  @relation("DealLandlord")
   propertyLinks ClientPropertyLink[]
+  signatureSigners SignatureSigner[]
 
   @@map("clients")
 }
@@ -162,6 +166,7 @@ model Contract {
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   deal      Deal?          @relation(fields: [dealId], references: [id], onDelete: SetNull)
   payments  Payment[]
+  digitalSignatures DigitalSignature[]
 
   @@map("contracts")
 }
@@ -217,7 +222,9 @@ model Notification {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
   type      NotificationType
+  policyId  String?
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  policy    InsurancePolicy? @relation(fields: [policyId], references: [id], onDelete: SetNull)
 
   @@map("notifications")
 }
@@ -342,4 +349,166 @@ enum YandexLeadStatus {
   CONTRACT_SIGNED     // Договор подписан
   OCCUPIED            // Заселён
   FAILED              // Сделка не состоялась
+}
+
+// Insurance models
+model InsurancePolicy {
+  id                String              @id @default(cuid())
+  policyNumber      String              @unique
+  type              InsuranceType
+  status            InsuranceStatus     @default(DRAFT)
+  insuredAmount     Float
+  deductible        Float
+  premium           Float
+  startDate         DateTime
+  endDate           DateTime
+  insuranceCompany  String
+  propertyId        String?
+  userId            String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property          Property?           @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  payments          InsurancePayment[]
+  claims            InsuranceClaim[]
+  notifications     Notification[]
+
+  @@map("insurance_policies")
+}
+
+model InsurancePayment {
+  id                String              @id @default(cuid())
+  amount            Float
+  status            PaymentStatus       @default(PENDING)
+  paymentMethod     PaymentType
+  transactionId     String?
+  paidAt            DateTime?
+  policyId          String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  policy            InsurancePolicy     @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@map("insurance_payments")
+}
+
+model InsuranceClaim {
+  id                String              @id @default(cuid())
+  claimNumber       String              @unique
+  description       String
+  amount            Float
+  status            ClaimStatus         @default(SUBMITTED)
+  incidentDate      DateTime
+  submittedAt       DateTime            @default(now())
+  resolvedAt        DateTime?
+  policyId          String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  policy            InsurancePolicy     @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@map("insurance_claims")
+}
+
+enum InsuranceType {
+  PROPERTY
+  LIABILITY
+  RENTAL_INCOME
+  LEGAL_PROTECTION
+  COMPREHENSIVE
+}
+
+enum InsuranceStatus {
+  DRAFT
+  PENDING_PAYMENT
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum ClaimStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  PAID
+}
+
+// Электронная подпись
+model DigitalSignature {
+  id            String              @id @default(cuid())
+  documentType  String              // Тип документа (contract, inventory, insurance, etc.)
+  documentId    String?             // ID связанного документа
+  documentUrl   String              // URL к документу
+  status        SignatureStatus     @default(pending)
+  signedAt      DateTime?           // Дата полной подписи документа
+  sentAt        DateTime?           // Дата отправки на подпись
+  signatureData Json?               // Данные подписи (метаданные)
+  contractId    String?             // Связь с договором
+  userId        String              // Владелец документа
+  createdBy     String              // Кто создал документ для подписи
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  
+  // Relations
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contract      Contract?           @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  signers       SignatureSigner[]
+
+  @@map("digital_signatures")
+}
+
+model SignatureSigner {
+  id            String              @id @default(cuid())
+  signatureId   String              // Связь с документом для подписи
+  clientId      String?             // Связь с клиентом
+  role          SignerRole          // Роль подписанта
+  status        SignerStatus        @default(pending)
+  email         String?             // Email для отправки
+  phone         String?             // Телефон для SMS
+  signedAt      DateTime?           // Дата подписи
+  sentAt        DateTime?           // Дата отправки уведомления
+  signatureMethod SignatureMethod?  // Способ подписи
+  signatureData Json?               // Данные подписи конкретного подписанта
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  
+  // Relations
+  signature     DigitalSignature    @relation(fields: [signatureId], references: [id], onDelete: Cascade)
+  client        Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@map("signature_signers")
+}
+
+enum SignatureStatus {
+  pending       // Ожидает подписи
+  signed        // Подписан
+  expired       // Истек срок
+  cancelled     // Отменен
+}
+
+enum SignerStatus {
+  pending       // Ожидает подписи
+  sent          // Отправлено уведомление
+  signed        // Подписал
+  declined      // Отклонил
+  expired       // Истек срок
+}
+
+enum SignerRole {
+  landlord      // Арендодатель
+  tenant        // Арендатор
+  realtor       // Риелтор
+  witness       // Свидетель
+}
+
+enum SignatureMethod {
+  sms           // SMS-подпись
+  email         // Email-подпись
+  gosuslugi     // Госуслуги ЭЦП
+  biometric     // Биометрическая подпись
 }
