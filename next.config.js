@@ -8,9 +8,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Настройка для API маршрутов - включаем для правильной работы
-  output: 'standalone',
-  
   // Отключаем статическую генерацию страниц
   trailingSlash: false,
   generateBuildId: async () => {
