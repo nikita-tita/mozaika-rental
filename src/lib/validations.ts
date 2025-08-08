@@ -5,11 +5,12 @@ export const CreatePropertySchema = z.object({
   title: z.string().min(1, 'Название обязательно'),
   description: z.string().optional(),
   address: z.string().min(1, 'Адрес обязателен'),
+  city: z.string().optional(),
+  district: z.string().optional(),
   type: z.enum(['APARTMENT', 'HOUSE', 'COMMERCIAL', 'LAND'], {
     errorMap: () => ({ message: 'Тип должен быть APARTMENT, HOUSE, COMMERCIAL или LAND' })
   }),
-  price: z.coerce.number().positive('Цена должна быть положительной').optional(),
-  pricePerMonth: z.coerce.number().positive('Арендная плата должна быть положительной').optional(),
+  pricePerMonth: z.coerce.number().positive('Арендная плата должна быть положительной'),
   deposit: z.coerce.number().min(0, 'Депозит не может быть отрицательным').optional(),
   bedrooms: z.coerce.number().int().min(0, 'Количество спален не может быть отрицательным').optional(),
   bathrooms: z.coerce.number().int().min(0, 'Количество ванных не может быть отрицательным').optional(),

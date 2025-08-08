@@ -51,23 +51,42 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔍 Создание объекта недвижимости')
+    // Получаем токен из заголовка Authorization или cookie
+    const authHeader = request.headers.get('authorization')
+    let token = null
     
-    // Простая проверка - получаем первого пользователя
-    const users = await prisma.user.findMany({
-      take: 1
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7)
+    } else {
+      token = request.cookies.get('auth-token')?.value
+    }
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: 'Не авторизован' },
+        { status: 401 }
+      )
+    }
+
+    const user = verifyJWTToken(token)
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Недействительный токен' },
+        { status: 401 }
+      )
+    }
+
+    // Проверяем, что пользователь существует в базе данных
+    const existingUser = await prisma.user.findUnique({
+      where: { id: user.userId }
     })
-    
-    if (users.length === 0) {
-      console.log('❌ Пользователи не найдены')
+
+    if (!existingUser) {
       return NextResponse.json(
         { success: false, error: 'Пользователь не найден' },
         { status: 404 }
       )
     }
-    
-    const existingUser = users[0]
-    console.log('✅ Используем пользователя:', existingUser.id)
 
     // Проверяем Content-Type для определения типа данных
     const contentType = request.headers.get('content-type') || ''
@@ -108,10 +127,6 @@ export async function POST(request: NextRequest) {
       if (!validationResult.success) {
         console.log('Ошибки валидации:', validationResult.error)
         const errors = validationResult.error.errors?.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') || 'Неизвестная ошибка валидации'
-        console.error('Детали ошибки валидации:', {
-          errors: validationResult.error.errors,
-          formData: formData
-        })
         return NextResponse.json(
           { success: false, error: `Ошибка валидации: ${errors}` },
           { status: 400 }
@@ -128,7 +143,7 @@ export async function POST(request: NextRequest) {
           description: validatedData.description || '',
           type: validatedData.type,
           address: validatedData.address,
-          price: validatedData.price || validatedData.pricePerMonth || 0, // Используем price или pricePerMonth, по умолчанию 0
+          price: validatedData.pricePerMonth, // Используем pricePerMonth как price
           bedrooms: validatedData.bedrooms || null,
           bathrooms: validatedData.bathrooms || null,
           area: validatedData.area || null,

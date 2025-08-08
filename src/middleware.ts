@@ -1,31 +1,88 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { verifyJWTToken } from '@/lib/auth'
 
-// Список публичных путей
-const PUBLIC_PATHS = ['/', '/login', '/register']
+// Защищенные маршруты
+const protectedPaths = [
+  '/dashboard',
+  '/home',
+  '/properties',
+  '/clients',
+  '/deals',
+  '/contracts',
+  '/payments',
+  '/scoring',
+  '/signature',
+  '/multilisting',
+  '/insurance',
+  '/yandex-rental',
+  '/notifications',
+  '/settings',
+  '/analytics',
+  '/bookings'
+]
 
-export function middleware(request: NextRequest) {
-  // Проверяем, является ли путь публичным
-  const isPublicPath = PUBLIC_PATHS.includes(request.nextUrl.pathname)
+// Маршруты авторизации
+const authPaths = ['/login', '/register']
 
-  // Если это публичный путь или API запрос, пропускаем
-  if (isPublicPath || request.nextUrl.pathname.startsWith('/api/')) {
-    return NextResponse.next()
-  }
+// Публичные маршруты
+const publicPaths = ['/', '/properties', '/test-auth', '/test-auth-status', '/test-inputs', '/test-middleware', '/test-token', '/teams-ui-kit', '/test-simple']
 
-  // Для всех остальных путей проверяем наличие токена
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
-  // Если нет токена, редиректим на логин
-  if (!token) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  // Проверяем, является ли путь защищенным
+  const isProtectedPath = protectedPaths.some(path =>
+    pathname.startsWith(path) || pathname === path
+  )
+
+  // Проверяем, является ли путь страницей авторизации
+  const isAuthPath = authPaths.some(path =>
+    pathname.startsWith(path) || pathname === path
+  )
+
+  // Проверяем, является ли путь публичным
+  const isPublicPath = publicPaths.some(path =>
+    pathname.startsWith(path) || pathname === path
+  )
+
+  // Если это защищенный маршрут
+  if (isProtectedPath) {
+    // Если нет токена, перенаправляем на логин
+    if (!token) {
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    // Просто проверяем наличие токена, без валидации
+    // Валидация будет происходить на уровне API
   }
+
+  // Если это страница авторизации и пользователь уже авторизован
+  if (isAuthPath && token) {
+    const decoded = verifyJWTToken(token)
+    if (decoded) {
+      // Перенаправляем на home
+      return NextResponse.redirect(new URL('/home', request.url))
+    }
+  }
+
+
 
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }

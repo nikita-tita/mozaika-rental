@@ -1,12 +1,14 @@
-import './globals.css'
+import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import './globals.css'
 import { AppProvider } from '@/components/providers/AppProvider'
 
-const inter = Inter({ subsets: ['latin', 'cyrillic'] })
+// Используем системные шрифты вместо Google Fonts для Docker
+const inter = { className: 'font-sans' }
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'M² - Технологии для риелторов',
-  description: 'Профессиональная платформа для риелторов и агентств недвижимости',
+  description: 'Профессиональные инструменты для упрощения работы риелторов',
 }
 
 export default function RootLayout({
@@ -15,9 +17,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru" className="h-full bg-white">
-      <body className={`${inter.className} h-full`}>
-        <AppProvider>{children}</AppProvider>
+    <html lang="ru">
+      <body className={inter.className}>
+        <AppProvider>
+          {children}
+        </AppProvider>
       </body>
     </html>
   )

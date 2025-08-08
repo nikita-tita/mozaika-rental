@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { TeamsCard, TeamsButton, TeamsBadge, TeamsInput, TeamsSelect } from '@/components/ui/teams'
 import { Search, Globe, ExternalLink, CheckCircle, Clock, BarChart3, Settings } from 'lucide-react'
 
@@ -25,19 +25,6 @@ export default function MultilistingPage() {
       createdAt: '2024-01-20'
     }
   ])
-  const [properties, setProperties] = useState([])
-  const [selectedProperty, setSelectedProperty] = useState('')
-  const [title, setTitle] = useState('')
-  const [price, setPrice] = useState('')
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
-
-  useEffect(() => {
-    fetch('/api/properties')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setProperties(data.data)
-      })
-  }, [])
 
   const platforms = [
     { value: 'avito', label: 'Авито', icon: '🏠' },
@@ -67,28 +54,20 @@ export default function MultilistingPage() {
     return platformData?.icon || '🏠'
   }
 
-  const handlePlatformChange = (platform: string) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(platform)
-        ? prev.filter(p => p !== platform)
-        : [...prev, platform]
-    )
-  }
-
   const totalViews = listings.reduce((sum, listing) => sum + listing.views, 0)
   const totalContacts = listings.reduce((sum, listing) => sum + listing.contacts, 0)
   const activeListings = listings.filter(l => l.status === 'ACTIVE').length
 
   return (
-    <div className="min-h-screen bg-[#faf9f8] py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Заголовок */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#323130] mb-4 flex items-center">
-            <Search className="w-8 h-8 mr-3 text-[#0078d4]" />
+          <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center">
+            <Search className="w-8 h-8 mr-3 text-blue-600" />
             Мультилистинг
           </h1>
-          <p className="text-lg text-[#605e5c]">
+          <p className="text-lg text-gray-600">
             Автоматическая публикация объектов на всех популярных площадках
           </p>
         </div>
@@ -115,46 +94,39 @@ export default function MultilistingPage() {
 
         {/* Создание нового объявления */}
         <TeamsCard className="p-6 mb-8">
-          <h2 className="text-xl font-semibold text-[#323130] mb-4 flex items-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
             <Globe className="w-5 h-5 mr-2" />
             Новое объявление
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <TeamsSelect
+            <TeamsInput
               label="Объект недвижимости"
               placeholder="Выберите объект из вашей базы"
-              value={selectedProperty}
-              onChange={e => setSelectedProperty(e.target.value)}
-              options={properties.map((p: any) => ({ value: p.id, label: p.title }))}
+            />
+            <TeamsSelect
+              label="Площадки для публикации"
+              options={platforms}
+              placeholder="Выберите площадки"
             />
             <TeamsInput
               label="Заголовок объявления"
               placeholder="Привлекательный заголовок"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
             />
             <TeamsInput
               label="Цена"
               placeholder="45000"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-[#323130] mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Площадки для публикации
             </label>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {platforms.map((platform) => (
                 <label key={platform.value} className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="rounded"
-                    checked={selectedPlatforms.includes(platform.value)}
-                    onChange={() => handlePlatformChange(platform.value)}
-                  />
+                  <input type="checkbox" className="rounded" />
                   <span className="text-lg">{platform.icon}</span>
-                  <span className="text-sm text-[#605e5c]">{platform.label}</span>
+                  <span className="text-sm">{platform.label}</span>
                 </label>
               ))}
             </div>
@@ -167,17 +139,17 @@ export default function MultilistingPage() {
 
         {/* Список объявлений */}
         <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-semibold text-[#323130]">Мои объявления</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Мои объявления</h2>
           
           {listings.map((listing) => (
             <TeamsCard key={listing.id} className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center mb-2">
-                    <h3 className="font-semibold text-[#323130] mr-3">{listing.property}</h3>
+                    <h3 className="font-semibold text-gray-900 mr-3">{listing.property}</h3>
                     {getStatusBadge(listing.status)}
                   </div>
-                  <div className="text-sm text-[#605e5c] space-y-1">
+                  <div className="text-sm text-gray-600 space-y-1">
                     <div>Площадки: {listing.platforms.map(p => getPlatformIcon(p)).join(' ')}</div>
                     <div>Просмотры: {listing.views} | Обращения: {listing.contacts}</div>
                     <div>Создано: {listing.createdAt}</div>
@@ -208,12 +180,12 @@ export default function MultilistingPage() {
           {platforms.map((platform) => (
             <TeamsCard key={platform.value} className="p-6 text-center">
               <div className="text-4xl mb-4">{platform.icon}</div>
-              <h3 className="text-lg font-semibold text-[#323130] mb-2">{platform.label}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{platform.label}</h3>
               <div className="flex items-center justify-center mb-4">
                 <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
                 <span className="text-sm text-green-600">Подключено</span>
               </div>
-              <div className="text-sm text-[#605e5c] mb-4">
+              <div className="text-sm text-gray-600 mb-4">
                 Автоматическая синхронизация объявлений
               </div>
               <TeamsButton variant="outline" size="sm">
@@ -228,24 +200,24 @@ export default function MultilistingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <TeamsCard className="p-6 text-center">
             <Globe className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-[#323130] mb-2">Одна публикация</h3>
-            <p className="text-[#605e5c]">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Одна публикация</h3>
+            <p className="text-gray-600">
               Создайте объявление один раз и оно автоматически появится на всех площадках
             </p>
           </TeamsCard>
           
           <TeamsCard className="p-6 text-center">
             <BarChart3 className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-[#323130] mb-2">Единая статистика</h3>
-            <p className="text-[#605e5c]">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Единая статистика</h3>
+            <p className="text-gray-600">
               Получайте сводную статистику по всем площадкам в одном месте
             </p>
           </TeamsCard>
           
           <TeamsCard className="p-6 text-center">
             <Clock className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-[#323130] mb-2">Экономия времени</h3>
-            <p className="text-[#605e5c]">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Экономия времени</h3>
+            <p className="text-gray-600">
               Автоматическое обновление объявлений на всех площадках одновременно
             </p>
           </TeamsCard>
