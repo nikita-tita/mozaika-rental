@@ -56,11 +56,14 @@ export default function PropertyDetailsPage() {
 
   const fetchProperty = async () => {
     try {
-      const response = await fetch(`/api/properties?id=${propertyId}`)
+      console.log('🔍 Загрузка объекта:', propertyId)
+      const response = await fetch(`/api/properties/${propertyId}`)
       const data = await response.json()
 
-      if (data.success && data.data.length > 0) {
-        setProperty(data.data[0])
+      if (data.success) {
+        setProperty(data.data)
+      } else {
+        console.error('Ошибка загрузки объекта:', data.error)
       }
     } catch (error) {
       console.error('Error fetching property:', error)
