@@ -104,7 +104,10 @@ export function TeamsSidebar() {
       <div className="h-full flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between">
+            {!isCollapsed && (
+              <span className="text-sm font-medium text-gray-700">Меню</span>
+            )}
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-1 rounded-md hover:bg-gray-100"

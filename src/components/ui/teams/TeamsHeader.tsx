@@ -19,22 +19,11 @@ export default function TeamsHeader() {
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
 
-
-          {/* Navigation - убрано согласно требованиям */}
-
-          {/* Right side */}
+          {/* Left side - Account and Logout */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Notifications */}
-            {isAuthenticated && (
-              <button className="relative p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-            )}
-
-            {/* User menu */}
             {isAuthenticated ? (
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link href="/dashboard" className="text-right hidden sm:block hover:opacity-80 transition-opacity">
@@ -57,7 +46,6 @@ export default function TeamsHeader() {
                   <LogOut className="w-4 h-4 mr-2" />
                   Выйти
                 </TeamsButton>
-                {/* Мобильная кнопка выхода */}
                 <TeamsButton 
                   variant="ghost" 
                   size="sm" 
@@ -81,6 +69,21 @@ export default function TeamsHeader() {
                 </Link>
               </div>
             )}
+          </div>
+
+          {/* Right side - Метр Квадратный */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Notifications */}
+            {isAuthenticated && (
+              <button className="relative p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            )}
+
+            {/* Метр Квадратный */}
+            <div className="hidden sm:flex items-center">
+              <span className="text-lg font-semibold text-gray-900">Метр Квадратный</span>
+            </div>
 
             {/* Mobile menu button */}
             <button 
