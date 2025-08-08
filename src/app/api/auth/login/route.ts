@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { loginUser } from '@/lib/auth'
+import { simpleLogin } from '@/lib/simple-auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,37 +17,19 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Получаем информацию о клиенте
-    const userAgent = request.headers.get('user-agent') || undefined
-    const ipAddress = request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown'
-
-    console.log('🔍 Выполняем авторизацию...')
-    // Авторизация пользователя
-    const result = await loginUser(email, password, userAgent, ipAddress)
+    console.log('🔍 Выполняем простую авторизацию...')
+    // Простая авторизация пользователя
+    const result = await simpleLogin(email, password)
 
     console.log('📋 Результат авторизации:', { success: result.success, message: result.message })
 
-    if (result.success && result.token) {
-      console.log('✅ Авторизация успешна, устанавливаем cookie')
-      // Создаем ответ с cookie
+    if (result.success) {
+      console.log('✅ Простая авторизация успешна')
+      // Создаем простой ответ без токенов
       const response = NextResponse.json({
         success: true,
         data: result.user,
         message: result.message
-      })
-
-      // Устанавливаем cookie с токеном
-      const isProduction = process.env.NODE_ENV === 'production'
-      const isVercel = process.env.VERCEL === '1'
-
-      response.cookies.set('auth-token', result.token, {
-        httpOnly: true,
-        secure: isProduction || isVercel,
-        sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60, // 30 дней
-        path: '/'
       })
 
       return response

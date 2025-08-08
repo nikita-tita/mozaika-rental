@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { registerUser } from '@/lib/auth'
+import { simpleRegister } from '@/lib/simple-auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Регистрация пользователя
-    const result = await registerUser(email, password, firstName, lastName, phone)
+    // Простая регистрация пользователя
+    const result = await simpleRegister(email, password, firstName, lastName, phone)
 
     if (result.success) {
       return NextResponse.json({
