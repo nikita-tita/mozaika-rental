@@ -1,14 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Отключаем ESLint и TypeScript проверки для деплоя
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
-  
-  // Оптимизация изображений
+  experimental: {
+    optimizeCss: true,
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   images: {
     domains: ['localhost', 'vercel.app'],
     remotePatterns: [
@@ -17,12 +20,7 @@ const nextConfig = {
         hostname: '**.vercel.app',
       },
     ],
-  },
-  
-  // Экспериментальные функции
-  experimental: {
-    optimizePackageImports: ['lucide-react', '@headlessui/react'],
-  },
+  }
 }
 
 module.exports = nextConfig
