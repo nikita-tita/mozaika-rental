@@ -111,8 +111,8 @@ export const TeamsAddressInput: React.FC<TeamsAddressInputProps> = ({
             }}
             placeholder="Начните вводить название города..."
             disabled={disabled}
-            error={error ? "Ошибка ввода" : undefined}
-            size={size === 'sm' ? 1 : size === 'md' ? 2 : 3}
+            error={!!error}
+            size={size}
             allowCustom={true}
             maxResults={15}
             onSearch={handleCitySearch}
@@ -133,8 +133,8 @@ export const TeamsAddressInput: React.FC<TeamsAddressInputProps> = ({
             : "Введите название улицы"
           }
           disabled={disabled || !selectedCity}
-          error={error ? "Ошибка ввода" : undefined}
-          size={size === 'sm' ? 1 : size === 'md' ? 2 : 3}
+          error={!!error}
+          size={size}
           allowCustom={true}
           maxResults={15}
           onSearch={handleStreetSearch}
@@ -152,8 +152,8 @@ export const TeamsAddressInput: React.FC<TeamsAddressInputProps> = ({
             onChange={(e) => setHouse(e.target.value)}
             placeholder="№ дома"
             disabled={disabled}
-            error={error ? "Ошибка ввода" : undefined}
-            size={size === 'sm' ? 1 : size === 'md' ? 2 : 3}
+            error={!!error}
+            size={size}
           />
         </div>
         <div>
@@ -165,8 +165,8 @@ export const TeamsAddressInput: React.FC<TeamsAddressInputProps> = ({
             onChange={(e) => setApartment(e.target.value)}
             placeholder="№ квартиры"
             disabled={disabled}
-            error={error ? "Ошибка ввода" : undefined}
-            size={size === 'sm' ? 1 : size === 'md' ? 2 : 3}
+            error={!!error}
+            size={size}
           />
         </div>
       </div>
@@ -183,7 +183,7 @@ export const TeamsAddressInput: React.FC<TeamsAddressInputProps> = ({
               value={[selectedCity, selectedStreet, house, apartment].filter(Boolean).join(', ')}
               placeholder="Полный адрес будет сформирован автоматически"
               disabled={true}
-              size={size === 'sm' ? 1 : size === 'md' ? 2 : 3}
+              size={size}
               className="pl-10 bg-gray-50"
             />
           </div>
