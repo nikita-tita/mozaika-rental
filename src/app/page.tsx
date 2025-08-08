@@ -32,6 +32,13 @@ export default function HomePage() {
     console.log('🏠 HomePage: user:', user)
   }, [isAuthenticated, user])
 
+  // Перенаправление авторизованных пользователей
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      window.location.href = '/home'
+    }
+  }, [isAuthenticated, user])
+
   const stats = [
     { label: 'Активных риелторов', value: '2,847', icon: Users },
     { label: 'Среднее ускорение сделок', value: '8x', icon: Zap },
@@ -80,11 +87,6 @@ export default function HomePage() {
 
   // Если пользователь авторизован, перенаправляем на защищенную главную страницу
   if (isAuthenticated && user) {
-    // Используем useEffect для редиректа, чтобы избежать ошибок гидратации
-    useEffect(() => {
-      window.location.href = '/home'
-    }, [])
-    
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -218,6 +220,34 @@ export default function HomePage() {
                   </Link>
                 )
               })}
+            </div>
+
+            {/* Services Cloud */}
+            <div className="mt-20 text-center">
+              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">
+                Сервисы для аренды
+              </h3>
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8">
+                {[
+                  { name: 'Мультилистинг', color: 'bg-blue-100 text-blue-800' },
+                  { name: 'Страхование', color: 'bg-green-100 text-green-800' },
+                  { name: 'Яндекс.Аренда', color: 'bg-yellow-100 text-yellow-800' },
+                  { name: 'Электронная подпись', color: 'bg-purple-100 text-purple-800' },
+                  { name: 'Скоринг', color: 'bg-red-100 text-red-800' },
+                  { name: 'Платежи', color: 'bg-indigo-100 text-indigo-800' },
+                  { name: 'Договоры', color: 'bg-pink-100 text-pink-800' },
+                  { name: 'Сделки', color: 'bg-orange-100 text-orange-800' },
+                  { name: 'Уведомления', color: 'bg-teal-100 text-teal-800' },
+                  { name: 'Настройки', color: 'bg-gray-100 text-gray-800' }
+                ].map((service, index) => (
+                  <div
+                    key={index}
+                    className={`px-4 py-2 rounded-full text-sm sm:text-base font-medium shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 ${service.color}`}
+                  >
+                    {service.name}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
