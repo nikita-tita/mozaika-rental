@@ -24,11 +24,15 @@ const nextConfig = {
   
   // Оптимизация изображений
   images: {
-    domains: ['localhost', 'vercel.app'],
+    domains: ['localhost', 'vercel.app', 'netlify.app'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.netlify.app',
       },
     ],
   },

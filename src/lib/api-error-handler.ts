@@ -124,18 +124,26 @@ export class ApiErrorHandler {
 
   static async withErrorHandling<T>(
     handler: () => Promise<T>,
-    context: {
-      method: string
-      path: string
+    context?: {
+      method?: string
+      path?: string
       userId?: string
       requestId?: string
     }
   ): Promise<NextResponse> {
     try {
       const result = await handler()
-      return result
+      if (result instanceof NextResponse) {
+        return result
+      }
+      return NextResponse.json(result)
     } catch (error) {
-      return this.handleError(error, context)
+      const defaultContext = {
+        method: 'UNKNOWN',
+        path: 'UNKNOWN',
+        ...context
+      }
+      return this.handleError(error, defaultContext)
     }
   }
 
