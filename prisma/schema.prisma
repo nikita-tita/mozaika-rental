@@ -28,6 +28,7 @@ model User {
   notifications Notification[]
   yandexLeads  YandexRentalLead[]
   payments      Payment[]
+  paymentReminders PaymentReminder[]
   properties    Property[]
   sessions      Session[]
   propertyLinks ClientPropertyLink[]
@@ -201,6 +202,10 @@ model Payment {
   reminderCount  Int        @default(0)
   lastReminderType String?  // EMAIL, SMS
   
+  // Поля для оплаты по ссылке
+  paymentLink  String?      // Ссылка для оплаты
+  paymentLinkGeneratedAt DateTime?
+  
   // Описание и детали
   description   String?
   notes         String?
@@ -209,8 +214,30 @@ model Payment {
   deal          Deal?       @relation(fields: [dealId], references: [id], onDelete: SetNull)
   contract      Contract?   @relation(fields: [contractId], references: [id], onDelete: SetNull)
   property      Property?   @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  
+  // Связь с напоминаниями
+  reminders     PaymentReminder[]
 
   @@map("payments")
+}
+
+model PaymentReminder {
+  id          String              @id @default(cuid())
+  paymentId   String
+  type        ReminderType        // EMAIL, SMS, WHATSAPP
+  message     String
+  scheduledAt DateTime
+  sentAt      DateTime?
+  status      ReminderStatus      @default(SCHEDULED)
+  userId      String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  
+  // Связи
+  payment     Payment             @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("payment_reminders")
 }
 
 model Notification {
@@ -291,6 +318,18 @@ enum PaymentStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+enum ReminderType {
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum ReminderStatus {
+  SCHEDULED
+  SENT
+  FAILED
 }
 
 enum NotificationType {

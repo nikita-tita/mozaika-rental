@@ -8,9 +8,10 @@ interface DatePickerProps {
   onChange: (value: string) => void
   placeholder?: string
   className?: string
+  disabled?: boolean
 }
 
-export function DatePicker({ value, onChange, placeholder = "Дата рождения", className = "" }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder = "Дата рождения", className = "", disabled = false }: DatePickerProps) {
   const [day, setDay] = useState('')
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
@@ -104,26 +105,30 @@ export function DatePicker({ value, onChange, placeholder = "Дата рожде
   return (
     <div className={`space-y-3 ${className}`}>
       {/* Переключатель режима ввода */}
-      <div className="flex items-center space-x-4">
-        <label className="flex items-center">
-          <input
-            type="radio"
-            checked={!useManualInput}
-            onChange={() => setUseManualInput(false)}
-            className="mr-2"
-          />
-          <span className="text-sm text-[#323130]">Выбор из списка</span>
-        </label>
-        <label className="flex items-center">
-          <input
-            type="radio"
-            checked={useManualInput}
-            onChange={() => setUseManualInput(true)}
-            className="mr-2"
-          />
-          <span className="text-sm text-[#323130]">Ручной ввод</span>
-        </label>
-      </div>
+      {!disabled && (
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              checked={!useManualInput}
+              onChange={() => setUseManualInput(false)}
+              className="mr-2"
+              disabled={disabled}
+            />
+            <span className="text-sm text-[#323130]">Выбор из списка</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              checked={useManualInput}
+              onChange={() => setUseManualInput(true)}
+              className="mr-2"
+              disabled={disabled}
+            />
+            <span className="text-sm text-[#323130]">Ручной ввод</span>
+          </label>
+        </div>
+      )}
 
       {useManualInput ? (
         <div>
@@ -135,6 +140,7 @@ export function DatePicker({ value, onChange, placeholder = "Дата рожде
             onChange={(e) => handleManualInputChange(e.target.value)}
             onBlur={handleManualInputBlur}
             placeholder="2020-01-15"
+            disabled={disabled}
           />
         </div>
       ) : (
@@ -147,6 +153,7 @@ export function DatePicker({ value, onChange, placeholder = "Дата рожде
               value={day}
               onChange={(value) => setDay(value)}
               placeholder="День"
+              disabled={disabled}
               options={[
                 { value: '', label: 'День' },
                 ...days.map(d => ({ value: d.toString(), label: d.toString() }))
@@ -161,6 +168,7 @@ export function DatePicker({ value, onChange, placeholder = "Дата рожде
               value={month}
               onChange={(value) => setMonth(value)}
               placeholder="Месяц"
+              disabled={disabled}
               options={[
                 { value: '', label: 'Месяц' },
                 ...months
@@ -175,6 +183,7 @@ export function DatePicker({ value, onChange, placeholder = "Дата рожде
               value={year}
               onChange={(value) => setYear(value)}
               placeholder="Год"
+              disabled={disabled}
               options={[
                 { value: '', label: 'Год' },
                 // Добавляем быстрые переходы к десятилетиям

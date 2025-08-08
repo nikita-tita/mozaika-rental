@@ -11,7 +11,8 @@ import {
   TeamsAlert
 } from '@/components/ui/teams'
 import { DatePicker } from '@/components/ui/DatePicker'
-import { FileText, Building, Users, Calendar, DollarSign, CheckCircle } from 'lucide-react'
+import { FileText, Building, Users, Calendar, DollarSign, CheckCircle, Plus } from 'lucide-react'
+import CreateDealForm from '@/components/deals/CreateDealForm'
 
 interface Deal {
   id: string
@@ -54,6 +55,8 @@ export default function CreateContractForm({ isOpen, onClose, onSuccess }: Creat
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [successMessage, setSuccessMessage] = useState('')
+  const [showCreateDealForm, setShowCreateDealForm] = useState(false)
+  const [newDealCreated, setNewDealCreated] = useState(false)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -83,6 +86,37 @@ export default function CreateContractForm({ isOpen, onClose, onSuccess }: Creat
       }
     } catch (error) {
       console.error('Error fetching deals:', error)
+    }
+  }
+
+  const handleCreateDealSuccess = async (newDealId?: string) => {
+    setShowCreateDealForm(false)
+    
+    // Если передан ID новой сделки, обновляем список и выбираем новую сделку
+    if (newDealId) {
+      try {
+        const response = await fetch('/api/deals?status=IN_PROGRESS')
+        const data = await response.json()
+        
+        if (data.success) {
+          setDeals(data.data)
+          // Находим и выбираем новую сделку
+          const newDeal = data.data.find((d: Deal) => d.id === newDealId)
+          if (newDeal) {
+            handleDealSelect(newDealId)
+            setNewDealCreated(true)
+            // Скрываем сообщение через 3 секунды
+            setTimeout(() => setNewDealCreated(false), 3000)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching updated deals:', error)
+        // Fallback: просто обновляем список
+        fetchDeals()
+      }
+    } else {
+      // Если ID не передан, просто обновляем список
+      fetchDeals()
     }
   }
 
@@ -255,200 +289,237 @@ ${deal.landlord.firstName} ${deal.landlord.lastName}                    ${deal.t
   ]
 
   return (
-    <TeamsModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Создать договор аренды"
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Сообщения об ошибках и успехе */}
-        {errors.length > 0 && (
-          <TeamsAlert
-            variant="error"
-            title="Ошибка"
-          >
-            <ul className="list-disc list-inside">
-              {errors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </TeamsAlert>
-        )}
+    <>
+      <TeamsModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Создать договор аренды"
+      >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Сообщения об ошибках и успехе */}
+          {errors.length > 0 && (
+            <TeamsAlert
+              variant="error"
+              title="Ошибка"
+            >
+              <ul className="list-disc list-inside">
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </TeamsAlert>
+          )}
 
-        {successMessage && (
-          <TeamsAlert
-            variant="success"
-            title="Успешно"
-          >
-            {successMessage}
-          </TeamsAlert>
-        )}
+          {successMessage && (
+            <TeamsAlert
+              variant="success"
+              title="Успешно"
+            >
+              {successMessage}
+            </TeamsAlert>
+          )}
 
-        {/* Выбор сделки */}
-        <div>
-          <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
-            <FileText className="w-5 h-5 mr-2" />
-            Выбор сделки
-          </h3>
-          
+          {newDealCreated && (
+            <TeamsAlert
+              variant="success"
+              title="Новая сделка создана"
+            >
+              Новая сделка была успешно создана и автоматически выбрана для договора.
+            </TeamsAlert>
+          )}
+
+          {/* Выбор сделки */}
           <div>
-            <label className="block text-sm font-medium text-[#323130] mb-1">
-              Выберите сделку <span className="text-red-500">*</span>
-            </label>
-            <TeamsSelect
-              value={formData.dealId}
-              onChange={handleDealSelect}
-              options={[
-                { value: '', label: 'Выберите сделку для создания договора' },
-                ...deals.map(deal => ({
-                  value: deal.id,
-                  label: `${deal.title || deal.property.title} - ${deal.property.address}`
-                }))
-              ]}
-            />
-          </div>
-        </div>
+            <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
+              <FileText className="w-5 h-5 mr-2" />
+              Выбор сделки
+            </h3>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-[#323130] mb-1">
+                  Выберите сделку <span className="text-red-500">*</span>
+                </label>
+                <TeamsSelect
+                  value={formData.dealId}
+                  onChange={handleDealSelect}
+                  options={[
+                    { value: '', label: 'Выберите сделку для создания договора' },
+                    ...deals.map(deal => ({
+                      value: deal.id,
+                      label: `${deal.title || deal.property.title} - ${deal.property.address}`
+                    }))
+                  ]}
+                />
+              </div>
 
-        {/* Информация о выбранной сделке */}
-        {selectedDeal && (
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-900 mb-3">Информация о сделке</h4>
-            <div className="space-y-2 text-sm text-blue-800">
-              <div><strong>Объект:</strong> {selectedDeal.property.title} - {selectedDeal.property.address}</div>
-              <div><strong>Арендатор:</strong> {selectedDeal.tenant.firstName} {selectedDeal.tenant.lastName}</div>
-              <div><strong>Арендодатель:</strong> {selectedDeal.landlord.firstName} {selectedDeal.landlord.lastName}</div>
-              <div><strong>Период:</strong> {new Date(selectedDeal.startDate).toLocaleDateString('ru-RU')} - {new Date(selectedDeal.endDate).toLocaleDateString('ru-RU')}</div>
-              <div><strong>Арендная плата:</strong> {selectedDeal.monthlyRent} ₽/мес</div>
-              {selectedDeal.deposit > 0 && (
-                <div><strong>Залог:</strong> {selectedDeal.deposit} ₽</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Основная информация о договоре */}
-        <div>
-          <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
-            <FileText className="w-5 h-5 mr-2" />
-            Информация о договоре
-          </h3>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-[#323130] mb-1">
-                Название договора <span className="text-red-500">*</span>
-              </label>
-              <TeamsInput
-                name="title"
-                placeholder="Название договора"
-                value={formData.title}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#323130] mb-1">
-                Тип договора
-              </label>
-              <TeamsSelect
-                value={formData.contractType}
-                onChange={(value) => setFormData(prev => ({ ...prev, contractType: value }))}
-                options={contractTypeOptions}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Финансовые условия */}
-        <div>
-          <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
-            <DollarSign className="w-5 h-5 mr-2" />
-            Финансовые условия
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#323130] mb-1">
-                Арендная плата (₽/мес) <span className="text-red-500">*</span>
-              </label>
-              <TeamsInput
-                name="monthlyRent"
-                type="number"
-                placeholder="0"
-                value={formData.monthlyRent}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#323130] mb-1">
-                Залог (₽)
-              </label>
-              <TeamsInput
-                name="deposit"
-                type="number"
-                placeholder="0"
-                value={formData.deposit}
-                onChange={handleChange}
-              />
+              {/* Кнопка создания новой сделки */}
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Нет подходящей сделки?
+                </div>
+                <TeamsButton
+                  type="button"
+                  variant="outline"
+                  size="small"
+                  onClick={() => setShowCreateDealForm(true)}
+                  className="flex items-center"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Создать новую сделку
+                </TeamsButton>
+              </div>
             </div>
           </div>
 
-          <div className="mt-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                name="utilities"
-                checked={formData.utilities}
-                onChange={handleChange}
-                className="mr-2"
-              />
-              <span className="text-sm text-[#323130]">Включить коммунальные услуги в арендную плату</span>
-            </label>
-          </div>
-        </div>
+          {/* Информация о выбранной сделке */}
+          {selectedDeal && (
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-blue-900 mb-3">Информация о сделке</h4>
+              <div className="space-y-2 text-sm text-blue-800">
+                <div><strong>Объект:</strong> {selectedDeal.property.title} - {selectedDeal.property.address}</div>
+                <div><strong>Арендатор:</strong> {selectedDeal.tenant.firstName} {selectedDeal.tenant.lastName}</div>
+                <div><strong>Арендодатель:</strong> {selectedDeal.landlord.firstName} {selectedDeal.landlord.lastName}</div>
+                <div><strong>Период:</strong> {new Date(selectedDeal.startDate).toLocaleDateString('ru-RU')} - {new Date(selectedDeal.endDate).toLocaleDateString('ru-RU')}</div>
+                <div><strong>Арендная плата:</strong> {selectedDeal.monthlyRent} ₽/мес</div>
+                {selectedDeal.deposit > 0 && (
+                  <div><strong>Залог:</strong> {selectedDeal.deposit} ₽</div>
+                )}
+              </div>
+            </div>
+          )}
 
-        {/* Дополнительные условия */}
-        <div>
-          <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
-            <FileText className="w-5 h-5 mr-2" />
-            Дополнительные условия
-          </h3>
-          
+          {/* Основная информация о договоре */}
           <div>
-            <label className="block text-sm font-medium text-[#323130] mb-1">
-              Дополнительные пункты договора
-            </label>
-            <TeamsTextarea
-              name="additionalTerms"
-              placeholder="Введите дополнительные условия договора..."
-              value={formData.additionalTerms}
-              onChange={handleChange}
-              rows={4}
-            />
-          </div>
-        </div>
+            <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
+              <FileText className="w-5 h-5 mr-2" />
+              Информация о договоре
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#323130] mb-1">
+                  Название договора <span className="text-red-500">*</span>
+                </label>
+                <TeamsInput
+                  name="title"
+                  placeholder="Название договора"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-        {/* Кнопки */}
-        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-          <TeamsButton
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Отмена
-          </TeamsButton>
-          <TeamsButton 
-            type="submit" 
-            disabled={loading || !selectedDeal}
-          >
-            {loading ? 'Создание...' : 'Создать договор'}
-          </TeamsButton>
-        </div>
-      </form>
-    </TeamsModal>
+              <div>
+                <label className="block text-sm font-medium text-[#323130] mb-1">
+                  Тип договора
+                </label>
+                <TeamsSelect
+                  value={formData.contractType}
+                  onChange={(value) => setFormData(prev => ({ ...prev, contractType: value }))}
+                  options={contractTypeOptions}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Финансовые условия */}
+          <div>
+            <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
+              <DollarSign className="w-5 h-5 mr-2" />
+              Финансовые условия
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-[#323130] mb-1">
+                  Арендная плата (₽/мес) <span className="text-red-500">*</span>
+                </label>
+                <TeamsInput
+                  name="monthlyRent"
+                  type="number"
+                  placeholder="0"
+                  value={formData.monthlyRent}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#323130] mb-1">
+                  Залог (₽)
+                </label>
+                <TeamsInput
+                  name="deposit"
+                  type="number"
+                  placeholder="0"
+                  value={formData.deposit}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="utilities"
+                  checked={formData.utilities}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                <span className="text-sm text-[#323130]">Включить коммунальные услуги в арендную плату</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Дополнительные условия */}
+          <div>
+            <h3 className="text-lg font-medium text-[#323130] mb-4 flex items-center">
+              <FileText className="w-5 h-5 mr-2" />
+              Дополнительные условия
+            </h3>
+            
+            <div>
+              <label className="block text-sm font-medium text-[#323130] mb-1">
+                Дополнительные пункты договора
+              </label>
+              <TeamsTextarea
+                name="additionalTerms"
+                placeholder="Введите дополнительные условия договора..."
+                value={formData.additionalTerms}
+                onChange={handleChange}
+                rows={4}
+              />
+            </div>
+          </div>
+
+          {/* Кнопки */}
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <TeamsButton
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+            >
+              Отмена
+            </TeamsButton>
+            <TeamsButton 
+              type="submit" 
+              disabled={loading || !selectedDeal}
+            >
+              {loading ? 'Создание...' : 'Создать договор'}
+            </TeamsButton>
+          </div>
+        </form>
+      </TeamsModal>
+
+      {/* Модальное окно создания новой сделки */}
+      <CreateDealForm
+        isOpen={showCreateDealForm}
+        onClose={() => setShowCreateDealForm(false)}
+        onSuccess={handleCreateDealSuccess}
+      />
+    </>
   )
 } 

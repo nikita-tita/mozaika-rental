@@ -11,7 +11,7 @@ import {
   TeamsAlert
 } from '@/components/ui/teams'
 import { DatePicker } from '@/components/ui/DatePicker'
-import { Plus, Building, Users, Calendar, DollarSign, Clock } from 'lucide-react'
+import { Plus, Building, Users, Calendar, DollarSign, Clock, Lock } from 'lucide-react'
 
 interface Property {
   id: string
@@ -32,7 +32,7 @@ interface Client {
 interface CreateDealFormProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (dealId?: string) => void
 }
 
 export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDealFormProps) {
@@ -41,6 +41,7 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [successMessage, setSuccessMessage] = useState('')
+  const [isCustomDuration, setIsCustomDuration] = useState(false)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -96,20 +97,26 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
     setSuccessMessage('')
 
     try {
+      const requestData = {
+        ...formData,
+        monthlyRent: parseFloat(formData.monthlyRent) || 0,
+        deposit: formData.deposit ? parseFloat(formData.deposit) : undefined,
+        commission: formData.commission ? parseFloat(formData.commission) : undefined
+      }
+      
+      console.log('Sending deal data:', requestData)
+      
       const response = await fetch('/api/deals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...formData,
-          monthlyRent: parseFloat(formData.monthlyRent) || 0,
-          deposit: formData.deposit ? parseFloat(formData.deposit) : undefined,
-          commission: formData.commission ? parseFloat(formData.commission) : undefined
-        })
+        body: JSON.stringify(requestData)
       })
 
       const data = await response.json()
+      
+      console.log('Response from server:', data)
 
       if (data.success) {
         setSuccessMessage(data.message || 'Сделка успешно создана')
@@ -126,12 +133,13 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
           commission: '',
           duration: '11'
         })
+        setIsCustomDuration(false)
         
         // Скрываем сообщение об успехе через 2 секунды и закрываем форму
         setTimeout(() => {
           setSuccessMessage('')
           onClose()
-          onSuccess()
+          onSuccess(data.data?.id) // Передаем ID созданной сделки
         }, 2000)
       } else {
         setErrors([data.error || 'Ошибка при создании сделки'])
@@ -154,7 +162,16 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
   }
 
   const handleDurationChange = (duration: string) => {
+    const isCustom = duration === 'custom'
+    setIsCustomDuration(isCustom)
+    
     setFormData(prev => ({ ...prev, duration }))
+    
+    // Если выбран произвольный срок, очищаем дату окончания
+    if (isCustom) {
+      setFormData(prev => ({ ...prev, duration, endDate: '' }))
+      return
+    }
     
     // Автоматически рассчитываем дату окончания на основе даты начала
     if (formData.startDate && duration) {
@@ -173,8 +190,8 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
   const handleStartDateChange = (value: string) => {
     setFormData(prev => ({ ...prev, startDate: value }))
     
-    // Автоматически рассчитываем дату окончания если выбрана длительность
-    if (value && formData.duration) {
+    // Автоматически рассчитываем дату окончания если выбрана длительность и не произвольный срок
+    if (value && formData.duration && !isCustomDuration) {
       const startDate = new Date(value)
       const endDate = new Date(startDate)
       endDate.setMonth(endDate.getMonth() + parseInt(formData.duration))
@@ -458,16 +475,28 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#323130] mb-1">
+                <label className="block text-sm font-medium text-[#323130] mb-1 flex items-center">
                   Дата окончания
+                  {!isCustomDuration && formData.startDate && (
+                    <span title="Рассчитывается автоматически">
+                      <Lock className="w-4 h-4 ml-2 text-gray-400" />
+                    </span>
+                  )}
                 </label>
                 <DatePicker
                   value={formData.endDate}
                   onChange={(value) => handleDateChange('endDate', value)}
+                  disabled={!isCustomDuration}
                 />
-                {formData.duration !== 'custom' && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Рассчитывается автоматически
+                {!isCustomDuration && (
+                  <p className="text-xs text-gray-500 mt-1 flex items-center">
+                    <Lock className="w-3 h-3 mr-1" />
+                    Рассчитывается автоматически на основе срока аренды
+                  </p>
+                )}
+                {isCustomDuration && (
+                  <p className="text-xs text-blue-600 mt-1">
+                    Укажите произвольную дату окончания
                   </p>
                 )}
               </div>
@@ -480,6 +509,12 @@ export default function CreateDealForm({ isOpen, onClose, onSuccess }: CreateDea
                   <Clock className="w-4 h-4 mr-2" />
                   <span>
                     Срок аренды: {formData.startDate} - {formData.endDate}
+                    {!isCustomDuration && formData.duration && (
+                      <span className="ml-2 text-blue-600">
+                        ({formData.duration} {parseInt(formData.duration) === 1 ? 'месяц' : 
+                          parseInt(formData.duration) < 5 ? 'месяца' : 'месяцев'})
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { TeamsCard, TeamsButton, TeamsBadge, TeamsInput, TeamsSelect, TeamsModal } from '@/components/ui/teams'
-import { CreditCard, TrendingUp, Calendar, Calculator, DollarSign, AlertCircle, FileText, Send, Plus, RefreshCw } from 'lucide-react'
-import PaymentCalculator, { PaymentCalculationData } from '@/components/payments/PaymentCalculator'
+import { CreditCard, TrendingUp, Calendar, Calculator, DollarSign, AlertCircle, FileText, Send, Plus, RefreshCw, Bell } from 'lucide-react'
+import PaymentControl from '@/components/payments/PaymentControl'
 import InvoiceCreator from '@/components/payments/InvoiceCreator'
 import GeneratePaymentsForm from '@/components/payments/GeneratePaymentsForm'
 import ReminderStatus from '@/components/payments/ReminderStatus'
@@ -14,7 +14,7 @@ export default function PaymentsPage() {
   const [selectedPayment, setSelectedPayment] = useState<any>(null)
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   const [showGeneratePaymentsModal, setShowGeneratePaymentsModal] = useState(false)
-  const [calculationData, setCalculationData] = useState<PaymentCalculationData | null>(null)
+  const [selectedPaymentForControl, setSelectedPaymentForControl] = useState<any>(null)
   const [filters, setFilters] = useState({
     status: '',
     type: '',
@@ -126,41 +126,12 @@ export default function PaymentsPage() {
     loadPayments() // Обновляем список после генерации платежей
   }
 
-  const handleCalculationChange = (data: PaymentCalculationData) => {
-    setCalculationData(data)
+  const handlePaymentControl = (payment: any) => {
+    setSelectedPaymentForControl(payment)
   }
 
-  const handleCalculationSave = async (data: PaymentCalculationData) => {
-    try {
-      const response = await fetch('/api/payments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type: 'RENT',
-          amount: data.totalAmount,
-          dueDate: new Date().toISOString(),
-          rentAmount: data.rentAmount,
-          utilitiesAmount: data.utilitiesAmount,
-          depositAmount: data.depositAmount,
-          penaltyAmount: data.penaltyAmount,
-          description: 'Платеж, созданный через калькулятор'
-        })
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        alert('Платеж успешно создан')
-        loadPayments()
-      } else {
-        alert('Ошибка при создании платежа: ' + result.error)
-      }
-    } catch (error) {
-      console.error('Error creating payment:', error)
-      alert('Ошибка при создании платежа')
-    }
+  const handleReminderSent = (reminder: any) => {
+    alert('Напоминание успешно создано')
   }
 
   return (
@@ -205,14 +176,20 @@ export default function PaymentsPage() {
           </TeamsCard>
         </div>
 
-        {/* Калькулятор */}
-        <div className="mb-8">
-          <PaymentCalculator
-            onCalculate={handleCalculationChange}
-            onSave={handleCalculationSave}
-            editable={true}
-          />
-        </div>
+        {/* Контроль оплат */}
+        {selectedPaymentForControl && (
+          <div className="mb-8">
+            <PaymentControl
+              paymentId={selectedPaymentForControl.id}
+              amount={selectedPaymentForControl.amount}
+              dueDate={new Date(selectedPaymentForControl.dueDate)}
+              tenantEmail={selectedPaymentForControl.deal?.tenant?.email}
+              tenantPhone={selectedPaymentForControl.deal?.tenant?.phone}
+              propertyTitle={selectedPaymentForControl.property?.title}
+              onReminderSent={handleReminderSent}
+            />
+          </div>
+        )}
 
         {/* Фильтры */}
         <TeamsCard className="p-6 mb-8">
@@ -323,6 +300,14 @@ export default function PaymentsPage() {
                      <FileText className="w-4 h-4 mr-2" />
                      Создать счет
                    </TeamsButton>
+                   <TeamsButton
+                     onClick={() => handlePaymentControl(payment)}
+                     variant="outline"
+                     size="sm"
+                   >
+                     <Bell className="w-4 h-4 mr-2" />
+                     Контроль оплаты
+                   </TeamsButton>
                  </div>
                  
                  {/* Статус уведомлений */}
@@ -340,26 +325,26 @@ export default function PaymentsPage() {
         {/* Информационные карточки */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <TeamsCard className="p-6 text-center">
-            <Calculator className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Автоматические расчеты</h3>
+            <Bell className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Автоматические напоминания</h3>
             <p className="text-gray-600">
-              Система автоматически рассчитывает арендную плату и коммунальные услуги
+              Настройте автоматическую отправку напоминаний с персональными сообщениями
             </p>
           </TeamsCard>
           
           <TeamsCard className="p-6 text-center">
-            <AlertCircle className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Напоминания</h3>
+            <CreditCard className="w-12 h-12 text-green-600 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Оплата по ссылке</h3>
             <p className="text-gray-600">
-              Автоматические уведомления о предстоящих платежах и просрочках
+              Создавайте ссылки и QR-коды для быстрой оплаты арендаторами
             </p>
           </TeamsCard>
           
           <TeamsCard className="p-6 text-center">
-            <TrendingUp className="w-12 h-12 text-green-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Аналитика</h3>
+            <TrendingUp className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Контроль платежей</h3>
             <p className="text-gray-600">
-              Детальная аналитика доходов и расходов по каждому объекту
+              Отслеживайте статус платежей и управляйте процессом оплаты
             </p>
           </TeamsCard>
         </div>
