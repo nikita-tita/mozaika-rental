@@ -14,10 +14,15 @@ import {
   Clock,
   DollarSign,
   Phone,
-  Calculator
+  Calculator,
+  Plus,
+  List
 } from 'lucide-react'
-import { TeamsCard, TeamsButton, TeamsBadge } from '@/components/ui/teams'
+import { TeamsCard, TeamsButton, TeamsBadge, TeamsTabs } from '@/components/ui/teams'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import InsurancePolicyForm from '@/components/insurance/InsurancePolicyForm'
+import InsurancePoliciesList from '@/components/insurance/InsurancePoliciesList'
+import ExpiringPoliciesAlert from '@/components/insurance/ExpiringPoliciesAlert'
 
 const insuranceTypes = [
   {
@@ -126,13 +131,36 @@ const getColorClasses = (color: string) => {
 
 export default function InsurancePage() {
   const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('overview')
+  const [showForm, setShowForm] = useState(false)
+  const [editingPolicy, setEditingPolicy] = useState<any>(null)
+
+  const handlePolicySuccess = (policy: any) => {
+    setShowForm(false)
+    setEditingPolicy(null)
+    // Можно добавить уведомление об успехе
+  }
+
+  const handleEditPolicy = (policy: any) => {
+    setEditingPolicy(policy)
+    setShowForm(true)
+    setActiveTab('form')
+  }
+
+  const handleDeletePolicy = (policyId: string) => {
+    // Можно добавить уведомление об удалении
+  }
+
+  const handlePayPolicy = (policy: any) => {
+    // Можно добавить уведомление об оплате
+  }
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
                 <Shield className="w-8 h-8 text-red-600" />
@@ -146,30 +174,55 @@ export default function InsurancePage() {
             </p>
           </div>
 
-          {/* Benefits */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
-              Почему стоит застраховаться?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {benefits.map((benefit, index) => {
-                const Icon = benefit.icon
-                return (
-                  <TeamsCard key={index} className="text-center p-6">
-                    <div className="flex justify-center mb-4">
-                      <Icon className="w-8 h-8 text-primary-600" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {benefit.title}
-                    </h3>
-                    <p className="text-gray-600">
-                      {benefit.description}
-                    </p>
-                  </TeamsCard>
-                )
-              })}
-            </div>
+          {/* Уведомления об истечении полисов */}
+          <ExpiringPoliciesAlert />
+
+          {/* Tabs */}
+          <div className="mb-8">
+            <TeamsTabs value={activeTab} onValueChange={setActiveTab}>
+              <TeamsTabs.List>
+                <TeamsTabs.Trigger value="overview" className="flex items-center">
+                  <List className="w-4 h-4 mr-2" />
+                  Обзор
+                </TeamsTabs.Trigger>
+                <TeamsTabs.Trigger value="policies" className="flex items-center">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Мои полисы
+                </TeamsTabs.Trigger>
+                <TeamsTabs.Trigger value="form" className="flex items-center">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Новый полис
+                </TeamsTabs.Trigger>
+              </TeamsTabs.List>
+            </TeamsTabs>
           </div>
+
+          {/* Tab Content */}
+          <TeamsTabs.Content value="overview">
+            {/* Benefits */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
+                Почему стоит застраховаться?
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {benefits.map((benefit, index) => {
+                  const Icon = benefit.icon
+                  return (
+                    <TeamsCard key={index} className="text-center p-6">
+                      <div className="flex justify-center mb-4">
+                        <Icon className="w-8 h-8 text-primary-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {benefit.title}
+                      </h3>
+                      <p className="text-gray-600">
+                        {benefit.description}
+                      </p>
+                    </TeamsCard>
+                  )
+                })}
+              </div>
+            </div>
 
           {/* Insurance Types */}
           <div className="mb-12">
@@ -331,6 +384,25 @@ export default function InsurancePage() {
               </TeamsCard>
             </div>
           </div>
+          </TeamsTabs.Content>
+
+          {/* Мои полисы */}
+          <TeamsTabs.Content value="policies">
+            <InsurancePoliciesList
+              onEdit={handleEditPolicy}
+              onDelete={handleDeletePolicy}
+              onPay={handlePayPolicy}
+            />
+          </TeamsTabs.Content>
+
+          {/* Форма создания полиса */}
+          <TeamsTabs.Content value="form">
+            <InsurancePolicyForm
+              onSuccess={handlePolicySuccess}
+              onCancel={() => setActiveTab('policies')}
+              initialData={editingPolicy}
+            />
+          </TeamsTabs.Content>
         </div>
       </div>
     </ProtectedRoute>

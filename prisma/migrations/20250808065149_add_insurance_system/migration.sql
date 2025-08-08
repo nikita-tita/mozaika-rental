@@ -31,16 +31,12 @@ CREATE TYPE "public"."SignerRole" AS ENUM ('landlord', 'tenant', 'realtor', 'wit
 -- CreateEnum
 CREATE TYPE "public"."SignatureMethod" AS ENUM ('sms', 'email', 'gosuslugi', 'biometric');
 
--- AlterEnum
-ALTER TYPE "public"."DealStatus" ADD VALUE 'DRAFT';
-
 -- AlterTable
 ALTER TABLE "public"."deals" ADD COLUMN     "commission" DOUBLE PRECISION,
 ADD COLUMN     "deposit" DOUBLE PRECISION,
 ADD COLUMN     "landlordId" TEXT,
 ADD COLUMN     "monthlyRent" DOUBLE PRECISION,
-ADD COLUMN     "tenantId" TEXT,
-ALTER COLUMN "status" SET DEFAULT 'DRAFT';
+ADD COLUMN     "tenantId" TEXT;
 
 -- AlterTable
 ALTER TABLE "public"."notifications" ADD COLUMN     "policyId" TEXT;

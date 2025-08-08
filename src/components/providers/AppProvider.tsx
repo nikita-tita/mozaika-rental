@@ -116,11 +116,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <I18nProvider locale="ru">
-      <AppContext.Provider value={value}>
-        {children}
-      </AppContext.Provider>
-    </I18nProvider>
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
   )
 }
 

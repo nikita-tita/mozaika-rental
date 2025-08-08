@@ -15,10 +15,7 @@ import {
 } from 'lucide-react'
 import { TeamsButton } from '@/components/ui/teams'
 import { PublicLayout } from '@/components/layout/PublicLayout'
-import { useCommonTranslations } from '@/lib/i18n/hooks'
-
 export default function HomePage() {
-  const t = useCommonTranslations()
 
   const features = [
     {

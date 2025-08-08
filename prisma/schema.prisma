@@ -127,7 +127,7 @@ model Deal {
   id          String     @id @default(cuid())
   title       String
   description String?
-  status      DealStatus @default(DRAFT)
+  status      DealStatus @default(NEW)
   amount      Float?
   startDate   DateTime?
   endDate     DateTime?
@@ -262,7 +262,6 @@ enum ClientType {
 }
 
 enum DealStatus {
-  DRAFT
   NEW
   IN_PROGRESS
   COMPLETED
