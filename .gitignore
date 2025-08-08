@@ -119,3 +119,6 @@ Thumbs.db
 .vercel
 .env*.local
 scripts/test-relations.ts
+
+# Local Netlify folder
+.netlify
