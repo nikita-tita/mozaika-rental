@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { TeamsButton } from '@/components/ui/teams/TeamsButton'
 import { TeamsInput } from '@/components/ui/teams/TeamsInput'
 import { TeamsCard } from '@/components/ui/teams/TeamsCard'
+import { M2Icon } from '@/components/ui/M2Logo'
 
 interface RegisterFormData {
   email: string
@@ -100,42 +101,35 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-responsive-lg sm:py-responsive-xl px-responsive-sm sm:px-responsive-md lg:px-responsive-lg">
+      <div className="max-w-md w-full space-y-responsive-lg sm:space-y-responsive-xl">
         <div>
-          <div className="flex justify-center">
-            <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                />
-              </svg>
-            </div>
+          <div className="flex justify-center mb-responsive-md sm:mb-responsive-lg">
+            <M2Icon size="lg" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="text-center text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-responsive-sm sm:mb-responsive-md">
             Создать аккаунт
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="text-center text-sm sm:text-base text-gray-600">
             Или{' '}
             <a
               href="/login"
-              className="font-medium text-primary-600 hover:text-primary-500"
+              className="font-semibold text-primary-600 hover:text-primary-500 transition-colors"
             >
               войти в существующий
+            </a>
+            {' '}или{' '}
+            <a
+              href="/"
+              className="font-semibold text-primary-600 hover:text-primary-500 transition-colors"
+            >
+              вернуться на главную
             </a>
           </p>
         </div>
 
-        <TeamsCard>
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        <TeamsCard className="p-responsive-lg sm:p-responsive-xl shadow-xl">
+          <form className="space-y-responsive-md sm:space-y-responsive-lg" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                 {error}

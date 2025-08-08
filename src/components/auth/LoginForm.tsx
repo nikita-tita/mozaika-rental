@@ -81,7 +81,7 @@ export function LoginForm() {
       <div className="max-w-md w-full space-y-responsive-lg sm:space-y-responsive-xl">
         <div>
           <div className="flex justify-center mb-responsive-md sm:mb-responsive-lg">
-            <M2Logo size="lg" />
+            <M2Icon size="lg" />
           </div>
           <h2 className="text-center text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-responsive-sm sm:mb-responsive-md">
             Войти в аккаунт
@@ -93,6 +93,13 @@ export function LoginForm() {
               className="font-semibold text-primary-600 hover:text-primary-500 transition-colors"
             >
               зарегистрироваться
+            </a>
+            {' '}или{' '}
+            <a
+              href="/"
+              className="font-semibold text-primary-600 hover:text-primary-500 transition-colors"
+            >
+              вернуться на главную
             </a>
           </p>
         </div>
