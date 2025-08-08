@@ -160,7 +160,7 @@ export default function PaymentControl({
       case 'FAILED':
         return <TeamsBadge variant="error">Ошибка</TeamsBadge>
       default:
-        return <TeamsBadge variant="neutral">Неизвестно</TeamsBadge>
+        return <TeamsBadge variant="default">Неизвестно</TeamsBadge>
     }
   }
 

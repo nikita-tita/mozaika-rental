@@ -8,14 +8,15 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Отключаем статическую генерацию страниц
-  trailingSlash: false,
+  // Настройка для статической генерации
+  output: 'export',
+  trailingSlash: true,
   generateBuildId: async () => {
     return 'build-' + Date.now()
   },
   
-  // Отключаем статическую генерацию
-  distDir: '.next',
+  // Статическая генерация
+  distDir: 'out',
   
   // Экспериментальные функции
   experimental: {

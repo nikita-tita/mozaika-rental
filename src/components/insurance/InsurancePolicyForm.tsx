@@ -226,18 +226,13 @@ export default function InsurancePolicyForm({
             </label>
             <TeamsSelect
               value={formData.type}
-              onValueChange={(value) => handleInputChange('type', value)}
+              onChange={(value) => handleInputChange('type', value)}
               placeholder="Выберите тип страхования"
-            >
-              {insuranceTypes.map((type) => {
-                const Icon = type.icon
-                return (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                )
-              })}
-            </TeamsSelect>
+              options={insuranceTypes.map((type) => ({
+                value: type.value,
+                label: type.label
+              }))}
+            />
           </div>
 
           {/* Параметры объекта */}
@@ -248,15 +243,13 @@ export default function InsurancePolicyForm({
               </label>
               <TeamsSelect
                 value={formData.propertyType}
-                onValueChange={(value) => handleInputChange('propertyType', value)}
+                onChange={(value) => handleInputChange('propertyType', value)}
                 placeholder="Выберите тип"
-              >
-                {propertyTypes.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </TeamsSelect>
+                options={propertyTypes.map((type) => ({
+                  value: type.value,
+                  label: type.label
+                }))}
+              />
             </div>
 
             <div>
@@ -277,15 +270,13 @@ export default function InsurancePolicyForm({
               </label>
               <TeamsSelect
                 value={formData.location}
-                onValueChange={(value) => handleInputChange('location', value)}
+                onChange={(value) => handleInputChange('location', value)}
                 placeholder="Выберите район"
-              >
-                {locations.map((location) => (
-                  <option key={location.value} value={location.value}>
-                    {location.label}
-                  </option>
-                ))}
-              </TeamsSelect>
+                options={locations.map((location) => ({
+                  value: location.value,
+                  label: location.label
+                }))}
+              />
             </div>
           </div>
 
@@ -424,15 +415,13 @@ export default function InsurancePolicyForm({
             </label>
             <TeamsSelect
               value={formData.insuranceCompany}
-              onValueChange={(value) => handleInputChange('insuranceCompany', value)}
+              onChange={(value) => handleInputChange('insuranceCompany', value)}
               placeholder="Выберите страховую компанию"
-            >
-              {insuranceCompanies.map((company) => (
-                <option key={company.value} value={company.value}>
-                  {company.label}
-                </option>
-              ))}
-            </TeamsSelect>
+              options={insuranceCompanies.map((company) => ({
+                value: company.value,
+                label: company.label
+              }))}
+            />
           </div>
 
           {/* Кнопки */}

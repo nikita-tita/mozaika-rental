@@ -109,34 +109,54 @@ export default function LegalPage() {
             Новое юридическое дело
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <TeamsInput
-              label="Название дела"
-              placeholder="Краткое описание проблемы"
-            />
-            <TeamsSelect
-              label="Тип дела"
-              options={caseTypes}
-              placeholder="Выберите тип"
-            />
-            <TeamsSelect
-              label="Приоритет"
-              options={[
-                { value: 'LOW', label: 'Низкий' },
-                { value: 'MEDIUM', label: 'Средний' },
-                { value: 'HIGH', label: 'Высокий' }
-              ]}
-              placeholder="Выберите приоритет"
-            />
-            <TeamsInput
-              label="Связанный объект"
-              placeholder="Адрес объекта недвижимости"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Название дела
+              </label>
+              <TeamsInput
+                placeholder="Краткое описание проблемы"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Тип дела
+              </label>
+              <TeamsSelect
+                options={caseTypes}
+                placeholder="Выберите тип"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Приоритет
+              </label>
+              <TeamsSelect
+                options={[
+                  { value: 'LOW', label: 'Низкий' },
+                  { value: 'MEDIUM', label: 'Средний' },
+                  { value: 'HIGH', label: 'Высокий' }
+                ]}
+                placeholder="Выберите приоритет"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Связанный объект
+              </label>
+              <TeamsInput
+                placeholder="Адрес объекта недвижимости"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Описание проблемы
+            </label>
+            <TeamsTextarea
+              placeholder="Подробное описание ситуации..."
+              rows={3}
             />
           </div>
-          <TeamsTextarea
-            label="Описание проблемы"
-            placeholder="Подробное описание ситуации..."
-            rows={3}
-          />
           <div className="mt-4">
             <TeamsButton>
               <Shield className="w-4 h-4 mr-2" />
