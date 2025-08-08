@@ -8,8 +8,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Настройка для API маршрутов
-  // output: 'standalone',
+  // Настройка для API маршрутов - включаем для правильной работы
+  output: 'standalone',
   
   // Отключаем статическую генерацию страниц
   trailingSlash: false,
@@ -19,8 +19,6 @@ const nextConfig = {
   
   // Отключаем статическую генерацию
   distDir: '.next',
-  
-
   
   // Экспериментальные функции
   experimental: {
@@ -38,8 +36,6 @@ const nextConfig = {
     ],
   },
   
-
-
   // Конфигурация CORS и безопасности
   async headers() {
     return [
