@@ -56,5 +56,11 @@
       "source": "/api/(.*)",
       "destination": "/api/$1"
     }
+  ],
+  "protectionBypass": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
   ]
 }
